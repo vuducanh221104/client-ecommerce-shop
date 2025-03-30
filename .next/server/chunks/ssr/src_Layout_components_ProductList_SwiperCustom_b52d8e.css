@@ -1,0 +1,19 @@
+/* [project]/src/Layout/components/ProductList/SwiperCustom.css [app-client] (css) */
+.swiper-button-next, .swiper-button-prev {
+  transform: scale(.8);
+  transition: opacity .3s, visibility .3s, transform .3s;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.product-list-slider:hover .swiper-button-next, .product-list-slider:hover .swiper-button-prev {
+  transform: scale(1);
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.swiper-button-disabled {
+  opacity: .5 !important;
+}
+
+/*# sourceMappingURL=src_Layout_components_ProductList_SwiperCustom_b52d8e.css.map*/

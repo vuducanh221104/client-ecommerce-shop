@@ -3,19 +3,282 @@
 @tailwind utilities;
 
 :root {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x: ;
+  --tw-pan-y: ;
+  --tw-pinch-zoom: ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-gradient-from-position: ;
+  --tw-gradient-via-position: ;
+  --tw-gradient-to-position: ;
+  --tw-ordinal: ;
+  --tw-slashed-zero: ;
+  --tw-numeric-figure: ;
+  --tw-numeric-spacing: ;
+  --tw-numeric-fraction: ;
+  --tw-ring-inset: ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgba(59, 130, 246, 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+
+  --btn-background: rgb(0, 0, 0);
+  --default-text-font-size: 15px;
+  --base-text-font-size: 14px;
+  --heading-font-weight: 400;
+  --text-font-bolder-weight: 600;
+  --text-link-decoration: underline;
+  --text-color: #030303;
+  --text-color-rgb: 3, 3, 3;
+  --heading-color: #030303;
+  // --border-color: #dfcc8e;
+  --border-color: #917256e6;
+  --border-color-rgb: 223, 204, 142;
+  --form-border-color: #d9c37a;
+  --button-auth-color: #d9c37a;
+  --accent-color: #030303;
+  --accent-color-rgb: 3, 3, 3;
+  --link-color: #000000;
+  --link-color-hover: #000000;
   --background: #ffffff;
-  --foreground: #171717;
+  --secondary-background: #ffffff;
+  --secondary-background-rgb: 255, 255, 255;
+  --accent-background: rgba(3, 3, 3, 0.08);
+  --input-background: #ffffff;
+  --error-color: #c45a12;
+  --error-background: rgba(196, 90, 18, 0.07);
+  --success-color: #6a8057;
+  --success-background: rgba(106, 128, 87, 0.11);
+  --primary-button-background: #030303;
+  --primary-button-background-rgb: 3, 3, 3;
+  --primary-button-text-color: #ffffff;
+  --secondary-button-background: #030303;
+  --secondary-button-background-rgb: 3, 3, 3;
+  --secondary-button-text-color: #ffffff;
+  --header-background: #ffffff;
+  --header-text-color: #030303;
+  --header-light-text-color: #030303;
+  --header-border-color: rgba(3, 3, 3, 0.3);
+  --header-accent-color: #000000;
+  --footer-background-color: #f7f7f7;
+  --footer-heading-text-color: #030303;
+  --footer-body-text-color: #030303;
+  --footer-accent-color: #6a8057;
+  --footer-accent-color-rgb: 106, 128, 87;
+  --footer-border: none;
+  --flickity-arrow-color: #c8a83f;
+  --product-on-sale-accent: #8e1616;
+  --product-on-sale-accent-rgb: 142, 22, 22;
+  --product-on-sale-color: #ffffff;
+  // BREAKPOINT
+  --breakpoint-moblie: 640px;
+  --breakpoint-sm-tablet: 768px;
+  --breakpoint-tablet: 992px;
+  --breakpoint-pc: 1200px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color: var(--text-color);
+  font-size: 62.5%;
+  width: 100%;
+  overflow-x: hidden !important;
+  padding-bottom: 0 !important;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  display: block;
+  overflow-x: clip !important;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// TIPPY
+img {
+  max-width: 100%;
+  height: auto;
+  border-style: none;
+  vertical-align: top;
+}
+
+a {
+  color: inherit;
+  background-color: transparent;
+  text-decoration: none;
+}
+.link {
+  transition: color 0.2s ease-in-out;
+}
+
+// BOOTSTRAP -CONTAINER
+.container {
+  max-width: 1480px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+.container--medium {
+  max-width: 1150px !important;
+}
+.container--narrow {
+  max-width: 80% !important;
+}
+@media screen and (min-width: 641px) {
+  .container {
+    padding: 0 40px;
+  }
+}
+@media screen and (max-width: 640px) {
+  .container-flush {
+    padding: 0 !important;
+  }
+}
+
+.noGutters {
+  margin-right: -15px !important;
+  margin-left: -15px !important;
+}
+
+.noGutters > .col,
+.noGutters > [class*="col-"] {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+.guttersCustom > .col,
+.guttersCustom > [class*="col-"] {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  padding-right: 4px !important;
+  padding-left: 4px !important;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+audio,
+canvas,
+embed,
+iframe,
+img,
+object,
+svg,
+video {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.tw-h-full {
+  height: 100%;
+}
+
+.tw-mr-\[10px\] {
+  margin-right: 10px;
+}
+
+.one-whole {
+  width: 100%;
+}
+
+.tw-cursor-pointer {
+  cursor: pointer;
+}
+
+.tw-absolute {
+  position: absolute;
+}
+
+.tw-h-\[50px\] {
+  height: 50px;
+}
+
+.tw-items-center {
+  align-items: center;
+}
+
+.tw-h-full {
+  height: 100%;
+}
+
+.tw-flex {
+  display: flex;
+}
+
+img,
+video {
+  height: auto;
+  max-width: 100%;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+.grid {
+  display: flex;
+  -moz-flex-direction: row;
+  flex-direction: row;
+  flex-wrap: wrap;
+  float: none;
+  margin-left: -9px;
+  margin-right: -9px;
+  padding: 0;
+  position: relative;
+}
+
+.grid__column {
+  box-sizing: border-box;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  min-height: 1px;
+  padding: 9px;
+  position: relative;
+  vertical-align: top;
+  width: 100%;
+}
+
+.btn {
+  align-items: center;
+  background-color: #000;
+  border: 2px solid #000;
+  border-radius: 16px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 40px;
+  justify-content: center;
+  padding: 0 30px;
+  transition: all 0.2s;
+}
+
+// Main Content
+.main-content {
+  padding-top: 68px; // Điều chỉnh khoảng cách với header
+  min-height: 500px;
+}
+
+@media screen and (max-width: 768px) {
+  .main-content {
+    padding-top: 58px;
+  }
 }

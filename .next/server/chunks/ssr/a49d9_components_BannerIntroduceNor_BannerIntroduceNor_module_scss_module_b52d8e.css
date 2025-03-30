@@ -1,0 +1,42 @@
+/* [project]/src/Layout/components/BannerIntroduceNor/BannerIntroduceNor.module.scss.module.css [app-client] (css) */
+.BannerIntroduceNor-module-scss-module__LqbQyq__banner-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  margin: 40px 0;
+}
+
+@media (width <= 768px) {
+  .BannerIntroduceNor-module-scss-module__LqbQyq__banner-container {
+    margin: 20px 0;
+  }
+}
+
+.BannerIntroduceNor-module-scss-module__LqbQyq__banner-link {
+  display: block;
+  text-decoration: none;
+  width: 100%;
+}
+
+.BannerIntroduceNor-module-scss-module__LqbQyq__banner-image {
+  width: 100%;
+  height: auto;
+  -o-object-fit: cover;
+  object-fit: cover;
+  border-radius: 0;
+  transition: transform .3s;
+}
+
+.BannerIntroduceNor-module-scss-module__LqbQyq__banner-image:hover {
+  transform: scale(1.02);
+}
+
+@media (width <= 768px) {
+  .BannerIntroduceNor-module-scss-module__LqbQyq__banner-image {
+    -o-object-position: center;
+    object-position: center;
+    height: auto;
+  }
+}
+
+/*# sourceMappingURL=a49d9_components_BannerIntroduceNor_BannerIntroduceNor_module_scss_module_b52d8e.css.map*/
