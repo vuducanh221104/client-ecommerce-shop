@@ -1,14 +1,13 @@
 .fabric-preview {
   padding: 60px 0;
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
 }
 
 .section-title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 40px;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
   color: #111;
 }
 
@@ -30,12 +29,10 @@
 .fabric-card {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  border-radius: 8px;
   overflow: hidden;
+  padding: 10px 12px;
   height: 100%;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #eee;
 
   &:hover {
     transform: translateY(-5px);
@@ -51,6 +48,7 @@
   img {
     width: 100%;
     height: 100%;
+    border-radius: 16px;
     object-fit: cover;
     transition: transform 0.5s ease;
 
@@ -68,15 +66,15 @@
 }
 
 .fabric-name {
-  font-size: 1.8rem;
-  font-weight: 600;
+  font-size: 2.8rem;
+  font-weight: 800;
   margin: 0 0 5px;
   color: #333;
 }
 
 .fabric-subtitle {
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: #3a62d0;
   margin-bottom: 15px;
   text-transform: uppercase;
@@ -85,20 +83,21 @@
 .fabric-details {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-bottom: 20px;
   flex: 1;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .detail-item {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  margin-bottom: 15px;
 }
 
 .detail-label {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 800;
   color: #333;
 }
 
@@ -109,8 +108,9 @@
 }
 
 .detail-composition {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   line-height: 1.5;
+  font-weight: 700;
   color: #555;
   margin-bottom: 10px;
   border-bottom: 1px solid #eee;
@@ -120,12 +120,12 @@
 .fabric-button {
   display: block;
   text-align: center;
-  padding: 10px;
+  padding: 14px;
   background-color: transparent;
   border: 1px solid #333;
-  border-radius: 4px;
+  border-radius: 20px;
   color: #333;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;

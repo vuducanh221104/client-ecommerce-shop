@@ -1,15 +1,56 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import classNames from "classnames/bind";
 import styles from "./Header.module.scss";
 import Link from "next/link";
 import Image from "next/image";
 import SearchModal from "@/components/SearchModal";
+import Login from "@/Layout/components/Login/Login";
+import IsLoginMenu from "@/Layout/components/IsLoginMenu";
+import { getCurrentUser } from "@/services/AuthServices";
+import MegaMenu from "@/components/MegaMenu";
 
 const cx = classNames.bind(styles);
 
 function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
+  const [userAvatar, setUserAvatar] = useState(
+    "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png"
+  );
+  const loginModalRef = useRef(null);
+  const loginMenuRef = useRef<HTMLDivElement>(null);
+
+  // Check login status from the current user when component mounts
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setIsLoggedIn(true);
+      // If user has an avatar, use it
+      if (user.avatar) {
+        setUserAvatar(user.avatar);
+      }
+    }
+  }, []);
+
+  // Handle outside click to close login menu
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        loginMenuRef.current &&
+        !loginMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsLoginMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleOpenSearchModal = () => {
     setIsSearchModalOpen(true);
@@ -17,6 +58,36 @@ function Header() {
 
   const handleCloseSearchModal = () => {
     setIsSearchModalOpen(false);
+  };
+
+  const handleOpenLoginModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isLoggedIn) {
+      setIsLoginModalOpen(true);
+    } else {
+      setIsLoginMenuOpen(!isLoginMenuOpen);
+    }
+  };
+
+  const handleCloseLoginModal = (loginSuccess = false) => {
+    setIsLoginModalOpen(false);
+    if (loginSuccess) {
+      // Check for user info in localStorage after successful login
+      const user = getCurrentUser();
+      if (user) {
+        setIsLoggedIn(true);
+        // Update avatar if available
+        if (user.avatar) {
+          setUserAvatar(user.avatar);
+        }
+      }
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setIsLoginMenuOpen(false);
+    // Logout is handled by the IsLoginMenu component
   };
 
   return (
@@ -69,7 +140,7 @@ function Header() {
                 )}
               >
                 <Link
-                  href="/"
+                  href="/category/all"
                   className={cx(
                     "",
                     'tw-relative tw-font-medium tw-text-center"'
@@ -82,6 +153,9 @@ function Header() {
                     </span>
                   </span>
                 </Link>
+                {/* <div className={cx("mega-menu__wrapper")}>
+                  <MegaMenu type="birthday" />
+                </div> */}
               </li>
               <li
                 className={cx(
@@ -90,11 +164,14 @@ function Header() {
                   "tw-h-full hover:tw-border-cm-neutral-900 hover:tw-border-b-[3px]"
                 )}
               >
-                <Link href="/" className={cx("") + " tw-relative"}>
+                <Link href="/category/nam" className={cx("") + " tw-relative"}>
                   <div>
                     <span className="tw-relative">Nam</span>
                   </div>
                 </Link>
+                <div className={cx("mega-menu__wrapper")}>
+                  <MegaMenu type="men" />
+                </div>
               </li>
               <li
                 className={cx(
@@ -103,11 +180,14 @@ function Header() {
                   "tw-h-full hover:tw-border-cm-neutral-900 hover:tw-border-b-[3px]"
                 )}
               >
-                <Link href="/" className={cx("", "tw-relative")}>
+                <Link href="/category/nu" className={cx("", "tw-relative")}>
                   <div>
                     <span className="tw-relative">Nữ</span>
                   </div>
                 </Link>
+                <div className={cx("mega-menu__wrapper")}>
+                  <MegaMenu type="women" />
+                </div>
               </li>
               <li
                 className={cx(
@@ -116,11 +196,17 @@ function Header() {
                   "tw-h-full hover:tw-border-cm-neutral-900 hover:tw-border-b-[3px]"
                 )}
               >
-                <Link href="/" className={cx("", " tw-relative")}>
+                <Link
+                  href="/category/the-thao"
+                  className={cx("", " tw-relative")}
+                >
                   <div>
                     <span className="tw-relative">Thể Thao</span>
                   </div>
                 </Link>
+                <div className={cx("mega-menu__wrapper")}>
+                  <MegaMenu type="sports" />
+                </div>
               </li>
             </ul>
           </div>
@@ -137,8 +223,9 @@ function Header() {
                 <input
                   type="text"
                   id="search-input"
-                  placeholder="Tìm kiếm sản phẩm"
+                  placeholder="Tìm kiếm sản phẩm..."
                   className={cx("header-actions-search__control", "one-whole")}
+                  onClick={handleOpenSearchModal}
                 />
                 <div
                   className={cx(
@@ -162,17 +249,39 @@ function Header() {
                 </div>
               </label>
             </div>
-            <div className={cx("header-actions__button")}>
-              <Link href="/cart" className="tw-absolute">
-                <Image
-                  src="https://www.coolmate.me/images/header/icon-account-new-v2.svg"
-                  alt="cart"
-                  width={24}
-                  height={24}
-                />
+            <div
+              className={cx("header-actions__button", "tw-cursor-pointer")}
+              ref={loginMenuRef}
+            >
+              <Link
+                href="#"
+                className="tw-absolute"
+                onClick={handleOpenLoginModal}
+              >
+                {!isLoggedIn ? (
+                  <Image
+                    src="https://www.coolmate.me/images/header/icon-account-new-v2.svg"
+                    alt="user account"
+                    width={24}
+                    height={24}
+                  />
+                ) : (
+                  <Image
+                    src={userAvatar}
+                    alt="logged in user"
+                    width={30}
+                    height={30}
+                    className={cx("logged-in-avatar")}
+                  />
+                )}
               </Link>
+              {isLoginMenuOpen && isLoggedIn && (
+                <div className={cx("login-menu-container")}>
+                  <IsLoginMenu onLogout={handleLogout} />
+                </div>
+              )}
             </div>
-            <div className={cx("header-actions__button")}>
+            <div className={cx("header-actions__button", "cart")}>
               <Link href="/cart" className="tw-absolute">
                 <Image
                   src="https://www.coolmate.me/images/header/icon-cart-new-v2.svg?v=1"
@@ -182,12 +291,71 @@ function Header() {
                 />
               </Link>
               <span className={cx("counts", "site-header__cartcount")}>2</span>
+              <div className={cx("header-actions__menu")}>
+                <div className={cx("header-actions__inner")}>
+                  <div className={cx("mini-cart")}>
+                    <div className={cx("mini-cart__wrapper")}>
+                      <div className={cx("mini-cart__header")}>
+                        <span className={cx("mini-cart__title")}>
+                          <span className={cx("mini-cart__title-one")}>
+                            Tạm tính:
+                          </span>
+                          <span className={cx("mini-cart__title-two")}>
+                            297.000đ
+                          </span>
+                          <span className={cx("mini-cart__title-three")}>
+                            ( 2 sản phẩm )
+                          </span>
+                        </span>
+                        <Link href={"/cart"} className={cx("")}>
+                          Xem tất cả
+                        </Link>
+                      </div>
+                    </div>
+                    <div className={cx("mini-cart__item")}>
+                      <div className={cx("mini-cart__item-thumbnail")}>
+                        <Image
+                          src="https://media3.coolmate.me/cdn-cgi/image/width=160,height=181,quality=80/uploads/March2025/quan-nam-travel-short-7-inch-Xam_1.jpg"
+                          alt="product"
+                          width={100}
+                          height={100}
+                        />
+                      </div>
+                      <div className={cx("mini-cart__item-content")}>
+                        <span className={cx("mini-cart__remove")}>x</span>
+                        <div className={cx("mini-cart__item-title")}>
+                          <Link href={"/"}>
+                            Quần nam travel short 7 inch xam
+                          </Link>
+                        </div>
+                        <div className="mini-cart__item-variant-info">
+                          Xám / M
+                        </div>
+                        <div>
+                          <span className={cx("mini-cart__item-price")}>
+                            297.000đ
+                          </span>{" "}
+                          <del className={cx("mini-cart__item-price-compare")}>
+                            349.000đ
+                          </del>
+                        </div>
+                        <div className={cx("mini-cart__item-quantity-wrapper")}>
+                          <span className={cx("mini-cart__item-quantity")}>
+                            x1
+                          </span>{" "}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <SearchModal
             isOpen={isSearchModalOpen}
             onClose={handleCloseSearchModal}
           />
+          {isLoginModalOpen && <Login onClose={handleCloseLoginModal} />}
         </div>
       </div>
     </header>

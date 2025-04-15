@@ -26,7 +26,7 @@ function BannerIntroduce({
 }: BannerIntroduceProps) {
   return (
     <div className={cx("banner-introduce-section")}>
-      <div className={cx("banner-introduce-container")}>
+      <div className={cx("banner-introduce-wrapper")}>
         <Link href={linkUrl} className={cx("banner-introduce-link")}>
           <div className={cx("banner-introduce-wrapper")}>
             <div className={cx("banner-introduce-content")}>

@@ -8,6 +8,54 @@ export interface Banner {
   imageUrl: string;
 }
 
+export interface ProductDetail {
+  id: string;
+  name: string;
+  description: {
+    header: {
+      material: string;
+      style: string;
+      responsible: string;
+      features: string;
+      image: string;
+    };
+    body: {
+      content: string;
+    };
+  };
+  price: {
+    price?: number;
+    originalPrice: number;
+    discountQuantity: number;
+    currency: string;
+  };
+  comment: any[];
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    parent: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  };
+  variants: Array<{
+    name: string;
+    colorThumbnail: string;
+    images: string[];
+    sizes: Array<{
+      size: string;
+      stock: number;
+      _id: string;
+    }>;
+  }>;
+  tagIsNew: boolean;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -269,4 +317,96 @@ export const getBenefits = (): Benefit[] => {
       icon: "headset",
     },
   ];
+};
+
+// Get product detail by slug
+export const getProductBySlug = (slug: string): { product: ProductDetail } => {
+  return {
+    product: {
+      id: "67f505f60b53fdb113cfefbe",
+      name: "Áo dài tay thể thao 1699",
+      description: {
+        header: {
+          material: "Cotton",
+          style: "Regular fit",
+          responsible: "ok",
+          features: "ok",
+          image: "ok",
+        },
+        body: {
+          content: "",
+        },
+      },
+      price: {
+        price: 329000,
+        originalPrice: 329000,
+        discountQuantity: 20,
+        currency: "VND",
+      },
+      comment: [],
+      category: {
+        id: "67f3a14853334c5256139191",
+        name: "Áo Thể Thao",
+        slug: "ao-the-thao",
+        parent: {
+          id: "67f14511c20a953c329be71e",
+          name: "Ao Nam",
+          slug: "ao-nam",
+        },
+      },
+      variants: [
+        {
+          name: "Trắng",
+          colorThumbnail:
+            "https://media3.coolmate.me/cdn-cgi/image/width=160,height=160,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-trang_(12).jpg",
+          images: [
+            "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-trang_(11).jpg",
+            "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-trang_(3).jpg",
+          ],
+          sizes: [
+            {
+              size: "M",
+              stock: 10,
+              _id: "67f505f60b53fdb113cfefc1",
+            },
+            {
+              size: "L",
+              stock: 10,
+              _id: "67f505f60b53fdb113cfefc2",
+            },
+          ],
+        },
+        {
+          name: "Be Trench Coat",
+          colorThumbnail:
+            "https://media3.coolmate.me/cdn-cgi/image/width=160,height=160,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-be-trench-coat_(10).jpg",
+          images: [
+            "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-be-trench-coat_(1).jpg",
+            "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=85/uploads/December2024/ao-dai-tay-the-thao-1699-be-trench-coat_(4).jpg",
+          ],
+          sizes: [
+            {
+              size: "M",
+              stock: 10,
+              _id: "67f505f60b53fdb113cfefc4",
+            },
+            {
+              size: "L",
+              stock: 10,
+              _id: "67f505f60b53fdb113cfefc5",
+            },
+            {
+              size: "XL",
+              stock: 10,
+              _id: "67f505f60b53fdb113cfefc6",
+            },
+          ],
+        },
+      ],
+      tagIsNew: true,
+      slug: "ao-dai-tay-the-thao-1699",
+      created_at: "2025-04-08T11:18:14.281Z",
+      updated_at: "2025-04-08T11:18:14.281Z",
+    },
+  };
 };

@@ -1,8 +1,14 @@
 "use client";
+import { useState, useEffect, useRef } from "react";
 import classNames from "classnames/bind";
 import styles from "./SearchModal.module.scss";
 import Image from "next/image";
 import Link from "next/link";
+import CardProduct from "../CardProduct/CardProduct";
+import { searchProducts, ProductOutstanding } from "@/services/productServices";
+import { Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
@@ -12,19 +18,198 @@ interface SearchModalProps {
 }
 
 function SearchModal({ isOpen, onClose }: SearchModalProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
+  const router = useRouter();
+
+  // Custom loading icon for Ant Design Spin
+  const antIcon = (
+    <LoadingOutlined style={{ fontSize: 36, color: "#2f5acf" }} spin />
+  );
+
+  // Fetch featured products when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchFeaturedProducts();
+    }
+  }, [isOpen]);
+
+  // Fetch featured products using the ProductOutstanding API
+  const fetchFeaturedProducts = async () => {
+    if (featuredProducts.length > 0) return; // Don't fetch if we already have data
+
+    setFeaturedLoading(true);
+    try {
+      const response = await ProductOutstanding("");
+      setFeaturedProducts(response.products || []);
+    } catch (error) {
+      console.error("Error fetching featured products:", error);
+    } finally {
+      setFeaturedLoading(false);
+    }
+  };
+
+  // Focus on input when modal opens
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounce search requests to avoid too many API calls
+    if (query.trim().length > 0) {
+      setLoading(true); // Show loading immediately when typing
+      searchTimeoutRef.current = setTimeout(() => {
+        performSearch(query);
+      }, 500);
+    } else {
+      setSearchResults([]);
+      setHasSearched(false);
+      setLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim().length > 0) {
+      // Navigate to search results page and close modal
+      navigateToSearchResults();
+    }
+  };
+
+  const navigateToSearchResults = () => {
+    if (searchQuery.trim().length > 0) {
+      onClose(); // Close the modal
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleViewAllClick = () => {
+    onClose(); // Close the modal when clicking "View All"
+  };
+
+  const performSearch = async (query: string) => {
+    if (query.trim() === "") {
+      setLoading(false);
+      return;
+    }
+
+    setHasSearched(true);
+
+    try {
+      const response = await searchProducts(query);
+      setSearchResults(response.products || []);
+    } catch (error) {
+      console.error("Error searching products:", error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderProductGrid = (products: any[], isSearchResults = false) => {
+    return (
+      <>
+        <div
+          className={cx(
+            "grid",
+            "spotlight-header-search__wrapper",
+            "grid--four-columns",
+            "large-grid--four-columns",
+            "tablet-grid--three-columns",
+            "mobile-grid--two-columns",
+            "is-active"
+          )}
+        >
+          {products.map((product) => (
+            <div className={cx("grid__column")} key={product.id}>
+              <CardProduct
+                id={parseInt(product.id)}
+                title={product.name}
+                price={product.price.original}
+                originalPrice={product.price.discount}
+                discount={product.price.discountQuantity}
+                rating={4.8}
+                reviewCount={product.comment?.length || 0}
+                link={`/product/${product.slug}`}
+                isNew={product.tagIsNew}
+                image={product.variants[0]?.images[0]}
+                hoverImage={product.variants[0]?.images[1]}
+                colors={product.variants.map((variant: any, index: any) => {
+                  return {
+                    id: index + 1,
+                    name: variant.name,
+                    color: variant.name,
+                    images: {
+                      main: variant.images[0],
+                      hover: variant.images[1],
+                    },
+                    colorThumbnail: variant.colorThumbnail,
+                  };
+                })}
+              />
+            </div>
+          ))}
+        </div>
+        <div className={cx("spotlight-header-search__viewmore", "is-active")}>
+          <Link
+            href={
+              isSearchResults
+                ? `/search?q=${encodeURIComponent(searchQuery)}`
+                : "/collections/all"
+            }
+            className={cx("btn", "btn-primary")}
+            onClick={handleViewAllClick}
+          >
+            Xem tất cả
+          </Link>
+        </div>
+      </>
+    );
+  };
+
   if (!isOpen) return null;
 
   return (
     <>
       <div className={cx("header-search", "mobile--hidden", "is-active")}>
-        <form action="">
+        <form onSubmit={handleSearchSubmit}>
           <div className={cx("header-search__wrapper")}>
             <label className={cx("header-search__field")}>
               <input
+                placeholder="Tìm Kiếm Sản Phẩm"
                 type="text"
                 className={cx("header-search__control", "one-whole")}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                ref={searchInputRef}
               />
               <button
+                type="button"
                 className={cx("homepage-search__submit")}
                 style={{
                   top: "13px",
@@ -33,6 +218,7 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   height: "unset",
                   zIndex: 10,
                 }}
+                onClick={navigateToSearchResults}
               >
                 <svg
                   width="21"
@@ -58,6 +244,7 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 zIndex: 10,
               }}
               onClick={onClose}
+              type="button"
             >
               <svg
                 width="18"
@@ -91,157 +278,75 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
             )}
           >
             <div className={cx("spotlight-search-content__wrapper")}>
-              {/* <div className={cx("spotlight-search-content__inner")}>
-                <div
-                  className={cx(
-                    "spotlight-search-content__recentview",
-                    "is-active"
-                  )}
-                >
-                  <p>Sản phẩm đã xem gần đây</p>
-                  <div></div>
-                </div>
-              </div> */}
               <div className={cx("spotlight-header-search", "is-active")}>
-                <div className={cx("spotlight-header-search__suggestions")}>
-                  <ul className={cx("search-suggestions")}>
-                    <li className={cx("search-suggestions__item")}>
-                      <strong>quần</strong> short
-                    </li>
-                  </ul>
-                </div>
-                <p
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                    marginTop: "0px",
-                    padding: "0px 95px",
-                  }}
-                >
-                  Sản Phẩm
-                </p>
-                <div
-                  className={cx(
-                    "grid",
-                    "spotlight-header-search__wrapper",
-                    "grid--four-columns",
-                    "large-grid--four-columns",
-                    "tablet-grid--three-columns",
-                    "mobile-grid--two-columns",
-                    "is-active"
-                  )}
-                >
-                  <div className={cx("grid__column")}>
-                    <div
-                      className={cx("product-grid", "product-header-search")}
-                    >
-                      <div className={cx("product-grid__thumbnail")}>
-                        <div className={cx("product-grid__image")}>
-                          <Link href="/">
-                            <Image
-                              className={cx("home-banner")}
-                              src="https://media3.coolmate.me/cdn-cgi/image/width=388,height=520,quality=85,format=auto/uploads/December2024/jogger-essential-fleece-1.jpg"
-                              alt="product"
-                              width={100}
-                              height={100}
-                            />
-                          </Link>
-                        </div>
-                        <div className={cx("product-grid__icon-thumbnail")}>
-                          <Image
-                            src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85,format=auto/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
-                            alt="wishlist"
-                            width={200}
-                            height={200}
-                          />
-                        </div>
-                        <span
-                          className={cx(
-                            "product-grid__tags",
-                            "product-grid__tags--sale"
-                          )}
-                        >
-                          Sale
-                        </span>
-                      </div>
-                      <div className={cx("product-grid__content")}>
-                        <p className={cx("product-grid__title")}>
-                          <Link href="/">Quần Jogger Essential Fleece</Link>
-                        </p>
-                        <p className={cx("product-grid__sub-title")}>
-                          Mềm mại và Ấm áp
-                        </p>
-                        <div className={cx("product-grid__prices")}>
-                          <div className={cx("product-prices")}>
-                            <span>-35%</span>
-                            <del>299.000đ</del>
-                            <ins>195.000đ</ins>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                {searchQuery.trim().length > 0 && (
+                  <div className={cx("spotlight-header-search__suggestions")}>
+                    <ul className={cx("search-suggestions")}>
+                      <li className={cx("search-suggestions__item")}>
+                        <strong>Tìm Kiếm: {searchQuery}</strong>
+                      </li>
+                    </ul>
                   </div>
-                  <div className={cx("grid__column")}>
-                    <div
-                      className={cx("product-grid", "product-header-search")}
-                    >
-                      <div className={cx("product-grid__thumbnail")}>
-                        <div className={cx("product-grid__image")}>
-                          <Link href="/">
-                            <Image
-                              className={cx("home-banner")}
-                              src="https://media3.coolmate.me/cdn-cgi/image/width=388,height=520,quality=85,format=auto/uploads/December2024/jogger-essential-fleece-1.jpg"
-                              alt="product"
-                              width={100}
-                              height={100}
-                            />
-                          </Link>
-                        </div>
-                        <div className={cx("product-grid__icon-thumbnail")}>
-                          <Image
-                            src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85,format=auto/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
-                            alt="wishlist"
-                            width={200}
-                            height={200}
-                          />
-                        </div>
-                        <span
-                          className={cx(
-                            "product-grid__tags",
-                            "product-grid__tags--sale"
-                          )}
-                        >
-                          Sale
-                        </span>
-                      </div>
-                      <div className={cx("product-grid__content")}>
-                        <p className={cx("product-grid__title")}>
-                          <Link href="/">Quần Jogger Essential Fleece</Link>
-                        </p>
-                        <p className={cx("product-grid__sub-title")}>
-                          Mềm mại và Ấm áp
-                        </p>
-                        <div className={cx("product-grid__prices")}>
-                          <div className={cx("product-prices")}>
-                            <span>-35%</span>
-                            <del>299.000đ</del>
-                            <ins>195.000đ</ins>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className={cx(
-                    "spotlight-header-search__viewmore",
-                    "is-active"
-                  )}
+                )}
+
+                <Spin
+                  indicator={antIcon}
+                  spinning={loading}
+                  className={cx("search-spinner")}
                 >
-                  <Link href="/" className={cx("btn", "btn-primary")}>
-                    Xem tất cả
-                  </Link>
-                </div>
+                  {hasSearched && (
+                    <p
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        marginTop: "10px",
+                        padding: "0px 95px",
+                      }}
+                    >
+                      {searchResults.length > 0
+                        ? `Tìm thấy ${searchResults.length} sản phẩm`
+                        : ""}
+                    </p>
+                  )}
+
+                  {/* Search results */}
+                  {hasSearched ? (
+                    searchResults.length > 0 ? (
+                      renderProductGrid(searchResults, true)
+                    ) : (
+                      <div className={cx("no-results-container")}>
+                        <p className={cx("no-results-text")}>
+                          Không tìm thấy sản phẩm phù hợp với từ khóa "
+                          {searchQuery}"
+                        </p>
+                        <p className={cx("no-results-suggestion")}>
+                          Vui lòng thử lại với từ khóa khác hoặc xem các sản
+                          phẩm nổi bật của chúng tôi
+                        </p>
+                        <Link
+                          href="/collections/all"
+                          className={cx("btn", "btn-primary", "no-results-btn")}
+                          onClick={handleViewAllClick}
+                        >
+                          Xem tất cả sản phẩm
+                        </Link>
+                      </div>
+                    )
+                  ) : (
+                    // Featured products section when not searching
+                    <div className={cx("featured-products-section")}>
+                      <p className={cx("section-title")}>Sản phẩm nổi bật</p>
+                      {featuredLoading ? (
+                        <div className={cx("featured-loading")}>
+                          <Spin indicator={antIcon} />
+                        </div>
+                      ) : (
+                        featuredProducts.length > 0 &&
+                        renderProductGrid(featuredProducts)
+                      )}
+                    </div>
+                  )}
+                </Spin>
               </div>
             </div>
           </div>

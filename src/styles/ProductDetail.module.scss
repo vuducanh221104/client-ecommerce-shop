@@ -2,7 +2,6 @@
 
 .product-detail-wrapper {
   padding: 20px 0 40px;
-  background-color: #f8f8f8;
 
   @media (max-width: 768px) {
     padding: 15px 0 30px;
@@ -34,13 +33,7 @@
 .product-detail-container {
   background-color: #fff;
   border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-
-  @media (max-width: 768px) {
-    padding: 15px;
-    border-radius: 8px;
-  }
+  // padding: 20px;
 }
 
 .product-detail-grid {
@@ -48,7 +41,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 30px;
 
-  @media (max-width: 992px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 20px;
   }
@@ -255,6 +248,17 @@
 .price-section {
   margin: 10px 0;
 }
+.original-price {
+  font-size: 1.5rem;
+  color: #999;
+  text-decoration: line-through;
+  line-height: 1.2;
+  font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 1.4rem;
+  }
+}
 
 .price-container {
   display: flex;
@@ -278,27 +282,26 @@
     }
   }
 
-  .original-price {
-    font-size: 1.5rem;
-    color: #999;
-    text-decoration: line-through;
-    line-height: 1.2;
-
-    @media (max-width: 768px) {
-      font-size: 1.4rem;
-    }
-  }
-
   .discount-tag {
     background-color: #2f3ad3;
     color: white;
     padding: 2px 8px;
     border-radius: 4px;
-    font-size: 1.4rem;
-    font-weight: 500;
+    font-size: 1.8rem;
+
+    font-weight: 900;
   }
 }
 
+.promotion-shipping {
+  display: flex;
+  align-items: center;
+  & img {
+    margin: 0px 7px;
+  }
+  font-size: 1.4rem;
+  font-weight: 500;
+}
 .promotions-section {
   background-color: #f9f9f9;
   padding: 10px 15px;
@@ -306,6 +309,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: -8px;
 
   .promotion-item {
     display: flex;
@@ -313,18 +317,10 @@
     gap: 8px;
     font-size: 1.4rem;
     color: #444;
-
+    font-weight: 500;
     .promotion-icon {
       font-size: 1.8rem;
       color: var(--border-color);
-    }
-
-    .promotion-badge {
-      background-color: #ffe8e8;
-      color: #e75252;
-      padding: 3px 10px;
-      border-radius: 4px;
-      font-size: 1.3rem;
     }
   }
 }
@@ -462,8 +458,8 @@
   color: #333;
 
   span {
-    font-weight: 400;
-    color: #666;
+    font-weight: 700;
+    color: #000;
   }
 }
 
@@ -489,9 +485,9 @@
   flex-wrap: wrap;
 
   .color-option {
-    width: 32px;
+    width: 51px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 16px;
     position: relative;
     border: 1px solid #ddd;
     cursor: pointer;
@@ -502,30 +498,7 @@
     }
 
     &.active {
-      border: 2px solid #333;
-
-      &:after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        background: #fff;
-      }
-    }
-
-    .color-check {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #fff;
+      border: 2px solid #305acf;
     }
   }
 }
@@ -536,25 +509,24 @@
   flex-wrap: wrap;
 
   .size-option {
-    min-width: 45px;
-    height: 45px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    min-width: 78px;
+    height: 40px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.4rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    background-color: white;
+    background-color: #d9d9d9;
+    font-weight: 500;
 
     &:hover {
-      border-color: #999;
+      border: 2px solid #000;
     }
 
     &.active {
-      border-color: #333;
-      background-color: #333;
+      background-color: #000;
       color: white;
     }
   }
@@ -591,7 +563,7 @@
   top: 0;
   display: flex;
   align-items: center;
-  height: 48px;
+  height: 44px;
   border-radius: 30px;
   overflow: hidden;
   --tw-bg-opacity: 1;
@@ -651,7 +623,7 @@
 .buy-now-btn {
   position: relative;
   flex: 1;
-  height: 48px;
+  height: 44px;
   background-color: #000;
   color: white;
   border: none;
@@ -665,9 +637,9 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 220px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 
+  letter-spacing: -0.5px;
+  font-weight: 600;
   svg {
     font-size: 1.8rem;
   }
@@ -726,41 +698,33 @@
   align-items: center;
   padding: 12px 14px;
   margin-top: 10px;
-  background-color: #f9f9f9;
   border-radius: 8px;
   cursor: pointer;
 
   img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     margin-right: 8px;
   }
 
   span {
     flex: 1;
     font-size: 1.4rem;
-    color: #333;
+    color: #2f5acf;
+    font-weight: 700;
   }
 
   svg {
+    margin-left: 5px;
     color: #444;
-  }
-
-  &:hover {
-    background-color: #f5f5f5;
-
-    svg {
-      transform: translateX(3px);
-      transition: transform 0.3s ease;
-    }
   }
 }
 
 .service-benefits {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
   margin-top: 10px;
+  font-weight: 600;
 
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
@@ -771,12 +735,11 @@
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    background-color: rgb(241, 241, 241, 1);
 
     img {
-      width: 24px;
-      height: 24px;
+      width: 35px;
+      height: 35px;
       flex-shrink: 0;
     }
 
@@ -789,10 +752,9 @@
 }
 
 .product-description-tab {
-  margin-top: 30px;
+  display: flex;
+  justify-content: center;
   border-top: 1px solid #eee;
-  padding-top: 15px;
-
   .tab-button {
     position: relative;
     font-size: 1.6rem;
@@ -801,6 +763,7 @@
     padding: 5px 0;
     background: none;
     cursor: pointer;
+    font-weight: 700;
 
     &.active {
       color: #000;
@@ -808,7 +771,7 @@
       &:after {
         content: "";
         position: absolute;
-        bottom: -3px;
+        bottom: 5px;
         left: 0;
         width: 100%;
         height: 2px;
@@ -818,10 +781,10 @@
   }
 }
 
-/* Responsive Mobile Styles */
+/* Responsive */
 @media (max-width: 576px) {
   .product-detail-container {
-    padding: 15px;
+    padding: 0px;
   }
 
   .vertical-gallery {

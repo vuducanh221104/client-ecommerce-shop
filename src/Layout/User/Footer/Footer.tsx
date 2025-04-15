@@ -33,7 +33,7 @@ function Footer() {
 
   return (
     <footer className={styles.footer}>
-      <div className={styles.container}>
+      <div className={"container"}>
         <div className={styles["footer-top"]}>
           <div className={styles["footer-intro"]}>
             <h3 className={styles["footer-title"]}>COOLMATE lắng nghe bạn!</h3>

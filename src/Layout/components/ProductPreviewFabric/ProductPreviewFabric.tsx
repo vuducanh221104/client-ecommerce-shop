@@ -53,41 +53,43 @@ function ProductPreviewFabric() {
   ];
 
   return (
-    <div className={cx("fabric-preview")}>
-      <h2 className={cx("section-title")}>CÔNG NGHỆ VẢI NỔI BẬT</h2>
+    <div className="container">
+      <div className={cx("fabric-preview")}>
+        <h2 className={cx("section-title")}>CÔNG NGHỆ VẢI NỔI BẬT</h2>
 
-      <div className={cx("fabric-grid")}>
-        {fabricTypes.map((fabric) => (
-          <div className={cx("fabric-card")} key={fabric.id}>
-            <div className={cx("fabric-image")}>
-              <img src={fabric.image} alt={fabric.name} />
-            </div>
-            <div className={cx("fabric-content")}>
-              <h3 className={cx("fabric-name")}>{fabric.name}</h3>
-              <div className={cx("fabric-subtitle")}>{fabric.subtitle}</div>
-
-              <div className={cx("fabric-details")}>
-                <div className={cx("detail-composition")}>
-                  {fabric.composition}
-                </div>
-
-                <div className={cx("detail-item")}>
-                  <div className={cx("detail-label")}>Dành cho:</div>
-                  <div className={cx("detail-text")}>{fabric.usage}</div>
-                </div>
-
-                <div className={cx("detail-item")}>
-                  <div className={cx("detail-label")}>Cảm giác khi mặc:</div>
-                  <div className={cx("detail-text")}>{fabric.benefits}</div>
-                </div>
+        <div className={cx("fabric-grid")}>
+          {fabricTypes.map((fabric) => (
+            <div className={cx("fabric-card")} key={fabric.id}>
+              <div className={cx("fabric-image")}>
+                <img src={fabric.image} alt={fabric.name} />
               </div>
+              <div className={cx("fabric-content")}>
+                <h3 className={cx("fabric-name")}>{fabric.name}</h3>
+                <div className={cx("fabric-subtitle")}>{fabric.subtitle}</div>
 
-              <a href={fabric.productUrl} className={cx("fabric-button")}>
-                SẢN PHẨM {fabric.name.toUpperCase()}
-              </a>
+                <div className={cx("fabric-details")}>
+                  <div className={cx("detail-composition")}>
+                    {fabric.composition}
+                  </div>
+
+                  <div className={cx("detail-item")}>
+                    <div className={cx("detail-label")}>Dành cho:</div>
+                    <div className={cx("detail-text")}>{fabric.usage}</div>
+                  </div>
+
+                  <div className={cx("detail-item")}>
+                    <div className={cx("detail-label")}>Cảm giác khi mặc:</div>
+                    <div className={cx("detail-text")}>{fabric.benefits}</div>
+                  </div>
+                </div>
+
+                <a href={fabric.productUrl} className={cx("fabric-button")}>
+                  SẢN PHẨM {fabric.name.toUpperCase()}
+                </a>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

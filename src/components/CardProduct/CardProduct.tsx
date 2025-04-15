@@ -11,11 +11,11 @@ interface ColorOption {
   id: number;
   name: string;
   color: string;
-  colorCode: string;
   images?: {
     main: string;
     hover: string;
   };
+  colorThumbnail?: string;
 }
 
 interface ProductProps {
@@ -51,6 +51,19 @@ function CardProduct({
 }: ProductProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedColorId, setSelectedColorId] = useState(colors[0]?.id);
+  const [showAllColors, setShowAllColors] = useState(false);
+
+  // Maximum number of colors   to show initially
+  const MAX_COLORS_VISIBLE = 6;
+  const hasExtraColors = colors.length > MAX_COLORS_VISIBLE;
+  const hiddenColorsCount = colors.length - MAX_COLORS_VISIBLE;
+
+  // Get the colors to display based on showAllColors state
+  const visibleColors = showAllColors
+    ? colors
+    : hasExtraColors
+    ? colors.slice(0, MAX_COLORS_VISIBLE)
+    : colors;
 
   // Find the selected color
   const selectedColor =
@@ -69,6 +82,12 @@ function CardProduct({
   const handleColorClick = (colorId: number, e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation from the Link component
     setSelectedColorId(colorId);
+  };
+
+  // Handle show more colors click
+  const handleShowMoreColors = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    setShowAllColors(true);
   };
 
   return (
@@ -112,7 +131,7 @@ function CardProduct({
             </div>
           )}
 
-          {sizes && sizes.length > 0 && (
+          {/* {sizes && sizes.length > 0 && (
             <div className={cx("quick-size-options")}>
               <span className={cx("size-label")}>
                 Thêm nhanh vào giỏ hàng +
@@ -125,7 +144,7 @@ function CardProduct({
                 ))}
               </div>
             </div>
-          )}
+          )} */}
 
           <div className={cx("product-promo")}>
             <Image
@@ -139,18 +158,45 @@ function CardProduct({
         </div>
 
         <div className={cx("product-info")}>
-          <div className={cx("color-options")}>
-            {colors.map((color) => (
-              <span
-                key={color.id}
-                className={cx("color-option", {
-                  selected: color.id === selectedColorId,
-                })}
-                style={{ backgroundColor: color.colorCode }}
-                title={color.name}
-                onClick={(e) => handleColorClick(color.id, e)}
-              ></span>
-            ))}
+          <div className={cx("color-options-container")}>
+            <div className={cx("color-options")}>
+              {visibleColors.map((color) => {
+                console.log(
+                  "Rendering color:",
+                  color.name,
+                  "thumbnail:",
+                  color.colorThumbnail
+                );
+                return (
+                  <Image
+                    key={color.id}
+                    className={cx("color-option", {
+                      selected: color.id === selectedColorId,
+                    })}
+                    style={{
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                    src={color.colorThumbnail || ""}
+                    alt={color.name}
+                    width={160}
+                    height={160}
+                    title={color.name}
+                    onClick={(e) => handleColorClick(color.id, e)}
+                  />
+                );
+              })}
+
+              {hasExtraColors && !showAllColors && (
+                <button
+                  className={cx("more-colors-button")}
+                  onClick={handleShowMoreColors}
+                  title={`Show ${hiddenColorsCount} more colors`}
+                >
+                  +{hiddenColorsCount}
+                </button>
+              )}
+            </div>
           </div>
 
           <h3 className={cx("product-title")}>{title}</h3>

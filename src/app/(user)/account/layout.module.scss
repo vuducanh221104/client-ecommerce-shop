@@ -1,0 +1,186 @@
+.account-page {
+  padding-top: 30px;
+  padding-bottom: 60px;
+}
+
+.account-header {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+  margin-bottom: 30px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: #2f5acf;
+}
+
+.account-container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 30px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sidebar Styles */
+.account-sidebar {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.user-info {
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  overflow: hidden;
+  background-color: #f1f1f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2f5acf;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #666;
+}
+
+.menu {
+  padding: 10px 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  .menu-icon {
+    font-size: 18px;
+    margin-right: 15px;
+    color: #666;
+  }
+
+  span {
+    font-size: 14px;
+  }
+
+  &:hover {
+    background-color: #f8f9fa;
+    color: #2f5acf;
+
+    .menu-icon {
+      color: #2f5acf;
+    }
+  }
+
+  &.active {
+    background-color: #f0f4ff;
+    color: #2f5acf;
+    font-weight: 500;
+
+    .menu-icon {
+      color: #2f5acf;
+    }
+  }
+
+  &.logout-item {
+    border-top: 1px solid #eee;
+    margin-top: 10px;
+    padding-top: 15px;
+    color: #f5222d;
+
+    .menu-icon {
+      color: #f5222d;
+    }
+
+    &:hover {
+      background-color: #fff1f0;
+    }
+  }
+}
+
+/* Content Styles */
+.account-content {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  min-height: 500px;
+}
+
+/* Loading State */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #2f5acf;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 15px;
+  }
+
+  p {
+    color: #666;
+    font-size: 14px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+  .account-content {
+    padding: 20px 15px;
+  }
+}

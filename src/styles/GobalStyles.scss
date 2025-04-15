@@ -127,12 +127,18 @@ a {
   transition: color 0.2s ease-in-out;
 }
 
+// Main Content
+.main-content {
+  padding-top: 70px;
+}
 // BOOTSTRAP -CONTAINER
 .container {
-  max-width: 1480px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 20px;
+  margin: 0 auto;
+  max-width: 100%;
+  max-width: 1920px;
+  padding-left: 16px;
+  padding-right: 16px;
+  width: 100%;
 }
 .container--medium {
   max-width: 1150px !important;
@@ -140,14 +146,23 @@ a {
 .container--narrow {
   max-width: 80% !important;
 }
-@media screen and (min-width: 641px) {
+@media (min-width: 1440px) {
   .container {
-    padding: 0 40px;
+    padding-left: 64px;
+    padding-right: 64px;
   }
 }
-@media screen and (max-width: 640px) {
-  .container-flush {
-    padding: 0 !important;
+
+@media screen and (max-width: 991px) {
+  .container {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 100%;
   }
 }
 
@@ -271,14 +286,47 @@ strong {
   transition: all 0.2s;
 }
 
-// Main Content
-.main-content {
-  padding-top: 68px; // Điều chỉnh khoảng cách với header
-  min-height: 500px;
+.container-full {
+  margin: 0 auto;
+  max-width: 100%;
+  max-width: 1920px;
+  width: 100%;
+  padding-left: 64px;
+  padding-right: 64px;
+}
+
+@media (max-width: 991px) {
+  .container-full {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
 }
 
 @media screen and (max-width: 768px) {
+}
+@media (max-width: 768px) {
   .main-content {
-    padding-top: 58px;
+    padding-top: 60px;
+  }
+  .container-product-detail {
+    padding-left: 9px;
+    padding-right: 9px;
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-product-detail {
+    padding-left: 48px;
+    padding-right: 48px;
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-product-detail {
+    padding-left: 64px;
+    padding-right: 64px;
+    max-width: 1280px;
   }
 }

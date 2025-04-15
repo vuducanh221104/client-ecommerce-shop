@@ -1,0 +1,144 @@
+.address-container {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.page-title {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.address-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.address-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.address-item {
+  position: relative;
+  padding: 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  transition: all 0.3s;
+
+  &:hover {
+    border-color: #2f5acf;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  }
+}
+
+.default-badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background-color: #2f5acf;
+  color: white;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 0 8px 0 8px;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.recipient-name {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+.phone-number {
+  color: #666;
+}
+
+.address-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.address-content {
+  color: #333;
+  line-height: 1.5;
+}
+
+.add-button {
+  background-color: #2f5acf;
+  margin-bottom: 20px;
+
+  &:hover {
+    background-color: #234bb2;
+  }
+}
+
+.edit-button {
+  color: #2f5acf;
+
+  &:hover {
+    color: #234bb2;
+  }
+}
+
+.delete-button {
+  color: #ff4d4f;
+
+  &:hover {
+    color: #cf1322;
+  }
+}
+
+.address-form {
+  width: 100%;
+}
+
+.form-item {
+  margin-bottom: 24px;
+}
+
+:global(.ant-form-item-label > label) {
+  font-weight: 500;
+  color: #333;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.form-checkbox {
+  margin-top: 8px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  font-size: 16px;
+  color: #666;
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .address-list {
+    grid-template-columns: 1fr;
+  }
+}

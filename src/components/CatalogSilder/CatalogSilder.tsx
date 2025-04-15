@@ -119,7 +119,7 @@ function CatalogSilder() {
           speed={400}
           slidesPerView="auto"
           navigation
-          loop={true}
+          loop={false}
           breakpoints={{
             320: {
               slidesPerView: 1.5,

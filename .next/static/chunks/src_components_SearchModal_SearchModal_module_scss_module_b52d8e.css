@@ -341,4 +341,90 @@
   }
 }
 
+.SearchModal-module-scss-module__XE9eQa__search-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+}
+
+.SearchModal-module-scss-module__XE9eQa__no-results-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.SearchModal-module-scss-module__XE9eQa__no-results-image {
+  margin-bottom: 20px;
+  opacity: .7;
+}
+
+.SearchModal-module-scss-module__XE9eQa__no-results-text {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.SearchModal-module-scss-module__XE9eQa__no-results-suggestion {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+.SearchModal-module-scss-module__XE9eQa__no-results-btn {
+  min-width: 200px;
+}
+
+.SearchModal-module-scss-module__XE9eQa__search-spinner {
+  width: 100%;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.SearchModal-module-scss-module__XE9eQa__search-spinner .ant-spin-nested-loading {
+  width: 100%;
+}
+
+.SearchModal-module-scss-module__XE9eQa__search-spinner .ant-spin-container {
+  width: 100%;
+}
+
+.SearchModal-module-scss-module__XE9eQa__search-spinner .ant-spin {
+  max-height: none;
+}
+
+.SearchModal-module-scss-module__XE9eQa__search-spinner .ant-spin-spinning {
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.SearchModal-module-scss-module__XE9eQa__featured-products-section {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.SearchModal-module-scss-module__XE9eQa__section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding: 0 95px;
+  color: #333;
+}
+
+.SearchModal-module-scss-module__XE9eQa__featured-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  width: 100%;
+}
+
 /*# sourceMappingURL=src_components_SearchModal_SearchModal_module_scss_module_b52d8e.css.map*/

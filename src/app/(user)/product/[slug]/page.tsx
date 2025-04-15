@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState, use } from "react";
 import { FiHeart, FiShoppingCart } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -13,42 +13,118 @@ import styles from "@/styles/ProductDetail.module.scss";
 import classNames from "classnames/bind";
 import ProductDescription from "../../../../Layout/components/ProductDescription/ProductDescription";
 import ProductPreviewFabric from "../../../../Layout/components/ProductPreviewFabric";
+import Image from "next/image";
+import { productGetBySlug } from "@/services/productServices";
+import { useParams } from "next/navigation";
+import Loading from "@/components/Loading";
 const cx = classNames.bind(styles);
 
-function PageProductDetail({ params }: { params: { slug: string } }) {
-  const [activeSize, setActiveSize] = useState("M");
-  const [activeColor, setActiveColor] = useState("Tím Purple Rose");
+interface Size {
+  size: string;
+  stock: number;
+  _id: string;
+}
+
+interface Variant {
+  name: string;
+  color: string;
+  colorThumbnail: string;
+  images: string[];
+  sizes: Size[];
+}
+
+interface ProductData {
+  id: string;
+  name: string;
+  description: {
+    header: {
+      material: string;
+      style: string;
+      responsible: string;
+      features: string;
+      image: string;
+    };
+    body: {
+      content: string;
+    };
+  };
+  price: {
+    price: number;
+    originalPrice: number;
+    discountQuantity: number;
+    currency: string;
+  };
+  comment: any[];
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    parent: {
+      id: string;
+      name: string;
+      slug: string;
+    };
+  };
+  variants: Variant[];
+  tagIsNew: boolean;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+function PageProductDetail({}) {
+  const [activeSize, setActiveSize] = useState("");
+  const [activeColor, setActiveColor] = useState("");
   const [quantity, setQuantity] = useState<number | string>(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showGiftInfo, setShowGiftInfo] = useState(false);
+  const [product, setProduct] = useState<ProductData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const params = useParams();
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const result = await productGetBySlug(params.slug as string);
+        const productData = result.data.product;
+        setProduct(productData);
 
-  // Product images from params
-  const productImages = [
-    "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/ao-thun-nu-chay-bo-core-tee-slimfit-11872-tim_85.jpg",
-    "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/ao-thun-nu-chay-bo-core-tee-slimfit-12012-tim_7.jpg",
-    "https://media3.coolmate.me/cdn-cgi/image/width=80,height=80,quality=80,format=auto/uploads/March2025/ao-thun-nu-chay-bo-core-tee-slimfit-1174-tim.jpg",
-  ];
+        // Set default variant and color from the first variant
+        if (productData.variants && productData.variants.length > 0) {
+          const firstVariant = productData.variants[0];
+          setSelectedVariant(firstVariant);
+          setActiveColor(firstVariant.name);
+          setProductImages(firstVariant.images || []);
 
-  // Sample product data
-  const product = {
-    name: "Áo thun nữ chạy bộ Core Tee Slimfit",
-    price: 199000,
-    salePrice: 179000,
-    rating: 5,
-    reviews: 5,
-    description:
-      "Được thiết kế dành riêng cho những cô nàng năng động, Áo thun chạy bộ Core Tee Slimfit với chất liệu siêu co giãn, thoáng khí cùng kiểu dáng thon gọn giúp bạn tự tin chinh phục mọi cung đường.",
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "Tím Purple Rose", code: "#D8D2EA" },
-      { name: "Xanh Mint", code: "#E5EBD7" },
-      { name: "Đen", code: "#212121" },
-    ],
-    promotion: "Freeship đơn trên 200K",
-    extraPromotion: "Mua 3 được giảm thêm 10%",
-    voucherCode: "Giảm 50k",
-    gift: "Set Sticker - Mừng sinh nhật Coolmate 6 tuổi",
-  };
+          // Set default size from the first variant's first size
+          if (firstVariant.sizes && firstVariant.sizes.length > 0) {
+            setActiveSize(firstVariant.sizes[0].size);
+          }
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [params.slug]);
+
+  // Update images when color changes
+  useEffect(() => {
+    if (product?.variants) {
+      const variant = product.variants.find((v) => v.name === activeColor);
+      if (variant) {
+        setSelectedVariant(variant);
+        setProductImages(variant.images || []);
+        setCurrentImageIndex(0); // Reset to first image when color changes
+      }
+    }
+  }, [activeColor, product]);
 
   const handleIncreaseQuantity = () => {
     setQuantity((prev) => {
@@ -88,22 +164,37 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
 
   const handleColorSelect = (colorName: string) => {
     setActiveColor(colorName);
+
+    // Reset size if current size is not available in new color variant
+    const newVariant = product?.variants.find((v) => v.name === colorName);
+    if (newVariant) {
+      const sizeExists = newVariant.sizes.some((s) => s.size === activeSize);
+      if (!sizeExists && newVariant.sizes.length > 0) {
+        setActiveSize(newVariant.sizes[0].size);
+      }
+    }
   };
+
+  const calculateDiscount = () => {
+    if (!product) return 0;
+    const { price, originalPrice } = product.price;
+    if (originalPrice > price) {
+      return Math.round(((originalPrice - price) / originalPrice) * 100);
+    }
+    return 0;
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (!product) {
+    return <div className={cx("error")}>Product not found</div>;
+  }
 
   return (
     <div className={cx("product-detail-wrapper")}>
-      <div className="container">
-        {/* Breadcrumb */}
-        <div className={cx("breadcrumb")}>
-          <Link href="/">Trang chủ</Link>
-          <span>/</span>
-          <Link href="/do-nu">Đồ Nữ</Link>
-          <span>/</span>
-          <Link href="/ao-nu">Áo Nữ</Link>
-          <span>/</span>
-          <span>Áo Thun Nữ</span>
-        </div>
-
+      <div className={cx("container", "container-product-detail")}>
         <div className={cx("product-detail-container")}>
           <div className={cx("product-detail-grid")}>
             {/* Product Images Section */}
@@ -128,28 +219,26 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
                 </div>
 
                 <div className={cx("main-image-wrapper")}>
-                  <div className={cx("brand-logo")}>
-                    <img
-                      src="https://www.coolmate.me/images/footer/coolmate-for-woman.svg"
-                      alt="Coolmate for Women"
-                    />
-                  </div>
-
                   <div className={cx("main-image-container")}>
+                    {/* {product.tagIsNew && (
+                      <div className={cx("new-tag")}>NEW</div>
+                    )} */}
                     <img
-                      src={productImages[currentImageIndex]}
-                      alt={`Product view ${currentImageIndex + 1}`}
+                      src={productImages[currentImageIndex] || ""}
+                      alt={product.name}
                       className={cx("product-image")}
                     />
                   </div>
 
-                  <div className={cx("birthday-promotion")}>
-                    <img
-                      src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85,format=auto/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
-                      alt="Mua 3 giảm thêm 10%"
-                      className={cx("promotion-image")}
-                    />
-                  </div>
+                  {product.price?.discountQuantity > 0 && (
+                    <div className={cx("birthday-promotion")}>
+                      <img
+                        src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85,format=auto/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
+                        alt={`Mua ${product.price.discountQuantity} giảm thêm 10%`}
+                        className={cx("promotion-image")}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -164,12 +253,12 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
                     <FaStar
                       key={i}
                       className={cx("star", {
-                        filled: i < product.rating,
+                        filled: i < 5, // Default rating
                       })}
                     />
                   ))}
                   <span className={cx("rating-count")}>
-                    ({product.reviews})
+                    ({product.comment?.length})
                   </span>
                 </div>
                 <div className={cx("share-btn")}>
@@ -179,74 +268,88 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
               </div>
 
               <div className={cx("price-section")}>
+                <span className={cx("original-price")}>
+                  {product.price.originalPrice.toLocaleString("vi-VN")}đ
+                </span>
                 <div className={cx("price-container")}>
                   <div className={cx("prices")}>
-                    <span className={cx("original-price")}>
-                      {product.price.toLocaleString("vi-VN")}đ
-                    </span>
                     <span className={cx("current-price")}>
-                      {product.salePrice.toLocaleString("vi-VN")}đ
+                      {product.price.price.toLocaleString("vi-VN")}đ
                     </span>
                   </div>
-                  <div className={cx("discount-tag")}>-10%</div>
-                </div>
-              </div>
-
-              <div className={cx("promotions-section")}>
-                <div className={cx("promotion-item")}>
-                  <TbTruckDelivery className={cx("promotion-icon")} />
-                  <span>{product.promotion}</span>
-                </div>
-                <div className={cx("promotion-item")}>
-                  <div className={cx("promotion-badge")}>
-                    {product.extraPromotion}
-                  </div>
-                </div>
-              </div>
-
-              <div className={cx("discount-code")}>
-                <div className={cx("discount-label")}>Mã giảm giá</div>
-                <div className={cx("discount-tag")}>{product.voucherCode}</div>
-              </div>
-
-              <div className={cx("gift-section")}>
-                <div className={cx("gift-header")}>
-                  <div className={cx("gift-icon")}>🎁</div>
-                  <h3 className={cx("gift-title")}>Khuyến mãi 0đ</h3>
-                  <button
-                    className={cx("info-button")}
-                    onClick={toggleGiftInfo}
-                  >
-                    <IoIosInformationCircleOutline />
-                  </button>
-                </div>
-
-                {showGiftInfo && (
-                  <div className={cx("gift-info")}>
-                    <p>Quà tặng kèm khi mua sản phẩm</p>
-                  </div>
-                )}
-
-                <div className={cx("gift-options")}>
-                  <label className={cx("gift-option")}>
-                    <input
-                      type="radio"
-                      name="gift"
-                      checked
-                      readOnly
-                      className={cx("gift-radio")}
-                    />
-                    <div className={cx("gift-option-content")}>
-                      <div className={cx("gift-img")}>
-                        <img
-                          src="https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=85,format=auto/uploads/June2023/mung-sinh-nhat-6-tuoi-popup.jpg"
-                          alt="Quà tặng"
-                        />
-                      </div>
-                      <div className={cx("gift-name")}>{product.gift}</div>
-                      <div className={cx("gift-price")}>0đ</div>
+                  {calculateDiscount() > 0 && (
+                    <div className={cx("discount-tag")}>
+                      -{calculateDiscount()}%
                     </div>
-                  </label>
+                  )}
+                </div>
+              </div>
+
+              <div className={cx("promotion-shipping")}>
+                <Image
+                  src="https://www.coolmate.me/images/icons/icon4.svg"
+                  alt="Shipping"
+                  width={20}
+                  height={20}
+                />
+                <span>Freeship đơn trên 200K</span>
+              </div>
+
+              {product.price.discountQuantity > 0 && (
+                <div className={cx("promotions-section")}>
+                  <div className={cx("promotion-item")}>
+                    <div className={cx("promotion-badge")}>
+                      Mua 2 được giảm thêm 10%
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className={cx("product-options")}>
+                <div className={cx("option-section")}>
+                  <h3 className={cx("option-title")}>
+                    Màu sắc: <span>{activeColor}</span>
+                  </h3>
+                  <div className={cx("color-options")}>
+                    {product.variants.map((variant) => (
+                      <Image
+                        src={variant.colorThumbnail}
+                        alt={variant.name}
+                        width={20}
+                        height={20}
+                        className={cx("color-option", {
+                          active: variant.name === activeColor,
+                        })}
+                        title={variant.name}
+                        key={variant.name}
+                        onClick={() => handleColorSelect(variant.name)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className={cx("option-section")}>
+                  <div className={cx("size-header")}>
+                    <h3 className={cx("option-title")}>
+                      Kích thước: <span>{activeSize}</span>
+                    </h3>
+                    <a href="#" className={cx("size-guide")}>
+                      Hướng dẫn chọn size
+                    </a>
+                  </div>
+                  <div className={cx("size-options")}>
+                    {selectedVariant?.sizes.map((sizeObj) => (
+                      <button
+                        key={sizeObj._id}
+                        className={cx("size-option", {
+                          active: sizeObj.size === activeSize,
+                        })}
+                        onClick={() => setActiveSize(sizeObj.size)}
+                      >
+                        {sizeObj.size}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -286,55 +389,6 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
                     <FiShoppingCart />
                     <span>Thêm vào giỏ hàng</span>
                   </button>
-                </div>
-              </div>
-
-              <div className={cx("product-options")}>
-                <div className={cx("option-section")}>
-                  <h3 className={cx("option-title")}>
-                    Màu sắc: <span>{activeColor}</span>
-                  </h3>
-                  <div className={cx("color-options")}>
-                    {product.colors.map((color) => (
-                      <button
-                        key={color.name}
-                        className={cx("color-option", {
-                          active: color.name === activeColor,
-                        })}
-                        style={{ backgroundColor: color.code }}
-                        onClick={() => handleColorSelect(color.name)}
-                        title={color.name}
-                      >
-                        {color.name === activeColor && (
-                          <span className={cx("color-check")}></span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={cx("option-section")}>
-                  <div className={cx("size-header")}>
-                    <h3 className={cx("option-title")}>
-                      Kích thước: <span>{activeSize}</span>
-                    </h3>
-                    <a href="#" className={cx("size-guide")}>
-                      Hướng dẫn chọn size
-                    </a>
-                  </div>
-                  <div className={cx("size-options")}>
-                    {product.sizes.map((size) => (
-                      <button
-                        key={size}
-                        className={cx("size-option", {
-                          active: size === activeSize,
-                        })}
-                        onClick={() => setActiveSize(size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
 
@@ -378,9 +432,7 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
                       fill="#2F5ACF"
                     ></path>
                   </svg>
-                  <span>
-                    Được hoàn lên đến <strong>13.000</strong> CoolCash.
-                  </span>
+                  <span>Được hoàn lên đến 10% CoolCash.</span>
                   <button className={cx("detail-btn")}>
                     Chi tiết
                     <svg
@@ -403,23 +455,25 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
                     src="https://page.widget.zalo.me/static/images/2.0/Logo.svg"
                     alt="Zalo"
                   />
-                  <span>Chat để được Coolmate tư vấn ngay (8:30 - 22:00)</span>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 12H19"
-                      stroke="#444"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    ></path>
-                    <path
-                      d="M12 5L19 12L12 19"
-                      stroke="#444"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    ></path>
-                  </svg>
+                  <span>
+                    Chat để được Coolmate tư vấn ngay (8:30 - 22:00)
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M5 12H19"
+                        stroke="#444"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                      <path
+                        d="M12 5L19 12L12 19"
+                        stroke="#444"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                    </svg>
+                  </span>
                 </div>
 
                 <div className={cx("service-benefits")}>
@@ -461,9 +515,9 @@ function PageProductDetail({ params }: { params: { slug: string } }) {
             </div>
           </div>
         </div>
-        <ProductDescription />
-        <ProductPreviewFabric />
       </div>
+      <ProductDescription dataDescription={product.description} />
+      <ProductPreviewFabric />
     </div>
   );
 }
