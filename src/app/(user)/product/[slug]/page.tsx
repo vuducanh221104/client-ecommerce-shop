@@ -53,6 +53,8 @@ interface ProductData {
     originalPrice: number;
     discountQuantity: number;
     currency: string;
+    original?: number;
+    discount?: number;
   };
   comment: any[];
   category: {
@@ -89,6 +91,11 @@ function PageProductDetail({}) {
         setLoading(true);
         const result = await productGetBySlug(params.slug as string);
         const productData = result.data.product;
+
+        // Log dữ liệu sản phẩm để debug
+        console.log("Product data:", productData);
+        console.log("Product price:", productData.price);
+
         setProduct(productData);
 
         // Set default variant and color from the first variant
@@ -176,12 +183,24 @@ function PageProductDetail({}) {
   };
 
   const calculateDiscount = () => {
-    if (!product) return 0;
-    const { price, originalPrice } = product.price;
-    if (originalPrice > price) {
-      return Math.round(((originalPrice - price) / originalPrice) * 100);
+    if (!product || !product.price) return 0;
+
+    // Ưu tiên sử dụng giá từ các trường chuẩn trong interface
+    const originalPrice =
+      product.price.originalPrice || product.price.original || 0;
+    const currentPrice = product.price.price || product.price.discount || 0;
+
+    if (originalPrice > currentPrice && originalPrice > 0) {
+      return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
     }
+
     return 0;
+  };
+
+  // Cập nhật lại hàm formatPrice và calculateDiscount cho phù hợp với interface
+  const formatPrice = (priceValue: number | undefined): string => {
+    if (priceValue === undefined || priceValue === null) return "0";
+    return priceValue.toLocaleString("vi-VN");
   };
 
   if (loading) {
@@ -201,21 +220,25 @@ function PageProductDetail({}) {
             <div className={cx("product-images-section")}>
               <div className={cx("vertical-gallery")}>
                 <div className={cx("thumbnails-column")}>
-                  {productImages.map((image, index) => (
-                    <div
-                      key={index}
-                      className={cx("thumbnail-item", {
-                        active: index === currentImageIndex,
-                      })}
-                      onClick={() => handleThumbnailClick(index)}
-                    >
-                      <img
-                        src={image}
-                        alt={`Thumbnail ${index + 1}`}
-                        className={cx("thumbnail-image")}
-                      />
-                    </div>
-                  ))}
+                  {productImages &&
+                    productImages.length > 0 &&
+                    productImages.map((image, index) =>
+                      image ? (
+                        <div
+                          key={index}
+                          className={cx("thumbnail-item", {
+                            active: index === currentImageIndex,
+                          })}
+                          onClick={() => handleThumbnailClick(index)}
+                        >
+                          <img
+                            src={image}
+                            alt={`Thumbnail ${index + 1}`}
+                            className={cx("thumbnail-image")}
+                          />
+                        </div>
+                      ) : null
+                    )}
                 </div>
 
                 <div className={cx("main-image-wrapper")}>
@@ -223,11 +246,17 @@ function PageProductDetail({}) {
                     {/* {product.tagIsNew && (
                       <div className={cx("new-tag")}>NEW</div>
                     )} */}
-                    <img
-                      src={productImages[currentImageIndex] || ""}
-                      alt={product.name}
-                      className={cx("product-image")}
-                    />
+                    {productImages &&
+                    productImages.length > 0 &&
+                    productImages[currentImageIndex] ? (
+                      <img
+                        src={productImages[currentImageIndex]}
+                        alt={product.name}
+                        className={cx("product-image")}
+                      />
+                    ) : (
+                      <div className={cx("no-image")}>Không có hình ảnh</div>
+                    )}
                   </div>
 
                   {product.price?.discountQuantity > 0 && (
@@ -269,12 +298,22 @@ function PageProductDetail({}) {
 
               <div className={cx("price-section")}>
                 <span className={cx("original-price")}>
-                  {product.price.originalPrice.toLocaleString("vi-VN")}đ
+                  {product?.price
+                    ? formatPrice(
+                        product.price.originalPrice || product.price.original
+                      )
+                    : "0"}
+                  đ
                 </span>
                 <div className={cx("price-container")}>
                   <div className={cx("prices")}>
                     <span className={cx("current-price")}>
-                      {product.price.price.toLocaleString("vi-VN")}đ
+                      {product?.price
+                        ? formatPrice(
+                            product.price.price || product.price.discount
+                          )
+                        : "0"}
+                      đ
                     </span>
                   </div>
                   {calculateDiscount() > 0 && (
@@ -287,7 +326,7 @@ function PageProductDetail({}) {
 
               <div className={cx("promotion-shipping")}>
                 <Image
-                  src="https://www.coolmate.me/images/icons/icon4.svg"
+                  src={"https://www.coolmate.me/images/icons/icon4.svg"}
                   alt="Shipping"
                   width={20}
                   height={20}
@@ -295,7 +334,7 @@ function PageProductDetail({}) {
                 <span>Freeship đơn trên 200K</span>
               </div>
 
-              {product.price.discountQuantity > 0 && (
+              {product.price?.discountQuantity > 0 && (
                 <div className={cx("promotions-section")}>
                   <div className={cx("promotion-item")}>
                     <div className={cx("promotion-badge")}>
@@ -311,20 +350,23 @@ function PageProductDetail({}) {
                     Màu sắc: <span>{activeColor}</span>
                   </h3>
                   <div className={cx("color-options")}>
-                    {product.variants.map((variant) => (
-                      <Image
-                        src={variant.colorThumbnail}
-                        alt={variant.name}
-                        width={20}
-                        height={20}
-                        className={cx("color-option", {
-                          active: variant.name === activeColor,
-                        })}
-                        title={variant.name}
-                        key={variant.name}
-                        onClick={() => handleColorSelect(variant.name)}
-                      />
-                    ))}
+                    {product.variants &&
+                      product.variants.map((variant) => {
+                        return variant.colorThumbnail ? (
+                          <Image
+                            src={variant.colorThumbnail}
+                            alt={variant.name || "Màu sắc"}
+                            width={20}
+                            height={20}
+                            className={cx("color-option", {
+                              active: variant.name === activeColor,
+                            })}
+                            title={variant.name}
+                            key={variant.name || variant.color}
+                            onClick={() => handleColorSelect(variant.name)}
+                          />
+                        ) : null;
+                      })}
                   </div>
                 </div>
 
