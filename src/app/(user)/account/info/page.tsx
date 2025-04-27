@@ -1,14 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getCurrentUser } from "@/services/AuthServices";
 import styles from "./page.module.scss";
 import classNames from "classnames/bind";
 import {
   Form,
   Input,
   Button,
-  Select, 
+  Select,
   DatePicker,
   Card,
   Typography,
@@ -26,53 +25,62 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { updateProfile } from "@/redux/apiRequest";
 
 const { Title } = Typography;
 const { Option } = Select;
 const cx = classNames.bind(styles);
 
 interface UserProfileData {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string;
+  _id?: string;
+  fullName?: string;
+  email?: string;
+  phoneNumber?: string;
   gender?: string;
-  birthday?: string;
+  dateOfBirth?: string;
+  [key: string]: any; // Allow for additional properties for backward compatibility
 }
 
 export default function AccountInfoPage() {
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState<UserProfileData | null>(null);
   const router = useRouter();
+  const dispatch = useDispatch();
+
+  // Get user data from Redux store with proper typing
+  const currentUser = useSelector<RootState, UserProfileData | null>(
+    (state) => state.auth.login.currentUser
+  );
+
+  // Log when user data changes (for debug)
+  useEffect(() => {
+    if (currentUser) {
+      console.log("Current user data in Redux:", currentUser);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    const user = getCurrentUser();
-
-    if (!user) {
+    if (!currentUser) {
       router.push("/");
       return;
     }
 
-    // Giả lập dữ liệu người dùng
-    const profileData = {
-      id: user.id || "1",
-      full_name: user.full_name || "Nguyễn Văn A",
-      email: user.email || "example@gmail.com",
-      phone: user.phone || "0987654321",
-      gender: user.gender || "male",
-      birthday: user.birthday || "1990-01-01",
-    };
+    // Format date for DatePicker
+    const birthday = currentUser.dateOfBirth;
 
-    setUserData(profileData);
     form.setFieldsValue({
-      ...profileData,
-      birthday: profileData.birthday ? dayjs(profileData.birthday) : null,
+      fullName: currentUser.fullName || currentUser.full_name, // For backward compatibility
+      email: currentUser.email,
+      phoneNumber: currentUser.phoneNumber || currentUser.phone_number, // For backward compatibility
+      gender: currentUser.gender,
+      dateOfBirth: birthday ? dayjs(birthday) : null,
     });
 
     setLoading(false);
-  }, [form, router]);
+  }, [form, router, currentUser]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -82,24 +90,35 @@ export default function AccountInfoPage() {
     try {
       const values = await form.validateFields();
 
-      // Trong thực tế, đây là nơi bạn sẽ gọi API cập nhật thông tin người dùng
-      console.log("Submit values:", values);
+      // Format date before sending to API
+      const formattedValues = {
+        ...values,
+        dateOfBirth: values.dateOfBirth
+          ? values.dateOfBirth.format("YYYY-MM-DD")
+          : undefined,
+      };
 
-      // Hiển thị thông báo thành công
+      // Call API and update Redux store
+      await updateProfile(formattedValues, dispatch);
+
+      // Show success message
       message.success("Cập nhật thông tin thành công");
       setIsEditing(false);
     } catch (error) {
-      console.error("Validation failed:", error);
+      console.error("Error updating profile:", error);
+      message.error("Cập nhật thông tin thất bại");
     }
   };
 
   const handleCancel = () => {
     form.setFieldsValue({
-      full_name: userData?.full_name,
-      email: userData?.email,
-      phone: userData?.phone,
-      gender: userData?.gender,
-      birthday: userData?.birthday ? dayjs(userData?.birthday) : null,
+      fullName: currentUser?.fullName || currentUser?.full_name,
+      email: currentUser?.email,
+      phoneNumber: currentUser?.phoneNumber || currentUser?.phone_number,
+      gender: currentUser?.gender,
+      dateOfBirth: currentUser?.dateOfBirth
+        ? dayjs(currentUser.dateOfBirth)
+        : null,
     });
     setIsEditing(false);
   };
@@ -124,7 +143,7 @@ export default function AccountInfoPage() {
         >
           <div className={cx("form-row")}>
             <Form.Item
-              name="full_name"
+              name="fullName"
               label="Họ và tên"
               rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
               className={cx("form-item")}
@@ -156,7 +175,7 @@ export default function AccountInfoPage() {
 
           <div className={cx("form-row")}>
             <Form.Item
-              name="phone"
+              name="phoneNumber"
               label="Số điện thoại"
               rules={[
                 { required: true, message: "Vui lòng nhập số điện thoại" },
@@ -192,7 +211,7 @@ export default function AccountInfoPage() {
 
           <div className={cx("form-row")}>
             <Form.Item
-              name="birthday"
+              name="dateOfBirth"
               label="Ngày sinh"
               className={cx("form-item")}
             >

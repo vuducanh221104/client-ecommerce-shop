@@ -342,12 +342,36 @@ img, video {
   }
 }
 
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.flex {
+  display: flex;
+}
+
 .grid {
   display: grid;
 }
 
+.hidden {
+  display: none;
+}
+
+.border {
+  border-width: 1px;
+}
+
 .italic {
   font-style: italic;
+}
+
+.line-through {
+  text-decoration-line: line-through;
 }
 
 .filter {

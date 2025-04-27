@@ -8,6 +8,7 @@ import Link from "next/link";
 import { BiShare } from "react-icons/bi";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { TbTruckDelivery } from "react-icons/tb";
+import { toast } from "react-hot-toast";
 
 import styles from "@/styles/ProductDetail.module.scss";
 import classNames from "classnames/bind";
@@ -15,6 +16,7 @@ import ProductDescription from "../../../../Layout/components/ProductDescription
 import ProductPreviewFabric from "../../../../Layout/components/ProductPreviewFabric";
 import Image from "next/image";
 import { productGetBySlug } from "@/services/productServices";
+import { addToCart } from "@/services/CartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
 const cx = classNames.bind(styles);
@@ -84,6 +86,8 @@ function PageProductDetail({}) {
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [productImages, setProductImages] = useState<string[]>([]);
+  const [currentStock, setCurrentStock] = useState<number>(0);
+  const [outOfStock, setOutOfStock] = useState<boolean>(false);
   const params = useParams();
   useEffect(() => {
     const fetchProduct = async () => {
@@ -133,10 +137,31 @@ function PageProductDetail({}) {
     }
   }, [activeColor, product]);
 
+  // Check stock when size or color changes
+  useEffect(() => {
+    if (selectedVariant && activeSize) {
+      const sizeInfo = selectedVariant.sizes.find(
+        (size) => size.size === activeSize
+      );
+      const stock = sizeInfo?.stock || 0;
+      setCurrentStock(stock);
+      setOutOfStock(stock <= 0);
+
+      // If current quantity is more than available stock, adjust it
+      if (stock > 0 && typeof quantity === "number" && quantity > stock) {
+        setQuantity(stock);
+      }
+    }
+  }, [selectedVariant, activeSize, quantity]);
+
   const handleIncreaseQuantity = () => {
     setQuantity((prev) => {
       const currentValue =
         typeof prev === "string" ? parseInt(prev) || 1 : prev;
+      // Don't allow increasing beyond available stock
+      if (currentStock > 0 && currentValue >= currentStock) {
+        return currentStock;
+      }
       return currentValue + 1;
     });
   };
@@ -156,7 +181,12 @@ function PageProductDetail({}) {
     } else {
       const numValue = parseInt(value);
       if (!isNaN(numValue) && numValue > 0) {
-        setQuantity(numValue);
+        // Cap the quantity at the available stock
+        if (currentStock > 0 && numValue > currentStock) {
+          setQuantity(currentStock);
+        } else {
+          setQuantity(numValue);
+        }
       }
     }
   };
@@ -175,9 +205,26 @@ function PageProductDetail({}) {
     // Reset size if current size is not available in new color variant
     const newVariant = product?.variants.find((v) => v.name === colorName);
     if (newVariant) {
+      setSelectedVariant(newVariant);
+
+      // Verificar si el tamaño seleccionado está disponible en el nuevo color
       const sizeExists = newVariant.sizes.some((s) => s.size === activeSize);
+
+      // Si el tamaño no existe en el nuevo color, seleccionar el primer tamaño disponible
       if (!sizeExists && newVariant.sizes.length > 0) {
         setActiveSize(newVariant.sizes[0].size);
+
+        // Actualizar información de stock para el primer tamaño
+        const firstSizeStock = newVariant.sizes[0].stock || 0;
+        setCurrentStock(firstSizeStock);
+        setOutOfStock(firstSizeStock <= 0);
+      }
+      // Si el tamaño existe, actualizar su información de stock
+      else if (sizeExists) {
+        const sizeInfo = newVariant.sizes.find((s) => s.size === activeSize);
+        const stock = sizeInfo?.stock || 0;
+        setCurrentStock(stock);
+        setOutOfStock(stock <= 0);
       }
     }
   };
@@ -201,6 +248,44 @@ function PageProductDetail({}) {
   const formatPrice = (priceValue: number | undefined): string => {
     if (priceValue === undefined || priceValue === null) return "0";
     return priceValue.toLocaleString("vi-VN");
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      if (!activeSize) {
+        toast.error("Vui lòng chọn kích thước");
+        return;
+      }
+
+      if (!activeColor) {
+        toast.error("Vui lòng chọn màu sắc");
+        return;
+      }
+
+      if (!product) {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+        return;
+      }
+
+      // Verify stock before adding to cart
+      if (outOfStock || currentStock <= 0) {
+        toast.error("Sản phẩm đã hết hàng");
+        return;
+      }
+
+      const cartData = {
+        _id: product.id,
+        quantityAddToCart: Number(quantity),
+        selectedColor: activeColor,
+        selectedSize: activeSize,
+      };
+
+      await addToCart(cartData);
+      toast.success("Thêm vào giỏ hàng thành công!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng");
+    }
   };
 
   if (loading) {
@@ -380,58 +465,114 @@ function PageProductDetail({}) {
                     </a>
                   </div>
                   <div className={cx("size-options")}>
-                    {selectedVariant?.sizes.map((sizeObj) => (
-                      <button
-                        key={sizeObj._id}
-                        className={cx("size-option", {
-                          active: sizeObj.size === activeSize,
-                        })}
-                        onClick={() => setActiveSize(sizeObj.size)}
-                      >
-                        {sizeObj.size}
-                      </button>
-                    ))}
+                    {selectedVariant?.sizes.map((sizeObj) => {
+                      const isSizeOutOfStock = sizeObj.stock <= 0;
+                      return (
+                        <button
+                          key={sizeObj._id}
+                          className={cx("size-option", {
+                            active: sizeObj.size === activeSize,
+                            "out-of-stock": isSizeOutOfStock,
+                          })}
+                          onClick={() => {
+                            if (!isSizeOutOfStock) {
+                              setActiveSize(sizeObj.size);
+                            } else {
+                              toast.error(`Size ${sizeObj.size} đã hết hàng`);
+                            }
+                          }}
+                          style={
+                            isSizeOutOfStock
+                              ? { textDecoration: "line-through", opacity: 0.5 }
+                              : {}
+                          }
+                          title={
+                            isSizeOutOfStock
+                              ? "Hết hàng"
+                              : `Size ${sizeObj.size}`
+                          }
+                        >
+                          {sizeObj.size}
+                          {isSizeOutOfStock && (
+                            <span
+                              style={{ fontSize: "10px", display: "block" }}
+                            >
+                              Hết hàng
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
 
               <div className={cx("quantity-and-cart-section")}>
                 <div className={cx("product-actions")}>
-                  <button className={cx("buy-now-btn")}>
-                    <div className={cx("quantity-control")}>
-                      <div
-                        className={cx("quantity-btn", "decrease")}
-                        onClick={handleDecreaseQuantity}
-                      >
-                        <FiMinus />
+                  {outOfStock ? (
+                    <button
+                      className={cx("buy-now-btn", "disabled")}
+                      disabled
+                      style={{
+                        backgroundColor: "#ccc",
+                        cursor: "not-allowed",
+                      }}
+                    >
+                      <span>Hết hàng</span>
+                    </button>
+                  ) : (
+                    <button
+                      className={cx("buy-now-btn")}
+                      onClick={handleAddToCart}
+                    >
+                      <div className={cx("quantity-control")}>
+                        <div
+                          className={cx("quantity-btn", "decrease")}
+                          onClick={handleDecreaseQuantity}
+                        >
+                          <FiMinus />
+                        </div>
+                        <input
+                          type="number"
+                          className={cx("quantity-value")}
+                          value={quantity}
+                          onChange={handleQuantityChange}
+                          onBlur={() => {
+                            if (
+                              quantity === "" ||
+                              quantity === 0 ||
+                              quantity === "0"
+                            ) {
+                              setQuantity(1);
+                            }
+                          }}
+                          min="1"
+                          max={currentStock}
+                        />
+                        <div
+                          className={cx("quantity-btn", "increase")}
+                          onClick={handleIncreaseQuantity}
+                        >
+                          <FiPlus />
+                        </div>
                       </div>
-                      <input
-                        type="number"
-                        className={cx("quantity-value")}
-                        value={quantity}
-                        onChange={handleQuantityChange}
-                        onBlur={() => {
-                          if (
-                            quantity === "" ||
-                            quantity === 0 ||
-                            quantity === "0"
-                          ) {
-                            setQuantity(1);
-                          }
-                        }}
-                        min="1"
-                      />
-                      <div
-                        className={cx("quantity-btn", "increase")}
-                        onClick={handleIncreaseQuantity}
-                      >
-                        <FiPlus />
-                      </div>
-                    </div>
-                    <FiShoppingCart />
-                    <span>Thêm vào giỏ hàng</span>
-                  </button>
+                      <FiShoppingCart />
+                      <span>Thêm vào giỏ hàng</span>
+                    </button>
+                  )}
                 </div>
+                {currentStock > 0 && currentStock < 5 && (
+                  <div
+                    className={cx("stock-warning")}
+                    style={{
+                      color: "red",
+                      fontSize: "14px",
+                      marginTop: "10px",
+                    }}
+                  >
+                    Chỉ còn {currentStock} sản phẩm
+                  </div>
+                )}
               </div>
 
               <div className={cx("product-description-tab")}>

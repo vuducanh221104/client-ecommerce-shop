@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./IsLoginMenu.module.scss";
 import Link from "next/link";
-import { getCurrentUser, logout } from "@/services/AuthServices";
+import { getCurrentUser } from "@/services/AuthServices";
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { logout } from "@/redux/apiRequest";
+import { useRouter } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
@@ -11,25 +16,35 @@ interface IsLoginMenuProps {
 }
 
 interface UserData {
-  full_name: string;
+  fullName?: string;
+  full_name?: string;
   email: string;
-  name?: string; // Fallback if fullName is not available
+  [key: string]: any;
 }
 
 function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  useEffect(() => {
-    // Get user data when component mounts
-    const user = getCurrentUser();
-    if (user) {
-      setUserData(user);
+  // Get user data from Redux store
+  const userData = useSelector<RootState, UserData | null>(
+    (state) => state.auth.login.currentUser
+  );
+
+  const handleLogout = async () => {
+    try {
+      // Call the Redux logout function with dispatch
+      await logout(dispatch, router);
+
+      // Show a success message
+      toast.success("Đăng xuất thành công");
+
+      // Call the parent component's logout handler
+      onLogout();
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Có lỗi xảy ra khi đăng xuất");
     }
-  }, []);
-
-  const handleLogout = () => {
-    logout(); // Clear user data from localStorage
-    onLogout(); // Call the parent component's logout handler
   };
 
   return (
@@ -37,13 +52,18 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
       <div className={cx("user-info")}>
         <div className={cx("avatar-container")}>
           <img
-            src="https://mcdn.coolmate.me/image/October2023/mceclip3_72.png"
+            src={
+              userData?.avatar ||
+              "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png"
+            }
             alt="User Avatar"
             className={cx("user-avatar")}
           />
         </div>
         <div className={cx("user-details")}>
-          <p className={cx("user-name")}>{userData?.full_name}</p>
+          <p className={cx("user-name")}>
+            {userData?.fullName || userData?.full_name || "Người dùng"}
+          </p>
           <p className={cx("user-email")}>
             {userData?.email || "email@example.com"}
           </p>
@@ -51,7 +71,7 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
       </div>
 
       <div className={cx("menu-items")}>
-        <Link href="/account" className={cx("menu-item")}>
+        <Link href="/account/info" className={cx("menu-item")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -69,7 +89,7 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
           <span>Thông Tin Tài Khoản</span>
         </Link>
 
-        <Link href="/orders" className={cx("menu-item")}>
+        <Link href="account/order" className={cx("menu-item")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -88,7 +108,7 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
           <span>Đơn hàng của tôi</span>
         </Link>
 
-        <Link href="/address" className={cx("menu-item")}>
+        <Link href="/account/address" className={cx("menu-item")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

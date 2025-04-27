@@ -17,116 +17,69 @@ import {
   EditOutlined,
   DeleteOutlined,
   ExclamationCircleOutlined,
+  HomeOutlined,
+  EnvironmentOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 import styles from "./page.module.scss";
 import classNames from "classnames/bind";
+import {
+  Address,
+  getUserAddresses,
+  addUserAddress,
+  updateUserAddress,
+  deleteUserAddress,
+  setDefaultAddress,
+} from "@/services/AuthServices";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const cx = classNames.bind(styles);
 const { Option } = Select;
-const { confirm } = Modal;
 
-interface AddressData {
-  id: string;
-  recipientName: string;
-  phoneNumber: string;
-  province: string;
-  district: string;
-  ward: string;
-  detailAddress: string;
-  isDefault: boolean;
-}
-
-function PageAddress() {
-  const [addresses, setAddresses] = useState<AddressData[]>([]);
+export default function AddressPage() {
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingAddress, setEditingAddress] = useState<AddressData | null>(
-    null
-  );
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [deletingAddress, setDeletingAddress] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
   const [form] = Form.useForm();
   const [provinces, setProvinces] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
   const [wards, setWards] = useState<string[]>([]);
+  const router = useRouter();
+  const currentUser = useSelector(
+    (state: RootState) => state.auth.login.currentUser
+  );
 
-  // Mô phỏng dữ liệu địa chỉ
+  // Fetch addresses when component mounts
   useEffect(() => {
-    // Giả lập việc lấy dữ liệu từ API
-    setTimeout(() => {
-      setAddresses([
-        {
-          id: "1",
-          recipientName: "Nguyễn Văn A",
-          phoneNumber: "0123456789",
-          province: "Hà Nội",
-          district: "Cầu Giấy",
-          ward: "Dịch Vọng",
-          detailAddress: "Số 14, ngõ 29, đường Thái Hà",
-          isDefault: true,
-        },
-        {
-          id: "2",
-          recipientName: "Nguyễn Văn A",
-          phoneNumber: "0987654321",
-          province: "Hồ Chí Minh",
-          district: "Quận 1",
-          ward: "Bến Nghé",
-          detailAddress: "123 Lê Lợi",
-          isDefault: false,
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
+    if (!currentUser) {
+      router.push("/");
+      return;
+    }
 
-    // Dữ liệu mẫu cho tỉnh/thành phố
+    fetchAddresses();
+    // Set sample provinces data
     setProvinces(["Hà Nội", "Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ"]);
-  }, []);
+  }, [currentUser, router]);
 
-  useEffect(() => {
-    // Cập nhật quận/huyện khi thay đổi tỉnh/thành phố
-    const province = form.getFieldValue("province");
-    if (province) {
-      if (province === "Hà Nội") {
-        setDistricts([
-          "Cầu Giấy",
-          "Ba Đình",
-          "Đống Đa",
-          "Hai Bà Trưng",
-          "Hoàn Kiếm",
-        ]);
-      } else if (province === "Hồ Chí Minh") {
-        setDistricts(["Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5"]);
-      } else {
-        setDistricts([]);
-      }
+  const fetchAddresses = async () => {
+    try {
+      setLoading(true);
+      const data = await getUserAddresses();
+      setAddresses(data);
+    } catch (error) {
+      console.error("Failed to fetch addresses:", error);
+      message.error("Không thể tải danh sách địa chỉ");
+    } finally {
+      setLoading(false);
     }
-  }, [form.getFieldValue("province")]);
-
-  useEffect(() => {
-    // Cập nhật phường/xã khi thay đổi quận/huyện
-    const district = form.getFieldValue("district");
-    if (district) {
-      if (district === "Cầu Giấy") {
-        setWards([
-          "Dịch Vọng",
-          "Dịch Vọng Hậu",
-          "Mai Dịch",
-          "Nghĩa Đô",
-          "Quan Hoa",
-          "Trung Hòa",
-        ]);
-      } else if (district === "Quận 1") {
-        setWards([
-          "Bến Nghé",
-          "Bến Thành",
-          "Cầu Kho",
-          "Cầu Ông Lãnh",
-          "Đa Kao",
-        ]);
-      } else {
-        setWards([]);
-      }
-    }
-  }, [form.getFieldValue("district")]);
+  };
 
   const handleAddAddress = () => {
     setEditingAddress(null);
@@ -134,76 +87,125 @@ function PageAddress() {
     setModalVisible(true);
   };
 
-  const handleEditAddress = (address: AddressData) => {
+  const handleEditAddress = (address: Address) => {
     setEditingAddress(address);
-    form.setFieldsValue(address);
+    form.setFieldsValue({
+      street: address.street,
+      city: address.city,
+      district: address.district,
+      ward: address.ward || "",
+      country: address.country || "Vietnam",
+      isDefault: address.isDefault,
+    });
+
+    // Update districts and wards based on the selected province
+    handleProvinceChange(address.city);
+    handleDistrictChange(address.district);
+
     setModalVisible(true);
   };
 
+  // Open confirmation dialog for address deletion
   const handleDeleteAddress = (addressId: string) => {
-    confirm({
-      title: "Bạn có chắc chắn muốn xóa địa chỉ này?",
-      icon: <ExclamationCircleOutlined />,
-      content: "Địa chỉ sẽ bị xóa vĩnh viễn và không thể khôi phục.",
-      okText: "Xóa",
-      okType: "danger",
-      cancelText: "Hủy",
-      onOk() {
-        // Xóa địa chỉ
-        setAddresses(addresses.filter((item) => item.id !== addressId));
-        message.success("Đã xóa địa chỉ thành công");
-      },
-    });
+    setAddressToDelete(addressId);
+    setDeleteModalVisible(true);
   };
 
-  const handleSubmit = (values: any) => {
-    if (editingAddress) {
-      // Cập nhật địa chỉ hiện có
-      const updatedAddresses = addresses.map((item) => {
-        if (item.id === editingAddress.id) {
-          return { ...values, id: item.id };
-        }
-        // Nếu địa chỉ mới là mặc định, cập nhật các địa chỉ khác
-        if (values.isDefault && item.id !== editingAddress.id) {
-          return { ...item, isDefault: false };
-        }
-        return item;
-      });
-      setAddresses(updatedAddresses);
-      message.success("Cập nhật địa chỉ thành công");
-    } else {
-      // Thêm địa chỉ mới
-      const newAddress: AddressData = {
-        ...values,
-        id: Date.now().toString(), // Tạo ID đơn giản
-      };
+  // Confirm address deletion
+  const confirmDeleteAddress = async () => {
+    if (!addressToDelete) return;
 
-      // Nếu địa chỉ mới là mặc định, cập nhật các địa chỉ khác
-      if (newAddress.isDefault) {
-        setAddresses([
-          newAddress,
-          ...addresses.map((item) => ({ ...item, isDefault: false })),
-        ]);
-      } else {
-        setAddresses([newAddress, ...addresses]);
-      }
-      message.success("Thêm địa chỉ mới thành công");
+    try {
+      setDeletingAddress(true);
+      // Use AuthServices function instead of direct API call
+      await deleteUserAddress(addressToDelete);
+
+      // Show success message and refresh addresses
+      message.success("Đã xóa địa chỉ thành công");
+      await fetchAddresses();
+
+      // Close modal and reset state
+      setDeleteModalVisible(false);
+      setAddressToDelete(null);
+    } catch (error) {
+      console.error("Failed to delete address:", error);
+      message.error("Không thể xóa địa chỉ");
+    } finally {
+      setDeletingAddress(false);
     }
-    setModalVisible(false);
+  };
+
+  // Cancel address deletion
+  const cancelDeleteAddress = () => {
+    setDeleteModalVisible(false);
+    setAddressToDelete(null);
+  };
+
+  const handleSetDefault = async (addressId: string) => {
+    try {
+      await setDefaultAddress(addressId);
+      await fetchAddresses();
+      message.success("Đã đặt địa chỉ mặc định thành công");
+    } catch (error) {
+      console.error("Failed to set default address:", error);
+      message.error("Không thể đặt địa chỉ mặc định");
+    }
+  };
+
+  const handleSubmit = async (values: any) => {
+    try {
+      if (editingAddress && editingAddress._id) {
+        // Use AuthServices function instead of direct API call
+        await updateUserAddress(editingAddress._id, values);
+        message.success("Cập nhật địa chỉ thành công");
+      } else {
+        // Add new address
+        await addUserAddress(values);
+        message.success("Thêm địa chỉ mới thành công");
+      }
+
+      // Refresh address list
+      await fetchAddresses();
+      setModalVisible(false);
+    } catch (error) {
+      console.error("Error saving address:", error);
+      message.error("Không thể lưu địa chỉ. Vui lòng thử lại.");
+    }
   };
 
   const handleProvinceChange = (value: string) => {
     form.setFieldsValue({ district: undefined, ward: undefined });
     if (value === "Hà Nội") {
       setDistricts([
-        "Cầu Giấy",
         "Ba Đình",
-        "Đống Đa",
-        "Hai Bà Trưng",
         "Hoàn Kiếm",
+        "Hai Bà Trưng",
+        "Đống Đa",
+        "Tây Hồ",
+        "Cầu Giấy",
+        "Thanh Xuân",
+        "Hoàng Mai",
       ]);
     } else if (value === "Hồ Chí Minh") {
-      setDistricts(["Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5"]);
+      setDistricts([
+        "Quận 1",
+        "Quận 2",
+        "Quận 3",
+        "Quận 4",
+        "Quận 5",
+        "Quận 6",
+        "Quận 7",
+        "Quận 8",
+      ]);
+    } else if (value === "Đà Nẵng") {
+      setDistricts([
+        "Hải Châu",
+        "Thanh Khê",
+        "Sơn Trà",
+        "Ngũ Hành Sơn",
+        "Liên Chiểu",
+        "Cẩm Lệ",
+      ]);
     } else {
       setDistricts([]);
     }
@@ -212,17 +214,26 @@ function PageAddress() {
 
   const handleDistrictChange = (value: string) => {
     form.setFieldsValue({ ward: undefined });
-    if (value === "Cầu Giấy") {
+
+    // Set sample wards based on district
+    if (["Cầu Giấy", "Ba Đình", "Đống Đa"].includes(value)) {
       setWards([
-        "Dịch Vọng",
-        "Dịch Vọng Hậu",
-        "Mai Dịch",
-        "Nghĩa Đô",
-        "Quan Hoa",
-        "Trung Hòa",
+        "Phường 1",
+        "Phường 2",
+        "Phường 3",
+        "Phường 4",
+        "Phường 5",
+        "Phường 6",
       ]);
-    } else if (value === "Quận 1") {
-      setWards(["Bến Nghé", "Bến Thành", "Cầu Kho", "Cầu Ông Lãnh", "Đa Kao"]);
+    } else if (["Quận 1", "Quận 2", "Quận 3"].includes(value)) {
+      setWards([
+        "Phường 1",
+        "Phường 2",
+        "Phường 3",
+        "Phường 4",
+        "Phường 5",
+        "Phường 6",
+      ]);
     } else {
       setWards([]);
     }
@@ -247,98 +258,101 @@ function PageAddress() {
         </div>
       ) : (
         <div className={cx("address-list")}>
-          {addresses.map((address) => (
-            <div key={address.id} className={cx("address-item")}>
-              {address.isDefault && (
-                <div className={cx("default-badge")}>Mặc định</div>
-              )}
-              <div className={cx("address-header")}>
-                <div>
-                  <span className={cx("recipient-name")}>
-                    {address.recipientName}
-                  </span>
-                  <span className={cx("phone-number")}>
-                    {address.phoneNumber}
-                  </span>
-                </div>
-              </div>
-              <div className={cx("address-content")}>
-                {`${address.detailAddress}, ${address.ward}, ${address.district}, ${address.province}`}
-              </div>
-              <div className={cx("address-actions")}>
-                <Button
-                  type="text"
-                  icon={<EditOutlined />}
-                  className={cx("edit-button")}
-                  onClick={() => handleEditAddress(address)}
-                >
-                  Sửa
-                </Button>
-                <Button
-                  type="text"
-                  icon={<DeleteOutlined />}
-                  className={cx("delete-button")}
-                  onClick={() => handleDeleteAddress(address.id)}
-                  disabled={address.isDefault}
-                >
-                  Xóa
-                </Button>
-              </div>
+          {addresses.length === 0 ? (
+            <div className={cx("no-address")}>
+              <EnvironmentOutlined className={cx("no-address-icon")} />
+              <p>Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới.</p>
             </div>
-          ))}
+          ) : (
+            addresses.map((address) => (
+              <Card key={address._id} className={cx("address-card")}>
+                <div className={cx("address-header")}>
+                  <div className={cx("address-title")}>
+                    <HomeOutlined className={cx("address-icon")} />
+                    <span className={cx("title-text")}>Địa chỉ</span>
+                    {address.isDefault && (
+                      <span className={cx("default-badge")}>
+                        <CheckCircleOutlined />
+                        Mặc định
+                      </span>
+                    )}
+                  </div>
+                  <div className={cx("address-actions")}>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditAddress(address)}
+                      className={cx("action-button")}
+                    >
+                      Sửa
+                    </Button>
+                    <Button
+                      icon={<DeleteOutlined />}
+                      danger
+                      onClick={() => handleDeleteAddress(address._id as string)}
+                      className={cx("action-button")}
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                </div>
+
+                <div className={cx("address-content")}>
+                  <p className={cx("street")}>{address.street}</p>
+                  <p className={cx("location")}>
+                    {address.ward && `${address.ward}, `}
+                    {address.district}, {address.city}
+                    {address.country ? `, ${address.country}` : ""}
+                  </p>
+                </div>
+
+                {!address.isDefault && (
+                  <Button
+                    type="link"
+                    onClick={() => handleSetDefault(address._id as string)}
+                    className={cx("set-default-button")}
+                  >
+                    Đặt làm địa chỉ mặc định
+                  </Button>
+                )}
+              </Card>
+            ))
+          )}
         </div>
       )}
 
+      {/* Edit/Add Address Modal */}
       <Modal
-        title={editingAddress ? "Sửa địa chỉ" : "Thêm địa chỉ mới"}
+        title={editingAddress ? "Chỉnh sửa địa chỉ" : "Thêm địa chỉ mới"}
         open={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
+        className={cx("address-modal")}
       >
         <Form
           form={form}
           layout="vertical"
-          className={cx("address-form")}
           onFinish={handleSubmit}
+          initialValues={{ country: "Vietnam" }}
         >
           <Form.Item
-            name="recipientName"
-            label="Họ và tên"
-            className={cx("form-item")}
-            rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
-          >
-            <Input
-              className={cx("form-input")}
-              placeholder="Nhập họ và tên người nhận"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="phoneNumber"
-            label="Số điện thoại"
-            className={cx("form-item")}
+            name="street"
+            label="Địa chỉ cụ thể"
             rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại" },
-              { pattern: /^[0-9]{10}$/, message: "Số điện thoại không hợp lệ" },
+              { required: true, message: "Vui lòng nhập địa chỉ cụ thể" },
             ]}
           >
-            <Input
-              className={cx("form-input")}
-              placeholder="Nhập số điện thoại"
-            />
+            <Input placeholder="Số nhà, tên đường, tòa nhà, ..." />
           </Form.Item>
 
           <Form.Item
-            name="province"
+            name="city"
             label="Tỉnh/Thành phố"
-            className={cx("form-item")}
             rules={[
               { required: true, message: "Vui lòng chọn tỉnh/thành phố" },
             ]}
           >
             <Select
               placeholder="Chọn tỉnh/thành phố"
-              className={cx("form-select")}
               onChange={handleProvinceChange}
             >
               {provinces.map((province) => (
@@ -352,14 +366,12 @@ function PageAddress() {
           <Form.Item
             name="district"
             label="Quận/Huyện"
-            className={cx("form-item")}
             rules={[{ required: true, message: "Vui lòng chọn quận/huyện" }]}
           >
             <Select
               placeholder="Chọn quận/huyện"
-              className={cx("form-select")}
               onChange={handleDistrictChange}
-              disabled={districts.length === 0}
+              disabled={!form.getFieldValue("city")}
             >
               {districts.map((district) => (
                 <Option key={district} value={district}>
@@ -369,16 +381,10 @@ function PageAddress() {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="ward"
-            label="Phường/Xã"
-            className={cx("form-item")}
-            rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
-          >
+          <Form.Item name="ward" label="Phường/Xã">
             <Select
               placeholder="Chọn phường/xã"
-              className={cx("form-select")}
-              disabled={wards.length === 0}
+              disabled={!form.getFieldValue("district")}
             >
               {wards.map((ward) => (
                 <Option key={ward} value={ward}>
@@ -388,25 +394,11 @@ function PageAddress() {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="detailAddress"
-            label="Địa chỉ chi tiết"
-            className={cx("form-item")}
-            rules={[
-              { required: true, message: "Vui lòng nhập địa chỉ chi tiết" },
-            ]}
-          >
-            <Input
-              className={cx("form-input")}
-              placeholder="Nhập số nhà, tên đường, tòa nhà,..."
-            />
+          <Form.Item name="country" label="Quốc gia" hidden>
+            <Input />
           </Form.Item>
 
-          <Form.Item
-            name="isDefault"
-            valuePropName="checked"
-            className={cx("form-checkbox")}
-          >
+          <Form.Item name="isDefault" valuePropName="checked">
             <Checkbox>Đặt làm địa chỉ mặc định</Checkbox>
           </Form.Item>
 
@@ -418,8 +410,32 @@ function PageAddress() {
           </div>
         </Form>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title={
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <WarningOutlined
+              style={{
+                color: "#ff4d4f",
+                marginRight: "10px",
+                fontSize: "22px",
+              }}
+            />
+            <span>Xác nhận xóa địa chỉ</span>
+          </div>
+        }
+        open={deleteModalVisible}
+        onCancel={cancelDeleteAddress}
+        confirmLoading={deletingAddress}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }}
+        onOk={confirmDeleteAddress}
+      >
+        <p>Bạn có chắc chắn muốn xóa địa chỉ này?</p>
+        <p>Địa chỉ sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+      </Modal>
     </div>
   );
 }
-
-export default PageAddress;

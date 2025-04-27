@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getCurrentUser } from "@/services/AuthServices";
 import styles from "./layout.module.scss";
 import classNames from "classnames/bind";
 import Link from "next/link";
@@ -14,6 +13,10 @@ import {
   LockOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { logout } from "@/redux/apiRequest";
+import { toast } from "react-hot-toast";
 
 const cx = classNames.bind(styles);
 
@@ -22,6 +25,17 @@ interface UserProfileData {
   full_name: string;
   email: string;
   avatar?: string;
+}
+
+// Define the expected shape of the user object from Redux
+interface ReduxUser {
+  id?: string;
+  _id?: string;
+  fullName?: string;
+  full_name?: string;
+  email: string;
+  avatar?: string;
+  [key: string]: any;
 }
 
 export default function AccountLayout({
@@ -33,32 +47,51 @@ export default function AccountLayout({
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const dispatch = useDispatch();
+
+  // Get user data from Redux store with correct typing
+  const currentUser = useSelector<RootState, ReduxUser | null>(
+    (state) => state.auth.login.currentUser
+  );
 
   useEffect(() => {
-    const userData = getCurrentUser();
-
-    if (!userData) {
-      // Nếu không có thông tin đăng nhập, chuyển hướng về trang chủ
+    // If no user in Redux state, redirect to home page
+    if (!currentUser) {
       router.push("/");
       return;
     }
 
-    // Cài đặt dữ liệu người dùng
+    // Set user data from Redux state
     setUser({
-      id: userData.id || "1",
-      full_name: userData.full_name || "Nguyễn Văn A",
-      email: userData.email || "example@gmail.com",
+      id: currentUser.id || currentUser._id || "1",
+      full_name: currentUser.fullName || currentUser.full_name || "Người dùng",
+      email: currentUser.email || "example@gmail.com",
       avatar:
-        userData.avatar ||
+        currentUser.avatar ||
         "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png",
     });
 
     setLoading(false);
-  }, [router]);
+  }, [router, currentUser]);
 
   // Hàm kiểm tra xem menu item có đang active hay không
   const isActive = (path: string) => {
     return pathname === path;
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Call the Redux logout function with dispatch
+      await logout(dispatch, router);
+
+      // Show success message
+      toast.success("Đăng xuất thành công");
+
+      // Router will redirect to home page
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Có lỗi xảy ra khi đăng xuất");
+    }
   };
 
   if (loading) {
@@ -142,7 +175,11 @@ export default function AccountLayout({
                 <span>Đổi mật khẩu</span>
               </Link>
 
-              <div className={cx("menu-item", "logout-item")}>
+              <div
+                className={cx("menu-item", "logout-item")}
+                onClick={handleLogout}
+                style={{ cursor: "pointer" }}
+              >
                 <LogoutOutlined className={cx("menu-icon")} />
                 <span>Đăng xuất</span>
               </div>

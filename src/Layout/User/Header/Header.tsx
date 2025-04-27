@@ -7,32 +7,49 @@ import Image from "next/image";
 import SearchModal from "@/components/SearchModal";
 import Login from "@/Layout/components/Login/Login";
 import IsLoginMenu from "@/Layout/components/IsLoginMenu";
-import { getCurrentUser } from "@/services/AuthServices";
 import MegaMenu from "@/components/MegaMenu";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useRouter } from "next/navigation";
+import { logout } from "@/redux/apiRequest";
+import {
+  UserOutlined,
+  ShoppingOutlined,
+  EnvironmentOutlined,
+  LockOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 
 const cx = classNames.bind(styles);
+
+// Define the user interface to avoid type errors
+interface User {
+  avatar?: string;
+  [key: string]: any;
+}
 
 function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginMenuOpen, setIsLoginMenuOpen] = useState(false);
-  const [userAvatar, setUserAvatar] = useState(
-    "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png"
-  );
   const loginModalRef = useRef(null);
   const loginMenuRef = useRef<HTMLDivElement>(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
 
-  // Check login status from the current user when component mounts
+  // Get user data from Redux store with proper typing
+  const currentUser = useSelector<RootState, User | null>(
+    (state) => state.auth.login.currentUser
+  );
+  const isLoggedIn = Boolean(currentUser);
+  const userAvatar =
+    currentUser?.avatar ||
+    "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png";
+
+  // Add an effect to ensure the component rerenders when auth state changes
   useEffect(() => {
-    const user = getCurrentUser();
-    if (user) {
-      setIsLoggedIn(true);
-      // If user has an avatar, use it
-      if (user.avatar) {
-        setUserAvatar(user.avatar);
-      }
-    }
+    // This empty dependency array effect will force a rerender when the component mounts
+    // which helps ensure that currentUser is properly retrieved from redux-persist
   }, []);
 
   // Handle outside click to close login menu
@@ -71,23 +88,23 @@ function Header() {
 
   const handleCloseLoginModal = (loginSuccess = false) => {
     setIsLoginModalOpen(false);
+    // If login was successful, ensure UI updates properly
     if (loginSuccess) {
-      // Check for user info in localStorage after successful login
-      const user = getCurrentUser();
-      if (user) {
-        setIsLoggedIn(true);
-        // Update avatar if available
-        if (user.avatar) {
-          setUserAvatar(user.avatar);
-        }
-      }
+      // This triggers a rerender to show the user avatar
+      setTimeout(() => {
+        setIsLoginMenuOpen(false);
+      }, 100);
     }
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setIsLoginMenuOpen(false);
-    // Logout is handled by the IsLoginMenu component
+  const handleLogout = async () => {
+    try {
+      await logout(dispatch, router);
+      setIsLoginMenuOpen(false);
+      // Redirect handled by the router in logout function
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   return (

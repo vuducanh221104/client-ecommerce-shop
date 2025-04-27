@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import classNames from "classnames/bind";
 import styles from "./CardProduct.module.scss";
 import Image from "next/image";
@@ -16,6 +16,10 @@ interface ColorOption {
     hover: string;
   };
   colorThumbnail?: string;
+  sizes?: Array<{
+    size: string;
+    stock: number;
+  }>;
 }
 
 interface ProductProps {
@@ -32,6 +36,7 @@ interface ProductProps {
   hoverImage: string;
   colors: ColorOption[];
   sizes?: string[];
+  outOfStock?: boolean;
 }
 
 function CardProduct({
@@ -48,10 +53,13 @@ function CardProduct({
   hoverImage,
   colors,
   sizes,
+  outOfStock = false,
 }: ProductProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedColorId, setSelectedColorId] = useState(colors[0]?.id);
   const [showAllColors, setShowAllColors] = useState(false);
+  const [isCurrentColorOutOfStock, setIsCurrentColorOutOfStock] =
+    useState(false);
 
   // Maximum number of colors   to show initially
   const MAX_COLORS_VISIBLE = 6;
@@ -90,6 +98,19 @@ function CardProduct({
     setShowAllColors(true);
   };
 
+  // Check if selected color is out of stock
+  useEffect(() => {
+    if (selectedColor && selectedColor.sizes) {
+      // Si todos los tamaños tienen stock 0, el color está agotado
+      const allSizesOutOfStock = selectedColor.sizes.every(
+        (size) => size.stock <= 0
+      );
+      setIsCurrentColorOutOfStock(allSizesOutOfStock);
+    } else {
+      setIsCurrentColorOutOfStock(outOfStock);
+    }
+  }, [selectedColorId, selectedColor, outOfStock]);
+
   return (
     <div className={cx("product-card")}>
       <Link href={link} className={cx("product-link")}>
@@ -121,6 +142,19 @@ function CardProduct({
 
           {isNew && (
             <span className={cx("product-badge", "new-badge")}>NEW</span>
+          )}
+
+          {isCurrentColorOutOfStock && (
+            <span
+              className={cx("product-badge", "out-of-stock-badge")}
+              style={{
+                backgroundColor: "#ff3b30",
+                right: "10px",
+                left: "auto",
+              }}
+            >
+              HẾT HÀNG
+            </span>
           )}
 
           {rating && (

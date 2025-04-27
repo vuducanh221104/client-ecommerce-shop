@@ -9,6 +9,8 @@ import {
 } from "@ant-design/icons";
 import styles from "./page.module.scss";
 import classNames from "classnames/bind";
+import { changePassword } from "@/services/AuthServices";
+import { toast } from "react-hot-toast";
 
 const cx = classNames.bind(styles);
 
@@ -29,23 +31,34 @@ function PageChangePassword() {
     setNewPassword(e.target.value);
   };
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: any) => {
     setLoading(true);
-    // Giả lập API call
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      message.success("Mật khẩu đã được cập nhật thành công");
+    try {
+      // Call the actual API instead of using setTimeout
+      const result = await changePassword(
+        values.currentPassword,
+        values.newPassword
+      );
 
-      // Reset form sau khi thành công
+      setSuccess(true);
+      toast.success(result.message || "Mật khẩu đã được cập nhật thành công");
+
+      // Reset form after success
       form.resetFields();
       setNewPassword("");
 
-      // Ẩn thông báo thành công sau 3 giây
+      // Hide success message after 3 seconds
       setTimeout(() => {
         setSuccess(false);
       }, 3000);
-    }, 1500);
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ||
+          "Không thể cập nhật mật khẩu. Vui lòng thử lại."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

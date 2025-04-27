@@ -4,9 +4,11 @@ import styles from "./Login.module.scss";
 import classNames from "classnames/bind";
 import Register from "../Register/Register";
 import ForgetPassword from "../ForgetPassword/ForgetPassword";
-import { authLogin } from "@/services/AuthServices";
 import { toast } from "react-hot-toast";
 import { Form, Input } from "antd";
+import { useDispatch } from "react-redux";
+import { login } from "@/redux/apiRequest";
+import { useRouter } from "next/navigation";
 
 const cx = classNames.bind(styles);
 
@@ -22,6 +24,8 @@ function Login({ onClose }: LoginProps) {
   const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const [form] = Form.useForm();
+  const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     // Add event listener for clicks outside the modal
@@ -70,27 +74,37 @@ function Login({ onClose }: LoginProps) {
     setShowRegister(false);
   };
 
-  // Updated login function to use antd form
+  // Updated login function to use Redux
   const handleLogin = async () => {
     try {
       const values = await form.validateFields();
       setIsLoading(true);
 
       try {
-        // Call the auth service with emailOrPhone
-        const result = await authLogin({
-          emailOrPhone: values.emailOrPhone,
-          password: values.password,
-        });
+        // Use the Redux login function with dispatch
+        const result = await login(
+          {
+            emailOrPhone: values.emailOrPhone,
+            password: values.password,
+          },
+          "", // tokenCaptcha (empty string)
+          dispatch,
+          router
+        );
 
-        // Show success toast notification here
-        toast.success("Đăng nhập thành công!");
+        if (result) {
+          // Show success toast notification
+          toast.success("Đăng nhập thành công!");
 
-        // If successful, close the modal
-        setIsClosing(true);
-        setTimeout(() => {
-          onClose(true);
-        }, 400);
+          // If successful, close the modal with a slight delay to ensure Redux state is updated
+          setIsClosing(true);
+
+          // Ensure Redux state is properly persisted before closing
+          setTimeout(() => {
+            // Pass true to indicate successful login
+            onClose(true);
+          }, 500);
+        }
       } catch (error: any) {
         // Show error message
         toast.error(

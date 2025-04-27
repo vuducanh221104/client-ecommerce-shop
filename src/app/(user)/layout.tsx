@@ -6,6 +6,7 @@ import { Metadata, Viewport } from "next/types";
 import Header from "@/Layout/User/Header";
 import Footer from "@/Layout/User/Footer";
 import { Toaster } from "react-hot-toast";
+import ProviderRedux from "@/redux/ProviderRedux";
 // import { poppins } from '@/assets/FontNext';
 
 // const poppinsFont = poppins;
@@ -33,32 +34,34 @@ export default function RootLayout({
     <html lang="vn" suppressHydrationWarning={true}>
       <head></head>
       <body data-instant-intensity="viewport">
-        <Header />
+        <ProviderRedux>
+          <Header />
 
-        <main className="main-content">{children}</main>
-        <Footer />
+          <main className="main-content">{children}</main>
+          <Footer />
 
-        {/* Toast notification container */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: "#333",
-              color: "#fff",
-            },
-            success: {
+          {/* Toast notification container */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
               style: {
-                background: "#22c55e",
+                background: "#333",
+                color: "#fff",
               },
-            },
-            error: {
-              style: {
-                background: "#ef4444",
+              success: {
+                style: {
+                  background: "#22c55e",
+                },
               },
-            },
-          }}
-        />
+              error: {
+                style: {
+                  background: "#ef4444",
+                },
+              },
+            }}
+          />
+        </ProviderRedux>
 
         {/* <ProviderRedux> */}
         {/* <GoogleOAuthProvider clientId={clientId || ''}> */}
