@@ -14,7 +14,7 @@
     "static/chunks/node_modules_rc-field-form_es_29709d._.js",
     "static/chunks/node_modules_@rc-component_6ce01f._.js",
     "static/chunks/node_modules_@ant-design_4e3f9f._.js",
-    "static/chunks/node_modules_81e50b._.js"
+    "static/chunks/node_modules_918458._.js"
   ],
   "source": "dynamic"
 });

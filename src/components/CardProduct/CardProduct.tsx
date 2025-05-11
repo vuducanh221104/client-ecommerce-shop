@@ -25,8 +25,7 @@ interface ColorOption {
 interface ProductProps {
   id: number;
   title: string;
-  price: number;
-  originalPrice: number;
+  price?: any;
   discount: number;
   rating: number;
   reviewCount: number;
@@ -43,7 +42,6 @@ function CardProduct({
   id,
   title,
   price,
-  originalPrice,
   discount,
   rating,
   reviewCount,
@@ -60,7 +58,7 @@ function CardProduct({
   const [showAllColors, setShowAllColors] = useState(false);
   const [isCurrentColorOutOfStock, setIsCurrentColorOutOfStock] =
     useState(false);
-
+  console.log(price);
   // Maximum number of colors   to show initially
   const MAX_COLORS_VISIBLE = 6;
   const hasExtraColors = colors.length > MAX_COLORS_VISIBLE;
@@ -236,12 +234,17 @@ function CardProduct({
           <h3 className={cx("product-title")}>{title}</h3>
 
           <div className={cx("product-price")}>
-            <span className={cx("current-price")}>{formatPrice(price)}đ</span>
-            {discount > 0 && (
+            <span className={cx("current-price")}>
+              {formatPrice(
+                price.discount > 0 ? price.discount : price.original
+              )}
+              đ
+            </span>
+            {price.discount > 0 && (
               <>
                 <span className={cx("discount-badge")}>-{discount}%</span>
                 <span className={cx("original-price")}>
-                  {formatPrice(originalPrice)}đ
+                  {formatPrice(price.original)}đ
                 </span>
               </>
             )}

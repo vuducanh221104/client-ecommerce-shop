@@ -53,12 +53,12 @@ function ProductDescription({ dataDescription }: { dataDescription: any }) {
               </div>
 
               <div className={cx("specs-grid")}>
-                <div className={cx("spec-item")}>
+                {/* <div className={cx("spec-item")}>
                   <div className={cx("spec-label")}>CÔNG NGHỆ:</div>
                   <div className={cx("spec-value")}>
                     {dataDescription.header.material}
                   </div>
-                </div>
+                </div> */}
 
                 <div className={cx("spec-item")}>
                   <div className={cx("spec-label")}>CHẤT LIỆU:</div>

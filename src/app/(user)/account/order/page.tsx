@@ -336,7 +336,7 @@ export default function OrdersPage() {
           description="Bạn chưa có đơn hàng nào"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         >
-          <Button type="primary" onClick={() => router.push("/products")}>
+          <Button type="primary" onClick={() => router.push("/category/nam")}>
             Mua sắm ngay
           </Button>
         </Empty>

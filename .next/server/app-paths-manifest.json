@@ -1,13 +1,14 @@
 {
-  "/(user)/cart/page": "app/(user)/cart/page.js",
+  "/(admin)/admin/products/page": "app/(admin)/admin/products/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/(user)/page": "app/(user)/page.js",
-  "/(user)/confirmOrder/page": "app/(user)/confirmOrder/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/(user)/product/[slug]/page": "app/(user)/product/[slug]/page.js",
-  "/(user)/account/order/page": "app/(user)/account/order/page.js",
-  "/(user)/account/info/page": "app/(user)/account/info/page.js",
-  "/(user)/account/address/page": "app/(user)/account/address/page.js",
-  "/(user)/account/changePassword/page": "app/(user)/account/changePassword/page.js",
-  "/(user)/category/[slug]/page": "app/(user)/category/[slug]/page.js"
+  "/(admin)/admin/products/add/page": "app/(admin)/admin/products/add/page.js",
+  "/(user)/page": "app/(user)/page.js",
+  "/(admin)/admin/dashboard/page": "app/(admin)/admin/dashboard/page.js",
+  "/(admin)/admin/orders/page": "app/(admin)/admin/orders/page.js",
+  "/(admin)/admin/users/page": "app/(admin)/admin/users/page.js",
+  "/(admin)/admin/categories/page": "app/(admin)/admin/categories/page.js",
+  "/(admin)/admin/materials/page": "app/(admin)/admin/materials/page.js",
+  "/(admin)/admin/auth/login/page": "app/(admin)/admin/auth/login/page.js",
+  "/(admin)/admin/auth/logout/page": "app/(admin)/admin/auth/logout/page.js"
 }

@@ -115,8 +115,7 @@ function ProductList({
                 <CardProduct
                   id={parseInt(product.id)}
                   title={product.name}
-                  price={product.price.original}
-                  originalPrice={product.price.discount}
+                  price={product.price}
                   discount={product.price.discountQuantity}
                   rating={4.8}
                   reviewCount={12}

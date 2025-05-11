@@ -19,6 +19,9 @@ import { productGetBySlug } from "@/services/productServices";
 import { addToCart } from "@/services/CartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
+import { useDispatch } from "react-redux";
+import { addProductToCart } from "@/redux/cartSlice";
+
 const cx = classNames.bind(styles);
 
 interface Size {
@@ -77,6 +80,7 @@ interface ProductData {
 }
 
 function PageProductDetail({}) {
+  const dispatch = useDispatch();
   const [activeSize, setActiveSize] = useState("");
   const [activeColor, setActiveColor] = useState("");
   const [quantity, setQuantity] = useState<number | string>(1);
@@ -273,14 +277,37 @@ function PageProductDetail({}) {
         return;
       }
 
+      const numQuantity =
+        typeof quantity === "string" ? parseInt(quantity) : quantity;
+
       const cartData = {
         _id: product.id,
-        quantityAddToCart: Number(quantity),
+        quantityAddToCart: numQuantity,
         selectedColor: activeColor,
         selectedSize: activeSize,
       };
 
+      // Call API to add to cart
       await addToCart(cartData);
+
+      // Create product object for Redux
+      const productForRedux = {
+        _id: product.id,
+        name: product.name,
+        thumb: selectedVariant?.images[0] || "",
+        price: {
+          original: product.price.originalPrice || product.price.original || 0,
+          discount: product.price.price || product.price.discount || 0,
+        },
+        quantityAddToCart: numQuantity,
+        colorOrder: activeColor,
+        sizeOrder: activeSize,
+        stock: currentStock,
+      };
+
+      // Dispatch to Redux store
+      dispatch(addProductToCart(productForRedux));
+
       toast.success("Thêm vào giỏ hàng thành công!");
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -381,33 +408,52 @@ function PageProductDetail({}) {
                 </div>
               </div>
 
-              <div className={cx("price-section")}>
-                <span className={cx("original-price")}>
-                  {product?.price
-                    ? formatPrice(
-                        product.price.originalPrice || product.price.original
-                      )
-                    : "0"}
-                  đ
-                </span>
-                <div className={cx("price-container")}>
-                  <div className={cx("prices")}>
-                    <span className={cx("current-price")}>
-                      {product?.price
-                        ? formatPrice(
-                            product.price.price || product.price.discount
-                          )
-                        : "0"}
-                      đ
-                    </span>
-                  </div>
-                  {calculateDiscount() > 0 && (
-                    <div className={cx("discount-tag")}>
-                      -{calculateDiscount()}%
+              {product?.price?.discount > 0 && (
+                <div className={cx("price-section")}>
+                  <span className={cx("original-price")}>
+                    {product?.price
+                      ? formatPrice(
+                          product.price.originalPrice || product.price.original
+                        )
+                      : "0"}
+                    đ
+                  </span>
+                  <div className={cx("price-container")}>
+                    <div className={cx("prices")}>
+                      <span className={cx("current-price")}>
+                        {product?.price
+                          ? formatPrice(
+                              product.price.price || product.price.discount
+                            )
+                          : "0"}
+                        đ
+                      </span>
                     </div>
-                  )}
+                    {calculateDiscount() > 0 && (
+                      <div className={cx("discount-tag")}>
+                        -{calculateDiscount()}%
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {product?.price?.discount === 0 && (
+                <div className={cx("price-section")}>
+                  <div className={cx("price-container")}>
+                    <div className={cx("prices")}>
+                      <span className={cx("current-price")}>
+                        {product?.price
+                          ? formatPrice(
+                              product.price.original || product.price.original
+                            )
+                          : "0"}
+                        đ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className={cx("promotion-shipping")}>
                 <Image

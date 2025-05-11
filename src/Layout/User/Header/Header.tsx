@@ -41,10 +41,29 @@ function Header() {
   const currentUser = useSelector<RootState, User | null>(
     (state) => state.auth.login.currentUser
   );
+
+  // Get cart data from Redux store
+  const cartQuantity = useSelector<RootState, number>(
+    (state) => state.cart.quantity
+  );
+
+  const cartProducts = useSelector<RootState, any[]>(
+    (state) => state.cart.products || []
+  );
+
+  const cartTotalPrice = useSelector<RootState, number>(
+    (state) => state.cart.totalPrice
+  );
+
   const isLoggedIn = Boolean(currentUser);
   const userAvatar =
     currentUser?.avatar ||
     "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png";
+
+  // Format price
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
 
   // Add an effect to ensure the component rerenders when auth state changes
   useEffect(() => {
@@ -307,7 +326,9 @@ function Header() {
                   height={24}
                 />
               </Link>
-              <span className={cx("counts", "site-header__cartcount")}>2</span>
+              <span className={cx("counts", "site-header__cartcount")}>
+                {cartQuantity}
+              </span>
               <div className={cx("header-actions__menu")}>
                 <div className={cx("header-actions__inner")}>
                   <div className={cx("mini-cart")}>
@@ -318,10 +339,10 @@ function Header() {
                             Tạm tính:
                           </span>
                           <span className={cx("mini-cart__title-two")}>
-                            297.000đ
+                            {formatPrice(cartTotalPrice)}đ
                           </span>
                           <span className={cx("mini-cart__title-three")}>
-                            ( 2 sản phẩm )
+                            ( {cartQuantity} sản phẩm )
                           </span>
                         </span>
                         <Link href={"/cart"} className={cx("")}>
@@ -329,40 +350,76 @@ function Header() {
                         </Link>
                       </div>
                     </div>
-                    <div className={cx("mini-cart__item")}>
-                      <div className={cx("mini-cart__item-thumbnail")}>
-                        <Image
-                          src="https://media3.coolmate.me/cdn-cgi/image/width=160,height=181,quality=80/uploads/March2025/quan-nam-travel-short-7-inch-Xam_1.jpg"
-                          alt="product"
-                          width={100}
-                          height={100}
-                        />
+
+                    {cartProducts && cartProducts.length > 0 ? (
+                      cartProducts.slice(0, 2).map((product, index) => (
+                        <div
+                          key={`${product._id}-${index}`}
+                          className={cx("mini-cart__item")}
+                        >
+                          <div className={cx("mini-cart__item-thumbnail")}>
+                            <Image
+                              src={product.thumb || "/placeholder-product.jpg"}
+                              alt={product.name}
+                              width={100}
+                              height={100}
+                              style={{ objectFit: "cover" }}
+                            />
+                          </div>
+                          <div className={cx("mini-cart__item-content")}>
+                            <span className={cx("mini-cart__remove")}>x</span>
+                            <div className={cx("mini-cart__item-title")}>
+                              <Link
+                                href={`/product/${product.slug || product._id}`}
+                              >
+                                {product.name}
+                              </Link>
+                            </div>
+                            <div className="mini-cart__item-variant-info">
+                              {product.colorOrder}{" "}
+                              {product.sizeOrder && `/ ${product.sizeOrder}`}
+                            </div>
+                            <div>
+                              <span className={cx("mini-cart__item-price")}>
+                                {formatPrice(
+                                  product.price?.discount ||
+                                    product.price?.original ||
+                                    0
+                                )}
+                                đ
+                              </span>{" "}
+                              {product.price?.original >
+                                (product.price?.discount || 0) && (
+                                <del
+                                  className={cx(
+                                    "mini-cart__item-price-compare"
+                                  )}
+                                >
+                                  {formatPrice(product.price?.original || 0)}đ
+                                </del>
+                              )}
+                            </div>
+                            <div
+                              className={cx("mini-cart__item-quantity-wrapper")}
+                            >
+                              <span className={cx("mini-cart__item-quantity")}>
+                                x{product.quantityAddToCart}
+                              </span>{" "}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className={cx("empty-cart")}>
+                        <p>Giỏ hàng của bạn đang trống</p>
+                        <Link
+                          href="/products"
+                          className={cx("continue-shopping")}
+                        >
+                          Tiếp tục mua sắm
+                        </Link>
                       </div>
-                      <div className={cx("mini-cart__item-content")}>
-                        <span className={cx("mini-cart__remove")}>x</span>
-                        <div className={cx("mini-cart__item-title")}>
-                          <Link href={"/"}>
-                            Quần nam travel short 7 inch xam
-                          </Link>
-                        </div>
-                        <div className="mini-cart__item-variant-info">
-                          Xám / M
-                        </div>
-                        <div>
-                          <span className={cx("mini-cart__item-price")}>
-                            297.000đ
-                          </span>{" "}
-                          <del className={cx("mini-cart__item-price-compare")}>
-                            349.000đ
-                          </del>
-                        </div>
-                        <div className={cx("mini-cart__item-quantity-wrapper")}>
-                          <span className={cx("mini-cart__item-quantity")}>
-                            x1
-                          </span>{" "}
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>

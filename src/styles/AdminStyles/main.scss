@@ -1,0 +1,302 @@
+main.ant-layout-content.content-ant {
+    padding-left: 0px !important;
+}
+section.ant-layout.layout-content .ant-layout-content.content-ant {
+    padding: 0px !important;
+}
+
+ .ant-layout.ant-layout-has-sider > .ant-layout,
+.ant-layout.ant-layout-has-sider > .ant-layout-content {
+    overflow-x: hidden;
+}
+
+  main.ant-layout-content.content-ant {
+    padding-left: 0px !important;
+}
+
+.layout-default .ant-layout-content {
+    padding-top: 40px;
+}
+
+.layout-dashboard .ant-layout-content {
+    padding: 0;
+    margin: 0 20px 0;
+}
+
+section.ant-layout.layout-content .ant-layout-content.content-ant {
+    padding: 0px !important;
+}
+
+.layout-default .ant-layout-content.p-0 {
+    padding: 0px;
+}
+
+.ant-card.criclebox {
+    box-shadow: 0px 20px 27px #0000000d;
+    border-radius: 12px;
+}
+
+.ant-card.criclebox .project-ant {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.ant-card.criclebox table th {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.number span {
+    font-weight: 600;
+    color: #8c8c8c;
+    font-size: 14px;
+}
+.number h3 {
+    font-weight: 700;
+    margin-bottom: 0px;
+    font-size: 20px;
+}
+
+.number h3 small {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.card-credit .card-number {
+    word-spacing: 10px;
+    font-weight: 600;
+    margin-bottom: 45px;
+    font-size: 20px;
+}
+
+.layout-dashboard-rtl .ant-badge-count,
+.layout-dashboard-rtl .ant-badge-dot,
+.layout-dashboard-rtl .ant-badge .ant-scroll-number-custom-component {
+    left: 0;
+    right: auto;
+    transform: translate(-50%, -50%);
+}
+
+.icon-box span {
+    color: #fff;
+    font-size: 24px;
+}
+
+.layout-dashboard-rtl .icon-box {
+    margin-left: 0px;
+    margin-right: auto;
+}
+
+.mb-24 {
+    margin-bottom: 24px;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.col-content {
+    flex-grow: 1;
+    padding: 24px;
+    margin-right: 0;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.p-20 {
+    padding: '0px 20px 0px 0px';
+}
+
+.ant-muse span {
+    color: #8c8c8c;
+    font-weight: 600;
+}
+
+.ant-muse h5 {
+    margin: 0px 0px 15px !important;
+    font-size: 20px;
+}
+
+.ant-typography.lastweek {
+    color: #8c8c8c;
+    font-weight: 600;
+}
+
+.card-credit .card-footer {
+    display: flex;
+    align-items: flex-end;
+}
+
+.card-credit .card-footer {
+    display: flex;
+    align-items: flex-end;
+}
+
+.card-credit .card-footer h6,
+.card-credit .card-footer p {
+    margin-bottom: 0;
+}
+
+.card-credit .card-footer h6 {
+    font-weight: 700;
+}
+
+.card-project.ant-card .card-footer {
+    margin-top: 22px;
+}
+
+.icon-move-right .anticon-right {
+    color: #40a9ff;
+    margin-left: 2px;
+}
+
+.icon-move-right {
+    color: #1890ff;
+
+    display: block;
+}
+
+.gradent .icon-move-right {
+    color: #fff;
+}
+
+.gradent .icon-move-right .anticon-right {
+    color: #fff;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.border10 {
+    border-radius: 10px;
+}
+
+.bar-chart {
+    background: transparent linear-gradient(62deg, #00369e 0%, #005cfd 53%, #a18dff 100%) 0% 0% no-repeat padding-box;
+    box-shadow: 0px 4px 6px #0000001f;
+
+    border-radius: 8px;
+}
+
+.bar-chart line.apexcharts-xaxis-tick {
+    stroke: transparent;
+}
+.bnb2 {
+    color: #52c41a;
+
+    font-weight: 700;
+}
+
+.linechart h5 {
+    font-weight: 700;
+    margin: 0px;
+}
+.linechart {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sales ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+.sales ul li:first-child span.anticon {
+    color: #b37feb;
+}
+
+.sales ul li:last-child span.anticon {
+    color: #1890ff;
+}
+.sales ul li {
+    color: #8c8c8c;
+    margin-bottom: 3px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.antd-pro-pages-dashboard-analysis-style-salesExtra a {
+    display: inline-block;
+    padding: 7px 10px;
+    color: #595959;
+    border: 1px solid #d9d9d9;
+    text-align: center;
+    border-right: 1px solid transparent;
+}
+
+.antd-pro-pages-dashboard-analysis-style-salesExtra a:last-child {
+    border-right: 1px solid #d9d9d9;
+    border-radius: 0px 5px 5px 0px;
+}
+
+.antd-pro-pages-dashboard-analysis-style-salesExtra a:first-child {
+    border-radius: 5px 0px 0px 5px;
+}
+
+.antd-pro-pages-dashboard-analysis-style-salesExtra a:hover {
+    color: #1890ff;
+    border: 1px solid #1890ff;
+}
+.antd-pro-pages-dashboard-analysis-style-salesExtra a.active {
+    color: #1890ff;
+    border: 1px solid #1890ff;
+}
+
+.full-width path {
+    fill: transparent;
+}
+.ant-cret img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+.ant-page-header-heading-title {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 4px;
+}
+section.ant-layout.ant-layout-has-sider.layout-dashboard.layout-profile span.ant-page-header-heading-title {
+    color: #fff;
+}
+@media (max-width: 992px) {
+    .icon-move-right {
+        margin-bottom: 15px;
+    }
+
+    .bar-chart {
+        width: 100% !important;
+        max-width: 100%;
+    }
+
+    .bar-chart {
+        width: 100% !important;
+    }
+    .full-width {
+        max-width: 100% !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .ant-col.col-img img {
+        height: 196px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .bar-chart {
+        max-width: 100%;
+    }
+    .full-width {
+        max-width: 100%;
+    }
+}

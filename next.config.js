@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require("path");
+
 const nextConfig = {
   images: {
     domains: [
@@ -7,6 +9,18 @@ const nextConfig = {
       "www.coolmate.me",
       "coolmate.me",
       "mcdn.coolmate.me",
+    ],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "fonts.googleapis.com",
+        pathname: "/**",
+      },
     ],
   },
 };
