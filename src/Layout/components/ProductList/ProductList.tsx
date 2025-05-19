@@ -39,7 +39,7 @@ function ProductList({
     const fetchProducts = async () => {
       try {
         const response = await productGetAll();
-        setProducts(response.products);
+        setProducts(response.products || []);
       } catch (error) {
         console.error("Error fetching products:", error);
       }

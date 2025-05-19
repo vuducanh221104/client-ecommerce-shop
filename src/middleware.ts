@@ -7,58 +7,34 @@ const PROTECTED_ROUTES = {
     login: "/admin/auth/login",
     base: "/admin/dashboard",
   },
-  //   auth: {
-  //     login: "/auth/login",
-  //     register: "/auth/register",
-  //     recover: "/auth/recover",
-  //     resetPassword: "/auth/resetPassword",
-  //     verifyEmail: "/auth/verifyEmail",
-  //     verifyEmailCheck: "/auth/verifyEmail/check",
-  //     verifyEmailCheckRegister: "/auth/verifyEmail/checkRegister",
-  //   },
+  auth: {
+    login: "/auth/login",
+    register: "/auth/register",
+    recover: "/auth/recover",
+    resetPassword: "/auth/resetPassword",
+  },
 };
 
 export function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
   const refreshTokenAdmin = request.cookies.get("refreshTokenAdmin")?.value;
-  const isVerifyEmail = request.cookies.get("isVerifyEmail")?.value;
   const { pathname } = request.nextUrl;
 
-  //   // Xử lý routes auth
-  //   if (pathname.startsWith("/auth")) {
-  //     // Nếu đã đăng nhập, không cho phép truy cập các trang login, register, recover, resetPassword
-  //     if (
-  //       refreshToken &&
-  //       [
-  //         PROTECTED_ROUTES.auth.login,
-  //         PROTECTED_ROUTES.auth.register,
-  //         PROTECTED_ROUTES.auth.recover,
-  //         PROTECTED_ROUTES.auth.resetPassword,
-  //       ].includes(pathname)
-  //     ) {
-  //       return NextResponse.redirect(new URL("/", request.url));
-  //     }
-
-  //     // Nếu đã verify email, không cho phép truy cập các trang verify
-  //     if (
-  //       refreshToken &&
-  //       isVerifyEmail === "true" &&
-  //       [
-  //         PROTECTED_ROUTES.auth.verifyEmail,
-  //         PROTECTED_ROUTES.auth.verifyEmailCheck,
-  //         PROTECTED_ROUTES.auth.verifyEmailCheckRegister,
-  //       ].includes(pathname)
-  //     ) {
-  //       return NextResponse.redirect(new URL("/", request.url));
-  //     }
-
-  //     // Nếu chưa đăng nhập, không cho phép truy cập trang verify email
-  //     if (!refreshToken && pathname === PROTECTED_ROUTES.auth.verifyEmail) {
-  //       return NextResponse.redirect(
-  //         new URL(PROTECTED_ROUTES.auth.login, request.url)
-  //       );
-  //     }
-  //   }
+  // Xử lý routes auth
+  if (pathname.startsWith("/auth")) {
+    // Nếu đã đăng nhập, không cho phép truy cập các trang login, register, recover, resetPassword
+    if (
+      refreshToken &&
+      [
+        PROTECTED_ROUTES.auth.login,
+        PROTECTED_ROUTES.auth.register,
+        PROTECTED_ROUTES.auth.recover,
+        PROTECTED_ROUTES.auth.resetPassword,
+      ].includes(pathname)
+    ) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
 
   // Xử lý routes admin
   if (pathname.startsWith("/admin")) {

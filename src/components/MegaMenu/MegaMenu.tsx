@@ -92,10 +92,7 @@ export const categoriesData: Record<MenuType, Category[]> = {
       href: "/category/all",
       links: [
         { name: "Sản phẩm mới", href: "/category/new" },
-        { name: "Bán chạy nhất", href: "/category/best-seller" },
-        { name: "ECC Collection", href: "/category/ecc" },
-        { name: "Excool Collection", href: "/category/excool" },
-        { name: "Copper Denim", href: "/category/copper" },
+
       ],
     },
     {
@@ -106,9 +103,7 @@ export const categoriesData: Record<MenuType, Category[]> = {
         { name: "Áo Thun", href: "/category/ao-thun" },
         { name: "Áo Thể Thao", href: "/category/ao-the-thao" },
         { name: "Áo Polo", href: "/category/ao-polo" },
-        { name: "Áo Sơ Mi", href: "/category/ao-so-mi" },
-        { name: "Áo Dài Tay", href: "/category/ao-dai-tay" },
-        { name: "Áo Khoác", href: "/category/ao-khoac" },
+
       ],
     },
     {
@@ -116,9 +111,7 @@ export const categoriesData: Record<MenuType, Category[]> = {
       href: "/category/quan-nam",
       links: [
         { name: "Quần Short", href: "/category/quan-short" },
-        { name: "Quần Jogger", href: "/category/quan-jogger" },
         { name: "Quần Thể Thao", href: "/category/quan-the-thao" },
-        { name: "Quần Dài", href: "/category/quan-dai" },
         { name: "Quần Jean", href: "/category/quan-jean" },
         { name: "Quần Bơi", href: "/category/quan-boi" },
       ],
@@ -129,9 +122,7 @@ export const categoriesData: Record<MenuType, Category[]> = {
       links: [
         { name: "Brief(Tam giác)", href: "/category/brief" },
         { name: "Trunk(Boxer)", href: "/category/trunk" },
-        { name: "Boxer Brief (Boxer dài)", href: "/category/boxer-brief" },
-        { name: "Long Leg", href: "/category/long-leg" },
-        { name: "Short mặc nhà", href: "/category/short-mac-nha" },
+
       ],
     },
     {
@@ -150,15 +141,6 @@ export const categoriesData: Record<MenuType, Category[]> = {
       links: [
         { name: "Chạy bộ", href: "/category/chay-bo-nu" },
         { name: "Yoga & Pilates", href: "/category/yoga-pilates-nu" },
-        { name: "Thể thao chung", href: "/category/the-thao-chung-nu" },
-        {
-          name: "Pickleball & Tennis (Coming soon)",
-          href: "/category/pickleball-tennis-nu",
-        },
-        {
-          name: "Cầu lông & Bóng bàn (Coming soon)",
-          href: "/category/cau-long-bong-ban-nu",
-        },
       ],
     },
     {
@@ -167,7 +149,6 @@ export const categoriesData: Record<MenuType, Category[]> = {
       links: [
         { name: "Áo Sport Bra", href: "/category/ao-sport-bra" },
         { name: "Áo Croptop", href: "/category/ao-croptop" },
-        { name: "Áo Singlet", href: "/category/ao-singlet-nu" },
         { name: "Áo Thun", href: "/category/ao-thun-nu" },
       ],
     },
@@ -177,7 +158,6 @@ export const categoriesData: Record<MenuType, Category[]> = {
       links: [
         { name: "Quần Legging", href: "/category/quan-legging" },
         { name: "Quần Shorts", href: "/category/quan-shorts-nu" },
-        { name: "Quần Biker Shorts", href: "/category/quan-biker-shorts" },
       ],
     },
     {
@@ -188,64 +168,24 @@ export const categoriesData: Record<MenuType, Category[]> = {
         { name: "(Tất, mũ, túi...)", href: "/category/phu-kien-nu" },
       ],
     },
-    {
-      title: "KHÁM PHÁ",
-      href: "/kham-pha",
-      links: [
-        { name: "Hướng dẫn chọn Size nữ", href: "/huong-dan-chon-size-nu" },
-        { name: "Đại sứ của chúng tôi", href: "/dai-su" },
-        { name: "Câu lạc bộ đồng hành", href: "/cau-lac-bo" },
-      ],
-    },
+
   ],
   sports: [
     {
-      title: "THỂ THAO",
+      title: "Áo thể thao Nam",
       href: "/category/the-thao",
       links: [
-        { name: "Áo thể thao", href: "/category/ao-the-thao" },
-        { name: "Quần thể thao", href: "/category/quan-the-thao" },
-        { name: "Áo khoác thể thao", href: "/category/ao-khoac-the-thao" },
-        { name: "Đồ bộ thể thao", href: "/category/do-bo-the-thao" },
-        { name: "Phụ kiện thể thao", href: "/category/phu-kien-the-thao" },
+        {name: "Áo thể thao Nam", href: "/category/ao-the-thao"},
       ],
     },
     {
-      title: "CHẠY BỘ",
+      title: "Áo thể thao Nam",
       href: "/category/chay-bo",
       links: [
-        { name: "Áo chạy bộ", href: "/category/ao-chay-bo" },
-        { name: "Quần chạy bộ", href: "/category/quan-chay-bo" },
-        { name: "Phụ kiện chạy bộ", href: "/category/phu-kien-chay-bo" },
+        {name: "Áo thể thao Nữ", href: "/category/ao-the-thao"},
       ],
     },
-    {
-      title: "GYM",
-      href: "/category/gym",
-      links: [
-        { name: "Áo tập gym", href: "/category/ao-tap-gym" },
-        { name: "Quần tập gym", href: "/category/quan-tap-gym" },
-        { name: "Phụ kiện gym", href: "/category/phu-kien-gym" },
-      ],
-    },
-    {
-      title: "YOGA",
-      href: "/category/yoga",
-      links: [
-        { name: "Áo yoga", href: "/category/ao-yoga" },
-        { name: "Quần yoga", href: "/category/quan-yoga" },
-        { name: "Phụ kiện yoga", href: "/category/phu-kien-yoga" },
-      ],
-    },
-    {
-      title: "TENNIS",
-      href: "/category/tennis",
-      links: [
-        { name: "Áo tennis", href: "/category/ao-tennis" },
-        { name: "Quần tennis", href: "/category/quan-tennis" },
-        { name: "Phụ kiện tennis", href: "/category/phu-kien-tennis" },
-      ],
-    },
+   
   ],
   birthday: [
     {

@@ -45,6 +45,9 @@ import {
   getAllMaterials,
 } from "@/services/adminServices";
 import { uploadCloud } from "@/services/uploadService";
+import MarkdownEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
+import ReactMarkdown from 'react-markdown';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -1061,11 +1064,11 @@ const ProductsPage = () => {
                         <Col span={12}>
                           <Form.Item
                             name="discountPrice"
-                            label="Discount Amount"
+                            label="Discount Price"
                           >
                             <InputNumber
                               style={{ width: "100%" }}
-                              placeholder="Discount Amount"
+                              placeholder="Discount Price"
                               formatter={(value) =>
                                 `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                               }
@@ -1206,9 +1209,13 @@ const ProductsPage = () => {
                       </Row>
 
                       <Form.Item name="content" label="Content">
-                        <TextArea
-                          rows={6}
-                          placeholder="Product description..."
+                        <MarkdownEditor
+                          style={{ height: '400px' }}
+                          renderHTML={(text) => <ReactMarkdown>{text}</ReactMarkdown>}
+                          onChange={({ text }) => {
+                            editForm.setFieldsValue({ content: text });
+                          }}
+                          value={editForm.getFieldValue('content') || ''}
                         />
                       </Form.Item>
                     </>

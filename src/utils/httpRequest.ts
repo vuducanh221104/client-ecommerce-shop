@@ -1,9 +1,6 @@
 import axios, {
   AxiosRequestConfig,
   AxiosResponse,
-  AxiosError,
-  InternalAxiosRequestConfig,
-  AxiosInstance,
 } from "axios";
 
 // Extend AxiosInstance to include our custom methods
@@ -27,9 +24,9 @@ httpRequest.interceptors.request.use(
   (config) => {
     // Try to get auth token from Redux persist state first (primary source)
     if (typeof window !== "undefined") {
-      const persistRoot = localStorage.getItem("persist:root");
-      if (persistRoot) {
-        try {
+      try {
+        const persistRoot = localStorage.getItem("persist:root");
+        if (persistRoot) {
           const persistData = JSON.parse(persistRoot);
           if (persistData && persistData.auth) {
             const authState = JSON.parse(persistData.auth);
@@ -39,23 +36,19 @@ httpRequest.interceptors.request.use(
               return config; // Return early if we successfully set the token
             }
           }
-        } catch (error) {
-          console.error("Error parsing Redux persist state:", error);
-          // Continue to the fallback method
         }
-      }
 
-      // Fallback to localStorage for backward compatibility
-      const user = localStorage.getItem("user");
-      if (user) {
-        try {
+        // Fallback to localStorage for backward compatibility
+        const user = localStorage.getItem("user");
+        if (user) {
           const userData = JSON.parse(user);
           if (userData && userData.accessToken) {
             config.headers.Authorization = `Bearer ${userData.accessToken}`;
           }
-        } catch (error) {
-          console.error("Error parsing user data:", error);
         }
+      } catch (error) {
+        console.error("Error accessing token:", error);
+        // Continue without token if there's an error
       }
     }
 
@@ -74,6 +67,88 @@ httpRequest.interceptors.request.use(
   },
   (error) => {
     console.error("Request Error:", error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for handling token expiration
+httpRequest.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If the error is due to an expired token (401) and we haven't tried to refresh yet
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Try to refresh the token
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/refresh-token`, 
+          {}, 
+          { withCredentials: true }
+        );
+        
+        if (response.data && response.data.accessToken) {
+          // Update the token in the current request
+          originalRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+          
+          // Update the token in localStorage/Redux if needed
+          if (typeof window !== "undefined") {
+            try {
+              const persistRoot = localStorage.getItem("persist:root");
+              if (persistRoot) {
+                const persistData = JSON.parse(persistRoot);
+                if (persistData && persistData.auth) {
+                  const authState = JSON.parse(persistData.auth);
+                  if (authState?.login?.currentUser) {
+                    authState.login.currentUser.accessToken = response.data.accessToken;
+                    persistData.auth = JSON.stringify(authState);
+                    localStorage.setItem("persist:root", JSON.stringify(persistData));
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Error updating token in storage:", e);
+            }
+          }
+          
+          // Retry the original request
+          return axios(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        // Handle failed refresh (e.g., redirect to login)
+        if (typeof window !== "undefined") {
+          // Clear auth data
+          try {
+            const persistRoot = localStorage.getItem("persist:root");
+            if (persistRoot) {
+              const persistData = JSON.parse(persistRoot);
+              if (persistData && persistData.auth) {
+                const authState = JSON.parse(persistData.auth);
+                if (authState?.login?.currentUser) {
+                  authState.login.currentUser = null;
+                  persistData.auth = JSON.stringify(authState);
+                  localStorage.setItem("persist:root", JSON.stringify(persistData));
+                }
+              }
+            }
+            localStorage.removeItem("user");
+          } catch (e) {
+            console.error("Error clearing auth data:", e);
+          }
+          
+          // Redirect to login page if it's a client-side navigation
+          if (typeof window !== "undefined" && !originalRequest.url?.includes("/auth/")) {
+            window.location.href = "/auth/login";
+          }
+        }
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -104,7 +179,7 @@ export const get = async <T>(
 
 export const post = async <T>(
   path: string,
-  data?: any,
+  data?: Record<string, unknown>,
   options: AxiosRequestConfig = {}
 ): Promise<AxiosResponse<T>> => {
   const res = await httpRequest.post<T>(path, data, options);
@@ -113,7 +188,7 @@ export const post = async <T>(
 
 export const patch = async <T>(
   path: string,
-  data?: any,
+  data?: Record<string, unknown>,
   options: AxiosRequestConfig = {}
 ): Promise<AxiosResponse<T>> => {
   const res = await httpRequest.patch<T>(path, data, options);
@@ -122,7 +197,7 @@ export const patch = async <T>(
 
 export const put = async <T>(
   path: string,
-  data?: any,
+  data?: Record<string, unknown>,
   options: AxiosRequestConfig = {}
 ): Promise<AxiosResponse<T>> => {
   const res = await httpRequest.put<T>(path, data, options);

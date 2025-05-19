@@ -1,0 +1,23 @@
+# Build outputs
+.next/
+build/
+dist/
+out/
+
+# Node modules
+node_modules/
+
+# Package files
+package-lock.json
+yarn.lock
+
+# Public assets
+public/
+
+# Generated files
+next-env.d.ts
+
+# Misc
+.DS_Store
+.env*
+!.env.example 

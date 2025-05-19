@@ -346,6 +346,10 @@ img, video {
   visibility: visible;
 }
 
+.static {
+  position: static;
+}
+
 .absolute {
   position: absolute;
 }
@@ -382,6 +386,10 @@ img, video {
 
 .mr-2 {
   margin-right: .5rem;
+}
+
+.mr-3 {
+  margin-right: .75rem;
 }
 
 .mt-6 {
@@ -525,8 +533,17 @@ img, video {
   vertical-align: middle;
 }
 
+.text-sm {
+  font-size: .875rem;
+  line-height: 1.25rem;
+}
+
 .font-bold {
   font-weight: 700;
+}
+
+.font-medium {
+  font-weight: 500;
 }
 
 .lowercase {
@@ -941,6 +958,10 @@ b, strong {
 
   .md\:ml-0 {
     margin-left: 0;
+  }
+
+  .md\:inline {
+    display: inline;
   }
 }
 

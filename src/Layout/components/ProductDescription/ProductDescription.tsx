@@ -2,9 +2,30 @@ import React from "react";
 import styles from "./ProductDescription.module.scss";
 import classNames from "classnames/bind";
 import Image from "next/image";
+import ReactMarkdown from 'react-markdown';
+
 const cx = classNames.bind(styles);
 
-function ProductDescription({ dataDescription }: { dataDescription: any }) {
+interface DescriptionHeader {
+  material: string;
+  style: string;
+  responsible: string;
+  features: string;
+  image: string;
+}
+
+interface DescriptionBody {
+  content: string;
+}
+
+interface ProductDescriptionProps {
+  dataDescription: {
+    header: DescriptionHeader;
+    body: DescriptionBody;
+  };
+}
+
+function ProductDescription({ dataDescription }: ProductDescriptionProps) {
   console.log(dataDescription);
   return (
     <div className={cx("product-description")}>
@@ -16,23 +37,29 @@ function ProductDescription({ dataDescription }: { dataDescription: any }) {
             <div className={cx("specs-column")}>
               <div className={cx("product-features")}>
                 <div className={cx("feature-item")}>
-                  <img
+                  <Image
                     src="https://mcdn.coolmate.me//image/January2025/mceclip8_9.png"
                     alt="Siêu nhẹ"
+                    width={64}
+                    height={64}
                   />
                   <span>Siêu nhẹ</span>
                 </div>
                 <div className={cx("feature-item")}>
-                  <img
+                  <Image
                     src="https://mcdn.coolmate.me//image/January2025/mceclip18.png"
                     alt="Thoải mái"
+                    width={64}
+                    height={64}
                   />
                   <span>Thoải mái</span>
                 </div>
                 <div className={cx("feature-item")}>
-                  <img
+                  <Image
                     src="https://mcdn.coolmate.me//image/January2025/mceclip12_62.png"
                     alt="Nhanh khô"
+                    width={64}
+                    height={64}
                   />
                   <span>Nhanh khô</span>
                 </div>
@@ -103,9 +130,11 @@ function ProductDescription({ dataDescription }: { dataDescription: any }) {
             </div>
 
             <div className={cx("main-image")}>
-              <img
+              <Image
                 src={dataDescription.header.image}
                 alt="Product main image"
+                width={64}
+                height={64}
               />
             </div>
           </div>
@@ -127,13 +156,19 @@ function ProductDescription({ dataDescription }: { dataDescription: any }) {
         </div>
         <div className={cx("container-product-description-wrapper")}>
           <div className={cx("product-description-body")}>
-            <p>{dataDescription?.body.content}</p>
-            <Image
+            <div style={{margin:"30px 0 40px 0"}}>
+            <strong >Chi Tiết Sản Phẩm</strong>
+
+            </div>
+            {dataDescription?.body?.content && (
+              <ReactMarkdown>{dataDescription.body.content}</ReactMarkdown>
+            )}
+            {/* <Image
               src="https://mcdn.coolmate.me/image/August2023/mceclip0_66.jpg"
               alt="Product main image"
               width={1200}
               height={1250}
-            />
+            /> */}
           </div>
         </div>
       </div>

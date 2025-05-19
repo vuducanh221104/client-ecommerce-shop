@@ -23,7 +23,7 @@ interface ColorOption {
 }
 
 interface ProductProps {
-  id: number;
+  id?: number;
   title: string;
   price?: any;
   discount: number;
@@ -58,7 +58,6 @@ function CardProduct({
   const [showAllColors, setShowAllColors] = useState(false);
   const [isCurrentColorOutOfStock, setIsCurrentColorOutOfStock] =
     useState(false);
-  console.log(price);
   // Maximum number of colors   to show initially
   const MAX_COLORS_VISIBLE = 6;
   const hasExtraColors = colors.length > MAX_COLORS_VISIBLE;
@@ -80,7 +79,8 @@ function CardProduct({
   const currentHoverImage = selectedColor.images?.hover || hoverImage;
 
   // Format price with comma for thousands
-  const formatPrice = (price: number) => {
+  const formatPrice = (price?: number) => {
+    if (price === undefined || price === null) return "0";
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
@@ -242,7 +242,8 @@ function CardProduct({
             </span>
             {price.discount > 0 && (
               <>
-                <span className={cx("discount-badge")}>-{discount}%</span>
+              
+                    <span className={cx("discount-badge")}>-{discount}%</span>
                 <span className={cx("original-price")}>
                   {formatPrice(price.original)}đ
                 </span>

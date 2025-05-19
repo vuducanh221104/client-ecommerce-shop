@@ -17,6 +17,7 @@ import {
   Spin,
   Tag,
   Modal,
+  Switch,
 } from "antd";
 import {
   PlusOutlined,
@@ -30,6 +31,9 @@ import { createProduct } from "@/services/adminServices";
 import { uploadCloud } from "@/services/uploadService";
 import { getAllCategories, getAllMaterials } from "@/services/adminServices";
 import { transformListSelect } from "@/utils/transformListSelect";
+import MarkdownEditor from 'react-markdown-editor-lite';
+import 'react-markdown-editor-lite/lib/index.css';
+import ReactMarkdown from 'react-markdown';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -419,12 +423,12 @@ const AddProductPage = () => {
               <Col span={12}>
                 <Form.Item
                   name="discountPrice"
-                  label="Discount Amount"
+                  label="Discount Price"
                   tooltip="Optional discount amount to subtract from original price"
                 >
                   <InputNumber
                     style={{ width: "100%" }}
-                    placeholder="Discount Amount"
+                    placeholder="Discount Price"
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                     }
@@ -552,9 +556,12 @@ const AddProductPage = () => {
                 { required: true, message: "Please enter product description" },
               ]}
             >
-              <TextArea
-                rows={4}
-                placeholder="Enter detailed product description..."
+              <MarkdownEditor
+                style={{ height: '400px' }}
+                renderHTML={(text) => <ReactMarkdown>{text}</ReactMarkdown>}
+                onChange={({ text }) => {
+                  form.setFieldsValue({ content: text });
+                }}
               />
             </Form.Item>
 

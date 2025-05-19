@@ -61,3 +61,144 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface Size {
+  _id?: string;
+  size: string;
+  stock: number;
+}
+
+export interface Variant {
+  _id?: string;
+  name: string;
+  colorThumbnail: string;
+  sizes: Size[];
+  images: string[];
+}
+
+export interface Price {
+  original: number;
+  discount?: number;
+  discountQuantity?: number;
+  currency?: string;
+}
+
+export interface Comment {
+  _id?: string;
+  user_id: string;
+  user_name: string;
+  content: string;
+  rating: number;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'FLAGGED';
+  replyContentAdmin?: string;
+  likes?: string[];
+  issues?: ('INAPPROPRIATE' | 'SPAM' | 'OFFENSIVE' | 'MISLEADING' | 'OTHER')[];
+  replies?: string[];
+  parent_id?: string | null;
+  images?: string[];
+  verified_purchase?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Description {
+  header: {
+    material?: string;
+    style?: string;
+    responsible?: string;
+    features?: string;
+    image?: string;
+  };
+  body: {
+    content: string;
+  };
+}
+
+export interface Product {
+  _id?: string;
+  id?: string;
+  product_type_id?: string;
+  material_id?: string[] | Material[];
+  category_id?: string[] | Category[];
+  materials?: Material[];
+  category?: Category[];
+  order_id?: string;
+  name: string;
+  price: Price;
+  thumb?: string;
+  variants: Variant[];
+  total_quantity: number;
+  total_star?: number;
+  comments?: Comment[];
+  description: Description;
+  slug: string;
+  tagIsNew?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Category {
+  _id?: string;
+  id?: string;
+  name: string;
+  slug: string;
+  parent?: string | null;
+  level?: number;
+  description?: string;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Material {
+  _id?: string;
+  id?: string;
+  name: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminUser {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'staff';
+  status: 'active' | 'inactive';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ApiResponse<T> {
+  products?: T;
+  data?: T;
+  message?: string;
+  status: number;
+  success: boolean;
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T> {
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface UploadResponse {
+  path: string;
+  filename: string;
+  originalname: string;
+  size: number;
+}
+
+export interface DashboardStats {
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+  totalUsers: number;
+  recentOrders: Order[];
+  topSellingProducts: Product[];
+}
