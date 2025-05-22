@@ -13,6 +13,7 @@ import { toast } from "react-hot-toast";
 import { FiCheckCircle } from "react-icons/fi";
 import { User, CartItem } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
+import { clearCart as clearCartRedux } from "@/redux/cartSlice";
 // import { resetCart } from "@/redux/features/cartSlice";
 // import { CheckCircleIcon } from "@heroicons/react/24/solid";
 // import { formatCurrency } from "@/utils/helpers";
@@ -229,8 +230,11 @@ const ConfirmOrder = () => {
       // Create order
       const response = await createOrder(orderData);
       if (response && response.data && response.data.order) {
-        // Clear cart after successful order
+        // Clear cart in backend
         await clearCart();
+        
+        // Clear cart in Redux state
+        dispatch(clearCartRedux());
 
         // Clear stored checkout data
         localStorage.removeItem("checkoutUserData");

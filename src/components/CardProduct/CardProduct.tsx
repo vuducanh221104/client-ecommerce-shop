@@ -26,7 +26,8 @@ interface ProductProps {
   id?: number;
   title: string;
   price?: any;
-  discount: number;
+  priceDiscount?: any;
+  discountQuantity?: number;
   rating: number;
   reviewCount: number;
   link: string;
@@ -42,7 +43,8 @@ function CardProduct({
   id,
   title,
   price,
-  discount,
+  priceDiscount,
+  discountQuantity,
   rating,
   reviewCount,
   link,
@@ -62,6 +64,17 @@ function CardProduct({
   const MAX_COLORS_VISIBLE = 6;
   const hasExtraColors = colors.length > MAX_COLORS_VISIBLE;
   const hiddenColorsCount = colors.length - MAX_COLORS_VISIBLE;
+
+  // Calculate discount percentage
+  const calculateDiscountPercentage = () => {
+    if (!price || !priceDiscount || priceDiscount >= price) return 0;
+    const discount = price - priceDiscount;
+    const percentage = Math.round((discount / price) * 100);
+    return percentage;
+  };
+
+  // Get calculated discount percentage
+  const discountPercentage = calculateDiscountPercentage();
 
   // Get the colors to display based on showAllColors state
   const visibleColors = showAllColors
@@ -163,21 +176,6 @@ function CardProduct({
             </div>
           )}
 
-          {/* {sizes && sizes.length > 0 && (
-            <div className={cx("quick-size-options")}>
-              <span className={cx("size-label")}>
-                Thêm nhanh vào giỏ hàng +
-              </span>
-              <div className={cx("size-buttons")}>
-                {sizes.map((size) => (
-                  <button key={size} className={cx("size-button")}>
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )} */}
-
           <div className={cx("product-promo")}>
             <Image
               src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
@@ -192,32 +190,24 @@ function CardProduct({
         <div className={cx("product-info")}>
           <div className={cx("color-options-container")}>
             <div className={cx("color-options")}>
-              {visibleColors.map((color) => {
-                console.log(
-                  "Rendering color:",
-                  color.name,
-                  "thumbnail:",
-                  color.colorThumbnail
-                );
-                return (
-                  <Image
-                    key={color.id}
-                    className={cx("color-option", {
-                      selected: color.id === selectedColorId,
-                    })}
-                    style={{
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }}
-                    src={color.colorThumbnail || ""}
-                    alt={color.name}
-                    width={160}
-                    height={160}
-                    title={color.name}
-                    onClick={(e) => handleColorClick(color.id, e)}
-                  />
-                );
-              })}
+              {visibleColors.map((color) => (
+                <Image
+                  key={color.id}
+                  className={cx("color-option", {
+                    selected: color.id === selectedColorId,
+                  })}
+                  style={{
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                  src={color.colorThumbnail || ""}
+                  alt={color.name}
+                  width={160}
+                  height={160}
+                  title={color.name}
+                  onClick={(e) => handleColorClick(color.id, e)}
+                />
+              ))}
 
               {hasExtraColors && !showAllColors && (
                 <button
@@ -236,16 +226,17 @@ function CardProduct({
           <div className={cx("product-price")}>
             <span className={cx("current-price")}>
               {formatPrice(
-                price.discount > 0 ? price.discount : price.original
+                priceDiscount > 0 ? priceDiscount : price
               )}
               đ
             </span>
-            {price.discount > 0 && (
+            {priceDiscount > 0 && price > priceDiscount && (
               <>
-              
-                    <span className={cx("discount-badge")}>-{discount}%</span>
+                {discountPercentage > 0 && (
+                  <span className={cx("discount-badge")}>-{discountPercentage}%</span>
+                )}
                 <span className={cx("original-price")}>
-                  {formatPrice(price.original)}đ
+                  {formatPrice(price)}đ
                 </span>
               </>
             )}

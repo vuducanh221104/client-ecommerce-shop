@@ -1,5 +1,6 @@
 "use client";
 
+import '@ant-design/v5-patch-for-react-19';
 import React, { useState, useEffect } from "react";
 import styles from "./layout.module.scss";
 import classNames from "classnames/bind";

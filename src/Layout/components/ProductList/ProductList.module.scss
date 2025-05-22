@@ -153,7 +153,7 @@
 }
 
 .product-list-section {
-  padding: 30px 0;
+  margin: 40px 0;
 }
 
 .product-list-container {
@@ -176,143 +176,92 @@
 }
 
 .section-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  text-transform: uppercase;
+  font-size: 2.2rem;
   margin: 0;
-
-  @media (max-width: 768px) {
-    font-size: 24px;
-  }
-
-  @media (max-width: 576px) {
-    font-size: 20px;
-  }
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .view-more-link {
-  font-size: 16px;
+  color: #2a5885;
   font-weight: 500;
-  color: #333;
-  text-decoration: none;
-  transition: color 0.2s ease;
-
   &:hover {
-    color: #1435c3;
     text-decoration: underline;
-  }
-
-  @media (max-width: 576px) {
-    font-size: 14px;
   }
 }
 
 .product-list-slider {
   position: relative;
-  margin: 0 -5px;
-  overflow-x: visible !important;
-
-  // Make sure swiper container properly handles loop
+  
   .swiper-container {
-    overflow: visible;
-    position: relative;
-
-    // Setup for proper looping behavior
-    .swiper-wrapper {
-      transition-timing-function: ease-out;
-    }
+    padding: 5px 0 40px;
   }
-
-  // Target swiper-slide-duplicate to ensure proper styling for cloned slides
-  .swiper-slide-duplicate {
-    opacity: 1;
+  
+  .swiper-slide {
+    height: auto;
   }
+}
 
-  .custom-swiper-button-next,
+.custom-swiper-button-prev,
+.custom-swiper-button-next {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  width: 44px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #2a5885;
+    transform: translateY(-50%) scale(1.05);
+  }
+}
+
+.custom-swiper-button-prev {
+  left: -22px;
+}
+
+.custom-swiper-button-next {
+  right: -22px;
+}
+
+// Responsive adjustments
+@media (max-width: 1024px) {
   .custom-swiper-button-prev {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-
-    svg {
-      width: 20px;
-      height: 20px;
-      color: #333;
-    }
-
-    @media (max-width: 768px) {
-      display: none;
-    }
+    left: 5px;
   }
-
+  
   .custom-swiper-button-next {
-    right: -10px;
-    transform: translateY(-50%) translateX(10px);
-  }
-
-  .custom-swiper-button-prev {
-    left: -10px;
-    transform: translateY(-50%) translateX(-10px);
-  }
-
-  &:hover {
-    .custom-swiper-button-next,
-    .custom-swiper-button-prev {
-      opacity: 1;
-      transform: translateY(-50%);
-    }
+    right: 5px;
   }
 }
 
-.swiper-slide {
-  height: auto;
-  transition: opacity 0.3s ease;
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+  
+  .custom-swiper-button-prev,
+  .custom-swiper-button-next {
+    height: 35px;
+    width: 35px;
+  }
 }
 
-.hover-nav-swiper {
-  .swiper-button-next,
-  .swiper-button-prev {
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  }
-
-  .swiper-button-next {
-    right: 0;
-    transform: translateY(-50%) translateX(10px);
-  }
-
-  .swiper-button-prev {
-    left: 0;
-    transform: translateY(-50%) translateX(-10px);
-  }
-
-  &:hover {
-    .swiper-button-next,
-    .swiper-button-prev {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .swiper-button-next {
-      transform: translateY(-50%) translateX(-10px);
-    }
-
-    .swiper-button-prev {
-      transform: translateY(-50%) translateX(0);
-    }
-  }
+.product-list-loading {
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

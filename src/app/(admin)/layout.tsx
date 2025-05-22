@@ -1,3 +1,5 @@
+import '@ant-design/v5-patch-for-react-19';
+
 import "./gobals.scss";
 import ProviderRedux from "@/redux/ProviderRedux";
 import { Viewport } from "next/types";

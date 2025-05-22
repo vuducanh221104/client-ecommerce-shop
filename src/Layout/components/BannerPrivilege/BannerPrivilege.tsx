@@ -89,7 +89,7 @@ function BannerPrivilege() {
               ĐH #2xox635
             </div>
           </div>
-          <Link href="/coolclub" className={cx("join-button")}>
+          <Link href="/auth/login" className={cx("join-button")}>
             GIA NHẬP COOLCLUB NGAY <span className={cx("arrow-icon")}>→</span>
           </Link>
         </div>

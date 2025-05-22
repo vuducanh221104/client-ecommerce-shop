@@ -18,38 +18,38 @@ const cx = classNames.bind(styles);
 const menCatalogItems = [
   {
     id: 1,
-    title: "ÁO KHOÁC",
+    title: "ÁO THUN",
     image:
       "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Thun_4.jpg",
-    link: "/collections/ao-khoac",
+    link: "/category/ao-thun-nam",
   },
   {
     id: 2,
-    title: "QUẦN DÀI",
+    title: "Áo Polo",
     image:
-      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/So_mi.jpg",
-    link: "/collections/quan-dai",
+      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/Polo.jpg",
+    link: "/category/ao-polo",
   },
   {
     id: 3,
     title: "QUẦN SHORT",
     image:
-      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Khoac_52.jpg",
-    link: "/collections/quan-short",
+      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/Shortss.jpg",
+    link: "/category/quan-short",
   },
   {
     id: 4,
     title: "QUẦN LÓT",
     image:
-      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Short_29.jpg",
-    link: "/collections/quan-lot",
+      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/Do_lotz.jpg",
+    link: "/category/quan-lot-nam",
   },
   {
     id: 5,
     title: "PHỤ KIỆN",
     image:
-      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Do_lot.jpg",
-    link: "/collections/phu-kien-nam",
+      "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/September2022/compressions8.jpg",
+    link: "/category/phu-kien-nam",
   },
 ];
 
@@ -60,28 +60,28 @@ const womenCatalogItems = [
     title: "BRA & LEGGINGS",
     image:
       "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Frame_img.jpg",
-    link: "/collections/bra-leggings",
+    link: "/category/ao-sport-bra",
   },
   {
     id: 2,
     title: "ÁO THỂ THAO",
     image:
       "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Frame_img_(1).jpg",
-    link: "/collections/ao-the-thao-nu",
+    link: "/category/ao-the-thao-nu",
   },
   {
     id: 3,
     title: "QUẦN THỂ THAO",
     image:
       "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/image_(3).jpg",
-    link: "/collections/quan-the-thao-nu",
+    link: "/category/quan-nu",
   },
   {
     id: 4,
     title: "PHỤ KIỆN",
     image:
       "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/image_96.png",
-    link: "/collections/phu-kien-nu",
+    link: "/category/phu-kien-nu",
   },
 ];
 

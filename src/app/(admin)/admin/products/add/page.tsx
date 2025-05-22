@@ -45,6 +45,8 @@ interface Category {
   name: string;
   value?: string;
   label?: string;
+  parent?: string | null;
+  subcategories?: Category[];
 }
 
 interface Material {
@@ -86,6 +88,9 @@ const AddProductPage = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewVisible, setPreviewVisible] = useState(false);
+  const [selectedParentCategories, setSelectedParentCategories] = useState<(string | null)[]>([null]);
+  const [selectedMiddleCategories, setSelectedMiddleCategories] = useState<(string | null)[]>([null]);
+  const [categorySelections, setCategorySelections] = useState<number>(1);
 
   // Fetch categories and materials data
   useEffect(() => {
@@ -238,10 +243,29 @@ const AddProductPage = () => {
         return sum + variant.stock;
       }, 0);
 
-      // Map categories to array of _id values - as direct strings, not $oid objects
-      const categoryIds = Array.isArray(values.category)
-        ? values.category
-        : [values.category];
+      // Collect all category IDs from all selections
+      const categoryIds: string[] = [];
+      
+      // Process multiple category selections
+      for (let i = 0; i < categorySelections; i++) {
+        // If parent category is selected but middleCategory is 'none', add the parent category ID
+        if (values[`parentCategory_${i}`] && (!values[`middleCategory_${i}`] || values[`middleCategory_${i}`] === 'none')) {
+          categoryIds.push(values[`parentCategory_${i}`]);
+        }
+        // Add middle/product type category if selected
+        else if (values[`middleCategory_${i}`] && values[`middleCategory_${i}`] !== 'none') {
+          categoryIds.push(values[`middleCategory_${i}`]);
+        }
+        
+        // Add specific categories if selected
+        if (Array.isArray(values[`category_${i}`]) && values[`category_${i}`].length > 0) {
+          values[`category_${i}`].forEach((catId: string) => {
+            if (!categoryIds.includes(catId)) {
+              categoryIds.push(catId);
+            }
+          });
+        }
+      }
 
       // Map materials to array of _id values - as direct strings, not $oid objects
       const materialIds = Array.isArray(values.materials)
@@ -277,6 +301,9 @@ const AddProductPage = () => {
         tagIsNew: values.tagIsNew || false,
       };
 
+      console.log("Sending product data:", productData);
+      console.log("Combined category IDs:", categoryIds);
+
       // Send to API
       const result = await createProduct(productData);
 
@@ -292,6 +319,13 @@ const AddProductPage = () => {
     } finally {
       setSubmitLoading(false);
     }
+  };
+
+  // Add another category selection
+  const addCategorySelection = () => {
+    setSelectedParentCategories([...selectedParentCategories, null]);
+    setSelectedMiddleCategories([...selectedMiddleCategories, null]);
+    setCategorySelections(categorySelections + 1);
   };
 
   // Handle image preview
@@ -344,6 +378,116 @@ const AddProductPage = () => {
       const slug = generateSlug(name);
       form.setFieldsValue({ slug });
     }
+  };
+
+  // Helper function to get parent categories only (top level)
+  const getParentCategories = () => {
+    return categories.filter(cat => cat.parent === null);
+  };
+
+  // Helper function to get product types based on parent category
+  const getProductTypes = (parentId: string) => {
+    const parent = categories.find(cat => (cat._id === parentId || cat.id === parentId));
+    if (!parent) return [];
+    
+    // Return product types based on parent category name
+    if (parent.name === "Nam") {
+      const productTypeNames = ["Tất Cả Sản Phẩm", "Áo Nam", "Quần Nam", "Quần Lót Nam", "Phụ Kiện"];
+      return parent.subcategories?.filter(cat => 
+        productTypeNames.includes(cat.name)
+      ) || [];
+    } else if (parent.name === "Nữ") {
+      const productTypeNames = ["Tất Cả Sản Phẩm", "Áo Nữ", "Quần Nữ", "Phụ Kiện"];
+      return parent.subcategories?.filter(cat => 
+        productTypeNames.includes(cat.name)
+      ) || [];
+    } else if (parent.name === "Thể Thao") {
+      const productTypeNames = ["Thể thao Nam", "Thể thao Nữ"];
+      return parent.subcategories?.filter(cat => 
+        productTypeNames.includes(cat.name)
+      ) || [];
+    }
+    
+    // For other parents, return their subcategories
+    return parent.subcategories || [];
+  };
+
+  // Helper function to get specific product categories based on product type
+  const getSpecificCategories = (productTypeId: string) => {
+    // Find the product type category
+    const productType = categories.flatMap(cat => cat.subcategories || [])
+      .find(cat => cat._id === productTypeId || cat.id === productTypeId);
+    
+    if (!productType) return [];
+    
+    // Get parent category for context
+    const parentCategory = categories.find(cat => 
+      cat.subcategories?.some(subcat => 
+        (subcat._id === productTypeId || subcat.id === productTypeId)
+      )
+    );
+    
+    if (!parentCategory) return [];
+    
+    // Get all subcategories from the parent
+    const allSubcategories = parentCategory.subcategories || [];
+    
+    // Based on the images provided, filter specific categories for each product type
+    if (parentCategory.name === "Nam") {
+      // For men's categories
+      if (productType.name === "Tất Cả Sản Phẩm") {
+        // Return "Sản phẩm mới" only
+        return allSubcategories.filter(cat => cat.name === "Sản phẩm mới");
+      } else if (productType.name === "Áo Nam") {
+        // Return specific men's top categories
+        const specificNames = ["Áo Tanktop", "Áo Thun", "Áo Thể Thao", "Áo Polo"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Quần Nam") {
+        // Return specific men's pants categories
+        const specificNames = ["Quần Short", "Quần Thể Thao", "Quần Jean", "Quần Bơi"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Quần Lót Nam") {
+        // Return specific men's underwear categories
+        const specificNames = ["Brief(Tam giác)", "Trunk(Boxer)"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Phụ Kiện") {
+        // Return specific men's accessory categories
+        const specificNames = ["Tất cả phụ kiện", "(Tất, mũ, túi...)"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      }
+    } else if (parentCategory.name === "Nữ") {
+      // For women's categories
+      if (productType.name === "Tất Cả Sản Phẩm") {
+        // Return specific women's general categories
+        const specificNames = ["Chạy bộ", "Yoga & Pilates"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Áo Nữ") {
+        // Return specific women's top categories
+        const specificNames = ["Áo Sport Bra", "Áo Croptop", "Áo Thun"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Quần Nữ") {
+        // Return specific women's pants categories
+        const specificNames = ["Quần Legging", "Quần Shorts"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Phụ Kiện") {
+        // Return specific women's accessory categories
+        const specificNames = ["Tất cả phụ kiện", "(Tất, mũ, túi...)"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      }
+    } else if (parentCategory.name === "Thể Thao") {
+      // For sports categories
+      if (productType.name === "Thể thao Nam") {
+        // Return specific men's sports categories
+        const specificNames = ["Thể Thao Chung", "Tập Gym"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      } else if (productType.name === "Thể thao Nữ") {
+        // Return specific women's sports categories
+        const specificNames = ["Chạy Bộ"];
+        return allSubcategories.filter(cat => specificNames.includes(cat.name));
+      }
+    }
+    
+    return [];
   };
 
   return (
@@ -442,26 +586,170 @@ const AddProductPage = () => {
               </Col>
             </Row>
 
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="category"
-                  label="Categories"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please select at least one category",
-                    },
-                  ]}
-                >
-                  <Select
-                    mode="multiple"
-                    placeholder="Select categories"
-                    options={categories}
-                  />
-                </Form.Item>
-              </Col>
+            {/* Multiple Category Selections */}
+            {Array.from({ length: categorySelections }).map((_, index) => (
+              <Card 
+                key={`category-selection-${index}`} 
+                title={`Category Selection ${index + 1}`} 
+                style={{ marginBottom: 16 }}
+                extra={index > 0 ? (
+                  <Button 
+                    danger 
+                    onClick={() => {
+                      // Remove this selection
+                      const newParentCategories = [...selectedParentCategories];
+                      const newMiddleCategories = [...selectedMiddleCategories];
+                      
+                      newParentCategories.splice(index, 1);
+                      newMiddleCategories.splice(index, 1);
+                      
+                      setSelectedParentCategories(newParentCategories);
+                      setSelectedMiddleCategories(newMiddleCategories);
+                      setCategorySelections(categorySelections - 1);
+                      
+                      // Update form values
+                      const currentValues = form.getFieldsValue();
+                      for (let i = index; i < categorySelections - 1; i++) {
+                        currentValues[`parentCategory_${i}`] = currentValues[`parentCategory_${i+1}`];
+                        currentValues[`middleCategory_${i}`] = currentValues[`middleCategory_${i+1}`];
+                        currentValues[`category_${i}`] = currentValues[`category_${i+1}`];
+                      }
+                      
+                      // Remove the last set of values
+                      delete currentValues[`parentCategory_${categorySelections-1}`];
+                      delete currentValues[`middleCategory_${categorySelections-1}`];
+                      delete currentValues[`category_${categorySelections-1}`];
+                      
+                      form.setFieldsValue(currentValues);
+                    }}
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              >
+                <Row gutter={16}>
+                  <Col span={24}>
+                    {/* Parent Category Selection (Top Level) */}
+                    <Form.Item
+                      name={`parentCategory_${index}`}
+                      label="Parent Category"
+                    >
+                      <Select
+                        placeholder="Select parent category (e.g., Nam, Nữ)"
+                        showSearch
+                        filterOption={(input, option) =>
+                          option?.children?.toString().toLowerCase().includes(input.toLowerCase()) || false
+                        }
+                        onChange={(value) => {
+                          const newSelectedParents = [...selectedParentCategories];
+                          newSelectedParents[index] = value;
+                          setSelectedParentCategories(newSelectedParents);
+                          
+                          // Clear middle and product category selections when parent changes
+                          const newSelectedMiddles = [...selectedMiddleCategories];
+                          newSelectedMiddles[index] = null;
+                          setSelectedMiddleCategories(newSelectedMiddles);
+                          
+                          const formValues: any = {};
+                          formValues[`middleCategory_${index}`] = null;
+                          formValues[`category_${index}`] = [];
+                          form.setFieldsValue(formValues);
+                        }}
+                        allowClear
+                      >
+                        {getParentCategories().map((category) => (
+                          <Option
+                            key={category._id || category.id}
+                            value={category._id || category.id}
+                          >
+                            {category.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    
+                    {/* Product Type Selection (Second Level) */}
+                    <Form.Item
+                      name={`middleCategory_${index}`}
+                      label="Product Type"
+                    >
+                      <Select
+                        placeholder={selectedParentCategories[index] ? "Select product type (e.g., Áo Nam, Quần Nam)" : "Select a parent category first"}
+                        showSearch
+                        filterOption={(input, option) =>
+                          option?.children?.toString().toLowerCase().includes(input.toLowerCase()) || false
+                        }
+                        onChange={(value) => {
+                          const newSelectedMiddles = [...selectedMiddleCategories];
+                          newSelectedMiddles[index] = value;
+                          setSelectedMiddleCategories(newSelectedMiddles);
+                          
+                          // Clear product category selection when middle category changes
+                          const formValues: any = {};
+                          formValues[`category_${index}`] = [];
+                          form.setFieldsValue(formValues);
+                        }}
+                        disabled={!selectedParentCategories[index]}
+                        allowClear
+                      >
+                        <Option value="none">None</Option>
+                        {selectedParentCategories[index] && 
+                          getProductTypes(selectedParentCategories[index]).map((type) => (
+                            <Option
+                              key={type._id || type.id}
+                              value={type._id || type.id}
+                            >
+                              {type.name}
+                            </Option>
+                          ))
+                        }
+                      </Select>
+                    </Form.Item>
+                    
+                    {/* Specific Product Category Selection (Third Level) */}
+                    <Form.Item
+                      name={`category_${index}`}
+                      label="Specific Categories"
+                    >
+                      <Select
+                        mode="multiple"
+                        placeholder={selectedMiddleCategories[index] ? "Select specific categories (e.g., Áo Tanktop)" : "Select a product type first"}
+                        showSearch
+                        filterOption={(input, option) =>
+                          option?.children?.toString().toLowerCase().includes(input.toLowerCase()) || false
+                        }
+                        disabled={!selectedMiddleCategories[index] || selectedMiddleCategories[index] === 'none'}
+                      >
+                        {selectedMiddleCategories[index] && selectedMiddleCategories[index] !== 'none' && 
+                          getSpecificCategories(selectedMiddleCategories[index]).map((category) => (
+                            <Option
+                              key={category._id || category.id}
+                              value={category._id || category.id}
+                            >
+                              {category.name}
+                            </Option>
+                          ))
+                        }
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Card>
+            ))}
+            
+            <Form.Item>
+              <Button 
+                type="dashed" 
+                onClick={addCategorySelection} 
+                block 
+                icon={<PlusOutlined />}
+                style={{ marginBottom: 16 }}
+              >
+                Add Another Category
+              </Button>
+            </Form.Item>
 
+            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="materials"
@@ -480,14 +768,16 @@ const AddProductPage = () => {
                   />
                 </Form.Item>
               </Col>
-            </Row>
 
-            <Form.Item name="tagIsNew" label="Tag as New Product">
-              <Select>
-                <Option value={true}>Yes</Option>
-                <Option value={false}>No</Option>
-              </Select>
-            </Form.Item>
+              <Col span={12}>
+                <Form.Item name="tagIsNew" label="Tag as New Product">
+                  <Select>
+                    <Option value={true}>Yes</Option>
+                    <Option value={false}>No</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
 
             <Divider orientation="left">Product Details</Divider>
 

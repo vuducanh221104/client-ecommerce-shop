@@ -31,6 +31,8 @@ import {
   UpOutlined,
 } from "@ant-design/icons";
 import httpRequest from "@/utils/httpRequest";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const { Title, Text } = Typography;
 const cx = classNames.bind(styles);
@@ -104,9 +106,31 @@ interface OrdersResponse {
 }
 
 // Services to fetch and cancel orders
-const getUserOrders = async (): Promise<OrdersResponse> => {
+const getUserOrders = async (): Promise<OrdersResponse |any> => {
   try {
-    const response = await httpRequest.get("api/v1/orders/my-orders");
+    // Lấy user ID từ Redux store
+    let userId = null;
+    
+    if (typeof window !== "undefined") {
+      // Kiểm tra từ localStorage (persist:root)
+      const persistRoot = localStorage.getItem("persist:root");
+      if (persistRoot) {
+        const persistData = JSON.parse(persistRoot);
+        if (persistData && persistData.auth) {
+          const authState = JSON.parse(persistData.auth);
+          if (authState?.login?.currentUser) {
+            userId = authState.login.currentUser._id || authState.login.currentUser.id;
+          }
+        }
+      }
+    }
+    
+    if (!userId) {
+      throw new Error("Người dùng chưa đăng nhập");
+    }
+    
+    // Gọi API với user ID
+    const response = await httpRequest.get(`api/v1/orders/user/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching orders:", error);
@@ -116,7 +140,10 @@ const getUserOrders = async (): Promise<OrdersResponse> => {
 
 const cancelOrder = async (orderId: string) => {
   try {
-    const response = await httpRequest.patch(`api/v1/orders/${orderId}/cancel`);
+    // Sửa từ patch thành post theo đúng định nghĩa API trong routes
+    const response = await httpRequest.post(`api/v1/orders/${orderId}/cancel`, {
+      reason: "Đã hủy bởi người dùng"
+    });
     return response.data;
   } catch (error) {
     console.error("Error cancelling order:", error);
@@ -132,7 +159,19 @@ export default function OrdersPage() {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [cancellingOrder, setCancellingOrder] = useState<string | null>(null);
 
+  // Get user from Redux store
+  const currentUser = useSelector<RootState, any>(
+    (state) => state.auth.login.currentUser
+  );
+
   useEffect(() => {
+    // Kiểm tra đăng nhập trước khi tải đơn hàng
+    if (!currentUser) {
+      message.error("Vui lòng đăng nhập để xem đơn hàng của bạn");
+      router.push("/auth/login");
+      return;
+    }
+
     const fetchOrders = async () => {
       try {
         setLoading(true);
@@ -155,7 +194,7 @@ export default function OrdersPage() {
     };
 
     fetchOrders();
-  }, []);
+  }, [currentUser, router]);
   console.log(orders);
 
   // Lọc đơn hàng theo trạng thái cho tab
@@ -313,9 +352,10 @@ export default function OrdersPage() {
           response?.message || "Không thể hủy đơn hàng. Vui lòng thử lại."
         );
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error cancelling order:", error);
-      message.error("Không thể hủy đơn hàng. Vui lòng thử lại.");
+      const errorMessage = error.response?.data?.message || "Không thể hủy đơn hàng. Vui lòng thử lại.";
+      message.error(errorMessage);
     } finally {
       setCancellingOrder(null);
     }

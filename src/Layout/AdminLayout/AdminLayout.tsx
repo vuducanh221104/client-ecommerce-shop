@@ -34,7 +34,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import config from "next/config";
+import config from "@/config";
+
 
 const { Header, Sider, Content } = Layout;
 
@@ -114,7 +115,7 @@ interface AdminLayoutProps {
 function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const urlAuth: string[] = ["/admin/auth/login", "/admin/auth/logout"];
+  const urlAuth: string[] = [config.routesAdmin.login, config.routesAdmin.logout];
   const authPage = urlAuth.some((url: string) => pathname.startsWith(url));
   const dataUser = useSelector((state: any) => state.auth.login.currentUser);
   const adminUser = useSelector(
@@ -260,7 +261,7 @@ function AdminLayout({ children }: AdminLayoutProps) {
                     {
                       key: "3",
                       icon: <LogoutOutlined />,
-                      label: <Link href="/admin/auth/logout">Logout</Link>,
+                      label: <Link href={config.routesAdmin.logout}>Logout</Link>,
                       danger: true,
                     },
                   ],

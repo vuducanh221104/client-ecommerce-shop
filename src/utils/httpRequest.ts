@@ -1,3 +1,4 @@
+import config from "@/config";
 import axios, {
   AxiosRequestConfig,
   AxiosResponse,
@@ -143,7 +144,7 @@ httpRequest.interceptors.response.use(
           
           // Redirect to login page if it's a client-side navigation
           if (typeof window !== "undefined" && !originalRequest.url?.includes("/auth/")) {
-            window.location.href = "/auth/login";
+            window.location.href = config.routes.login;
           }
         }
       }

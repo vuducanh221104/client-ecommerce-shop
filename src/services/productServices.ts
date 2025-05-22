@@ -67,3 +67,13 @@ export const ProductOutstanding = async (): Promise<ApiResponse<Product[]>> => {
     throw err;
   }
 };
+
+export const getProductsByCategory = async (categorySlug: string, limit: number = 12): Promise<ApiResponse<Product[]>> => {
+  try {
+    const res = await httpRequest.get<ApiResponse<Product[]>>(`api/v1/products/category/slug/${categorySlug}?limit=${limit}`);
+    return res;
+  } catch (error: unknown) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};

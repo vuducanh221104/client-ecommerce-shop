@@ -15,6 +15,7 @@ interface RegisterProps {
 
 function Register({ onClose, switchToLogin }: RegisterProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -67,11 +68,11 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
       try {
         // Call the register service
         const result = await authRegister({
-          name: values.name,
-          fullName: values.name, // Using name as fullName as per API requirements
-          phone: values.phone,
+          name: values.email.split('@')[0], // Using part of email as name
+          fullName: values.email.split('@')[0], // Using part of email as fullName
+          phone: "", // Empty phone number
           email: values.email,
-          username: values.username,
+          username: values.email, // Using email as username
           password: values.password,
         });
 
@@ -201,36 +202,6 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
             validateTrigger={["onBlur", "onChange"]}
           >
             <Form.Item
-              name="name"
-              className={cx("form-group")}
-              rules={[
-                { required: true, message: "Vui lòng nhập tên của bạn" },
-                { min: 2, message: "Tên phải có ít nhất 2 ký tự" },
-              ]}
-            >
-              <Input className={cx("input-field")} placeholder="Tên của bạn" />
-            </Form.Item>
-
-            <Form.Item
-              name="username"
-              className={cx("form-group")}
-              rules={[
-                { required: true, message: "Vui lòng nhập tên đăng nhập" },
-                { min: 4, message: "Tên đăng nhập phải có ít nhất 4 ký tự" },
-                {
-                  pattern: /^[a-zA-Z0-9_]+$/,
-                  message:
-                    "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới",
-                },
-              ]}
-            >
-              <Input
-                className={cx("input-field")}
-                placeholder="Tên đăng nhập"
-              />
-            </Form.Item>
-
-            <Form.Item
               name="email"
               className={cx("form-group")}
               rules={[
@@ -241,23 +212,6 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
               <Input
                 className={cx("input-field")}
                 placeholder="Email của bạn"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="phone"
-              className={cx("form-group")}
-              rules={[
-                { required: true, message: "Vui lòng nhập số điện thoại" },
-                {
-                  pattern: /^(0|\+84)[3|5|7|8|9][0-9]{8}$/,
-                  message: "Số điện thoại không đúng định dạng",
-                },
-              ]}
-            >
-              <Input
-                className={cx("input-field")}
-                placeholder="Số điện thoại của bạn"
               />
             </Form.Item>
 
@@ -280,6 +234,68 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                        <line x1="1" y1="1" x2="23" y2="23" />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    )}
+                  </button>
+                }
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="confirmPassword"
+              className={cx("form-group", "password-field")}
+              dependencies={['password']}
+              rules={[
+                { required: true, message: "Vui lòng xác nhận mật khẩu" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
+                  },
+                }),
+              ]}
+            >
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                className={cx("input-field")}
+                placeholder="Xác nhận mật khẩu"
+                suffix={
+                  <button
+                    type="button"
+                    className={cx("toggle-password")}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"

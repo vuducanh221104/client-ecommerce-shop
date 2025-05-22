@@ -131,10 +131,10 @@ function ProductDescription({ dataDescription }: ProductDescriptionProps) {
 
             <div className={cx("main-image")}>
               <Image
-                src={dataDescription.header.image}
+                src={dataDescription.header.image|| "/images/gobal/no-image-ao.png"}
                 alt="Product main image"
-                width={64}
-                height={64}
+                width={889}
+                height={800}
               />
             </div>
           </div>

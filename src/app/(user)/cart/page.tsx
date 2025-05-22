@@ -15,8 +15,10 @@ import { getCurrentUser } from "@/services/AuthServices";
 import { useRouter } from "next/navigation";
 // Import pc-vn library for location data
 import pcVN, { Province, District, Ward } from "pc-vn";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
+import config from "@/config";
+import { removeProduct } from "@/redux/cartSlice";
 
 const cx = classNames.bind(styles);
 
@@ -92,6 +94,8 @@ function PageCart() {
 
   // Add state to control the loading spinner
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  const dispatch = useDispatch();
 
   // Load location data on component mount
   useEffect(() => {
@@ -332,7 +336,7 @@ function PageCart() {
     }
   };
 
-  const handleRemoveItem = async (cartItemId: string) => {
+  const handleRemoveItem = async (cartItemId: string, productId: string) => {
     try {
       // Update API first
       await removeCartItem(cartItemId);
@@ -348,6 +352,9 @@ function PageCart() {
       }, 0);
 
       setTotalPrice(newTotal);
+
+      // Update Redux store to sync with header dropdown
+      dispatch(removeProduct({ id: productId }));
 
       toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
     } catch (error) {
@@ -366,6 +373,8 @@ function PageCart() {
 
       for (const item of outOfStockItems) {
         await removeCartItem(item._id);
+        // Update Redux store for each removed item
+        dispatch(removeProduct({ id: item.product_id }));
       }
 
       // Cập nhật state
@@ -542,7 +551,7 @@ function PageCart() {
         <div className={cx("container")}>
           <div className={cx("empty-cart")}>
             <h1>Vui lòng đăng nhập để xem giỏ hàng</h1>
-            <Link href="/login" className={cx("continue-shopping")}>
+            <Link href={config.routes.login} className={cx("continue-shopping")}>
               Đăng nhập
             </Link>
           </div>
@@ -827,7 +836,7 @@ function PageCart() {
                           </button>
                         </div>
                         <button
-                          onClick={() => handleRemoveItem(item._id)}
+                          onClick={() => handleRemoveItem(item._id, item.product_id)}
                           className={cx("remove-button")}
                         >
                           Xóa

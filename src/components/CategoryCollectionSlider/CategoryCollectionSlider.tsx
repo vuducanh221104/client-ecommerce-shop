@@ -35,40 +35,34 @@ const categories = [
           "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/February2024/filter24CMAW.QS008_1.jpg",
         link: "/category/quan-the-thao",
       },
-      {
-        id: 3,
-        title: "Chạy bộ",
-        image:
-          "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/July2024/24CMAW.AT015.27_(2).jpg",
-        link: "/category/chay-bo",
-      },
+ 
       {
         id: 4,
         title: "Tập Gym",
         image:
           "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/November2023/comboactivef.2.png",
-        link: "/category/tap-gym",
+        link: "/category/all",
       },
       {
         id: 5,
         title: "Ngoài trời",
         image:
           "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/August2024/24CMAW.QJ002.26_(1).jpg",
-        link: "/category/ngoai-troi",
+        link: "/category/ao-thun-nam",
       },
       {
         id: 6,
         title: "Thể thao dụng cụ",
         image:
           "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/September2024/24CMAW.AT034.22.jpg",
-        link: "/category/the-thao-dung-cu",
+        link: "/category/phu-kien-nam",
       },
       {
         id: 7,
         title: "Tất cả",
         image:
           "https://media3.coolmate.me/cdn-cgi/image/width=672,height=990,quality=80,format=auto/uploads/April2024/filterbowiMask_group_copy.jpg",
-        link: "/category/coolmate-active",
+        link: "/category/all",
       },
     ],
   },
@@ -82,7 +76,7 @@ const categories = [
         title: "BRA & LEGGINGS",
         image:
           "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/April2025/Legging_-_Brarr.jpg",
-        link: "/category/bra",
+        link: "/category/ao-sport-bra",
       },
       {
         id: 2,

@@ -178,7 +178,7 @@ export const getUserAddresses = async (): Promise<Address[]> => {
 
 // Add a new address
 export const addUserAddress = async (
-  addressData: Address
+  addressData: Address |any
 ): Promise<Address> => {
   try {
     const response = await httpRequest.post<{ address: Address }>(

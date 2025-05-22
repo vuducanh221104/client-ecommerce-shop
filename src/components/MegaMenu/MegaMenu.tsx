@@ -91,7 +91,6 @@ export const categoriesData: Record<MenuType, Category[]> = {
       title: "TẤT CẢ SẢN PHẨM",
       href: "/category/all",
       links: [
-        { name: "Sản phẩm mới", href: "/category/new" },
 
       ],
     },
@@ -100,7 +99,7 @@ export const categoriesData: Record<MenuType, Category[]> = {
       href: "/category/ao-nam",
       links: [
         { name: "Áo Tanktop", href: "/category/ao-tanktop" },
-        { name: "Áo Thun", href: "/category/ao-thun" },
+        { name: "Áo Thun", href: "/category/ao-thun-nam" },
         { name: "Áo Thể Thao", href: "/category/ao-the-thao" },
         { name: "Áo Polo", href: "/category/ao-polo" },
 
@@ -127,10 +126,10 @@ export const categoriesData: Record<MenuType, Category[]> = {
     },
     {
       title: "PHỤ KIỆN",
-      href: "/category/phu-kien",
+      href: "/category/phu-kien-nam",
       links: [
-        { name: "Tất cả phụ kiện", href: "/category/phu-kien" },
-        { name: "(Tất, mũ, túi...)", href: "/category/phu-kien" },
+        { name: "Tất cả phụ kiện", href: "/category/phu-kien-nam" },
+        { name: "(Tất, mũ, túi...)", href: "/category/tat-mu-tui-nam" },
       ],
     },
   ],
@@ -139,8 +138,6 @@ export const categoriesData: Record<MenuType, Category[]> = {
       title: "TẤT CẢ SẢN PHẨM",
       href: "/category/nu",
       links: [
-        { name: "Chạy bộ", href: "/category/chay-bo-nu" },
-        { name: "Yoga & Pilates", href: "/category/yoga-pilates-nu" },
       ],
     },
     {
@@ -165,24 +162,25 @@ export const categoriesData: Record<MenuType, Category[]> = {
       href: "/category/phu-kien-nu",
       links: [
         { name: "Tất cả phụ kiện", href: "/category/phu-kien-nu" },
-        { name: "(Tất, mũ, túi...)", href: "/category/phu-kien-nu" },
+        { name: "(Tất, mũ, túi...)", href: "/category/tat-mu-tui-nu" },
       ],
     },
 
   ],
   sports: [
     {
-      title: "Áo thể thao Nam",
-      href: "/category/the-thao",
+      title: "Thể thao Nam",
+      href: "/category/the-thao-nam",
       links: [
-        {name: "Áo thể thao Nam", href: "/category/ao-the-thao"},
+        {name: "Thể Thao Chung ", href: "/category/the-thao-chung"},
+        {name: "Tập Gym ", href: "/category/tap-gym"},
       ],
     },
     {
-      title: "Áo thể thao Nam",
-      href: "/category/chay-bo",
+      title: "Thể thao Nữ",
+      href: "/category/the-thao-nu",
       links: [
-        {name: "Áo thể thao Nữ", href: "/category/ao-the-thao"},
+        {name: "Chạy Bộ", href: "/category/chay-bo"},
       ],
     },
    

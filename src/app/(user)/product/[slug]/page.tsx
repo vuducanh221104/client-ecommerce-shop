@@ -19,8 +19,9 @@ import { productGetBySlug } from "@/services/productServices";
 import { addToCart } from "@/services/CartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addProductToCart } from "@/redux/cartSlice";
+import { RootState } from "@/redux/store";
 
 const cx = classNames.bind(styles);
 
@@ -98,24 +99,27 @@ function PageProductDetail({}) {
       try {
         setLoading(true);
         const result = await productGetBySlug(params.slug as string);
-        const productData = result.data.product;
+        
+        if (result?.data?.product) {
+          const productData = result.data.product;
 
-        // Log dữ liệu sản phẩm để debug
-        console.log("Product data:", productData);
-        console.log("Product price:", productData.price);
+          // Log dữ liệu sản phẩm để debug
+          console.log("Product data:", productData);
+          console.log("Product price:", productData.price);
 
-        setProduct(productData);
+          setProduct(productData);
 
-        // Set default variant and color from the first variant
-        if (productData.variants && productData.variants.length > 0) {
-          const firstVariant = productData.variants[0];
-          setSelectedVariant(firstVariant);
-          setActiveColor(firstVariant.name);
-          setProductImages(firstVariant.images || []);
+          // Set default variant and color from the first variant
+          if (productData.variants && productData.variants.length > 0) {
+            const firstVariant = productData.variants[0];
+            setSelectedVariant(firstVariant);
+            setActiveColor(firstVariant.name);
+            setProductImages(firstVariant.images || []);
 
-          // Set default size from the first variant's first size
-          if (firstVariant.sizes && firstVariant.sizes.length > 0) {
-            setActiveSize(firstVariant.sizes[0].size);
+            // Set default size from the first variant's first size
+            if (firstVariant.sizes && firstVariant.sizes.length > 0) {
+              setActiveSize(firstVariant.sizes[0].size);
+            }
           }
         }
 
@@ -311,12 +315,16 @@ function PageProductDetail({}) {
       toast.success("Thêm vào giỏ hàng thành công!");
     } catch (error) {
       console.error("Error adding to cart:", error);
-      toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng");
+      // Lỗi sẽ được xử lý bởi CartServices nếu là lỗi xác thực
+      // Chỉ hiển thị thông báo lỗi chung nếu không phải lỗi xác thực
+      if (!(error instanceof Error && error.message === "Chưa đăng nhập")) {
+        toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng");
+      }
     }
   };
 
   if (loading) {
-    return <Loading />;
+    return <Loading overlay />;
   }
 
   if (!product) {
@@ -358,7 +366,7 @@ function PageProductDetail({}) {
                     {/* {product.tagIsNew && (
                       <div className={cx("new-tag")}>NEW</div>
                     )} */}
-                    {productImages &&
+                    {productImages && 
                     productImages.length > 0 &&
                     productImages[currentImageIndex] ? (
                       <img

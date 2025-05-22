@@ -1,12 +1,12 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import classNames from "classnames/bind";
 import styles from "./Header.module.scss";
 import Link from "next/link";
 import Image from "next/image";
 import SearchModal from "@/components/SearchModal";
 import Login from "@/Layout/components/Login/Login";
-import IsLoginMenu from "@/Layout/components/IsLoginMenu";
+import IsLoginMenu from "@/Layout/components/IsLoginMenu/IsLoginMenu";
 import MegaMenu from "@/components/MegaMenu";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -19,6 +19,10 @@ import {
   LockOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import { removeProduct } from "@/redux/cartSlice";
+import { removeCartItem } from "@/services/CartServices";
+import { toast } from "react-hot-toast";
+import httpRequest from "@/utils/httpRequest";
 
 const cx = classNames.bind(styles);
 
@@ -98,21 +102,18 @@ function Header() {
 
   const handleOpenLoginModal = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      setIsLoginModalOpen(true);
-    } else {
+    if (isLoggedIn) {
       setIsLoginMenuOpen(!isLoginMenuOpen);
+    } else {
+      setIsLoginModalOpen(true);
     }
   };
 
   const handleCloseLoginModal = (loginSuccess = false) => {
     setIsLoginModalOpen(false);
-    // If login was successful, ensure UI updates properly
     if (loginSuccess) {
-      // This triggers a rerender to show the user avatar
-      setTimeout(() => {
-        setIsLoginMenuOpen(false);
-      }, 100);
+      // Reload the page to update the user state
+      window.location.reload();
     }
   };
 
@@ -120,9 +121,43 @@ function Header() {
     try {
       await logout(dispatch, router);
       setIsLoginMenuOpen(false);
-      // Redirect handled by the router in logout function
+      // Redirect is handled by the logout function
     } catch (error) {
       console.error("Error during logout:", error);
+    }
+  };
+
+  // Handle removing a product from the cart
+  const handleRemoveFromCart = async (productId: string) => {
+    try {
+      console.log("Removing product with ID:", productId);
+      
+      // Get the current cart items from API to find the correct cart item ID
+      const cartResponse = await httpRequest.get<any>(`api/v1/cart`);
+      const apiCartItems = cartResponse.data?.cart || [];
+      
+      // Find the cart item that matches the product ID
+      const cartItem = apiCartItems.find((item: any) => item.product_id === productId);
+      
+      if (!cartItem) {
+        toast.error("Không tìm thấy sản phẩm trong giỏ hàng");
+        return;
+      }
+      
+      // Use the cart item ID from the API response
+      const cartItemId = cartItem._id;
+      console.log("Found cart item ID:", cartItemId);
+      
+      // Remove from backend
+      await removeCartItem(cartItemId);
+      
+      // Remove from Redux state
+      dispatch(removeProduct({ id: productId }));
+      
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    } catch (error) {
+      console.error("Error removing product from cart:", error);
+      toast.error("Không thể xóa sản phẩm. Vui lòng thử lại.");
     }
   };
 
@@ -352,68 +387,88 @@ function Header() {
                     </div>
 
                     {cartProducts && cartProducts.length > 0 ? (
-                      cartProducts.slice(0, 2).map((product, index) => (
-                        <div
-                          key={`${product._id}-${index}`}
-                          className={cx("mini-cart__item")}
-                        >
-                          <div className={cx("mini-cart__item-thumbnail")}>
-                            <Image
-                              src={product.thumb || "/placeholder-product.jpg"}
-                              alt={product.name}
-                              width={100}
-                              height={100}
-                              style={{ objectFit: "cover" }}
-                            />
-                          </div>
-                          <div className={cx("mini-cart__item-content")}>
-                            <span className={cx("mini-cart__remove")}>x</span>
-                            <div className={cx("mini-cart__item-title")}>
-                              <Link
-                                href={`/product/${product.slug || product._id}`}
-                              >
-                                {product.name}
-                              </Link>
-                            </div>
-                            <div className="mini-cart__item-variant-info">
-                              {product.colorOrder}{" "}
-                              {product.sizeOrder && `/ ${product.sizeOrder}`}
-                            </div>
-                            <div>
-                              <span className={cx("mini-cart__item-price")}>
-                                {formatPrice(
-                                  product.price?.discount ||
-                                    product.price?.original ||
-                                    0
-                                )}
-                                đ
-                              </span>{" "}
-                              {product.price?.original >
-                                (product.price?.discount || 0) && (
-                                <del
-                                  className={cx(
-                                    "mini-cart__item-price-compare"
-                                  )}
-                                >
-                                  {formatPrice(product.price?.original || 0)}đ
-                                </del>
-                              )}
-                            </div>
+                      <>
+                        <div className={cx("mini-cart__items")}>
+                          {cartProducts.slice(0, 3).map((product, index) => (
                             <div
-                              className={cx("mini-cart__item-quantity-wrapper")}
+                              key={`${product._id}-${index}`}
+                              className={cx("mini-cart__item")}
                             >
-                              <span className={cx("mini-cart__item-quantity")}>
-                                x{product.quantityAddToCart}
-                              </span>{" "}
+                              <div className={cx("mini-cart__item-thumbnail")}>
+                                <Image
+                                  src={product.thumb || "/placeholder-product.jpg"}
+                                  alt={product.name}
+                                  width={100}
+                                  height={100}
+                                  style={{ objectFit: "cover" }}
+                                />
+                              </div>
+                              <div className={cx("mini-cart__item-content")}>
+                                <button 
+                                  className={cx("mini-cart__remove")} 
+                                  title="Xóa sản phẩm"
+                                  onClick={() => handleRemoveFromCart(product.product_id || product._id)}
+                                >×</button>
+                                <div className={cx("mini-cart__item-title")}>
+                                  <Link
+                                    href={`/product/${product.slug || product._id}`}
+                                  >
+                                    {product.name}
+                                  </Link>
+                                </div>
+                                <div className={cx("mini-cart__item-variant-info")}>
+                                  {product.colorOrder}{" "}
+                                  {product.sizeOrder && `/ ${product.sizeOrder}`}
+                                </div>
+                                <div>
+                                  <span className={cx("mini-cart__item-price")}>
+                                    {formatPrice(
+                                      product.price?.discount ||
+                                        product.price?.original ||
+                                        0
+                                    )}
+                                    đ
+                                  </span>{" "}
+                                  {product.price?.original >
+                                    (product.price?.discount || 0) && (
+                                    <del
+                                      className={cx(
+                                        "mini-cart__item-price-compare"
+                                      )}
+                                    >
+                                      {formatPrice(product.price?.original || 0)}đ
+                                    </del>
+                                  )}
+                                </div>
+                                <div
+                                  className={cx("mini-cart__item-quantity-wrapper")}
+                                >
+                                  <span className={cx("mini-cart__item-quantity")}>
+                                    Số lượng: {product.quantityAddToCart}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
-                      ))
+                        <div className={cx("mini-cart__footer")}>
+                          <Link href="/cart" className={cx("checkout-button")}>
+                            Xem giỏ hàng và thanh toán
+                          </Link>
+                        </div>
+                      </>
                     ) : (
                       <div className={cx("empty-cart")}>
+                        <Image 
+                          src="/images/empty-cart.svg" 
+                          alt="Empty cart" 
+                          width={80} 
+                          height={80}
+                          className={cx("empty-cart-icon")} 
+                        />
                         <p>Giỏ hàng của bạn đang trống</p>
                         <Link
-                          href="/products"
+                          href="/category/all"
                           className={cx("continue-shopping")}
                         >
                           Tiếp tục mua sắm

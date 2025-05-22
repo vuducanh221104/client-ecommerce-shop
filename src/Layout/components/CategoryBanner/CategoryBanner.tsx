@@ -16,7 +16,7 @@ const categoryBanners = [
     image:
       "https://media3.coolmate.me/cdn-cgi/image/width=888,height=600,quality=80,format=auto/uploads/March2025/Section_Banner_888x600.jpg",
     cta: "MUA NGAY",
-    link: "/collections/men",
+    link: "/category/nam",
     badge: "",
   },
   {
@@ -26,7 +26,7 @@ const categoryBanners = [
     image:
       "https://media3.coolmate.me/cdn-cgi/image/width=888,height=600,quality=80,format=auto/uploads/March2025/Active_women_1.jpg",
     cta: "MUA NGAY",
-    link: "/collections/women",
+    link: "/category/nu",
     badge: "CHÍNH THỨC RA MẮT",
   },
 ];

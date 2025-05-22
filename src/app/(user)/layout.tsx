@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "antd/dist/reset.css";
 import "../../styles/GobalStyles.scss";
+import '@ant-design/v5-patch-for-react-19';
 
 import { Metadata, Viewport } from "next/types";
 import Header from "@/Layout/User/Header";
