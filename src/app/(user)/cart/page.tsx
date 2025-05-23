@@ -708,7 +708,7 @@ function PageCart() {
                     <span>Thanh toán khi nhận hàng</span>
                   </label>
                 </div>
-                <div className={cx("payment-option")}>
+                {/* <div className={cx("payment-option")}>
                   <input type="radio" name="payment" id="momo" />
                   <label htmlFor="momo">
                     <Image
@@ -731,7 +731,7 @@ function PageCart() {
                     />
                     <span>Ví điện tử VNPAY</span>
                   </label>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

@@ -521,12 +521,15 @@ function PageProductDetail({}) {
                   <div className={cx("size-options")}>
                     {selectedVariant?.sizes.map((sizeObj) => {
                       const isSizeOutOfStock = sizeObj.stock <= 0;
+                      const isLowStock = sizeObj.stock > 0 && sizeObj.stock <= 3;
+                      
                       return (
                         <button
                           key={sizeObj._id}
                           className={cx("size-option", {
                             active: sizeObj.size === activeSize,
                             "out-of-stock": isSizeOutOfStock,
+                            "low-stock": isLowStock,
                           })}
                           onClick={() => {
                             if (!isSizeOutOfStock) {
@@ -535,24 +538,35 @@ function PageProductDetail({}) {
                               toast.error(`Size ${sizeObj.size} đã hết hàng`);
                             }
                           }}
-                          style={
-                            isSizeOutOfStock
-                              ? { textDecoration: "line-through", opacity: 0.5 }
-                              : {}
-                          }
+                          aria-disabled={isSizeOutOfStock}
                           title={
                             isSizeOutOfStock
                               ? "Hết hàng"
+                              : isLowStock
+                              ? `Chỉ còn ${sizeObj.stock} sản phẩm`
                               : `Size ${sizeObj.size}`
                           }
                         >
                           {sizeObj.size}
                           {isSizeOutOfStock && (
-                            <span
-                              style={{ fontSize: "10px", display: "block" }}
-                            >
-                              Hết hàng
-                            </span>
+                            <>
+                              <span className={cx("out-of-stock-label")}>
+                                Hết hàng
+                              </span>
+                              <span className={cx("size-tooltip")}>
+                                Size này hiện đã hết hàng
+                              </span>
+                            </>
+                          )}
+                          {isLowStock && (
+                            <>
+                              <span className={cx("low-stock-label")}>
+                                {sizeObj.stock}
+                              </span>
+                              <span className={cx("size-tooltip")}>
+                                Chỉ còn {sizeObj.stock} sản phẩm
+                              </span>
+                            </>
                           )}
                         </button>
                       );

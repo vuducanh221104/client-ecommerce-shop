@@ -14,6 +14,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { User, CartItem } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart as clearCartRedux } from "@/redux/cartSlice";
+import { CheckOutlined } from "@ant-design/icons";
 // import { resetCart } from "@/redux/features/cartSlice";
 // import { CheckCircleIcon } from "@heroicons/react/24/solid";
 // import { formatCurrency } from "@/utils/helpers";
@@ -317,7 +318,7 @@ const ConfirmOrder = () => {
       <div className={cx("confirm-order-container")}>
         <div className={cx("success-header")}>
           <div className={cx("success-icon")}>
-            {/* <CheckCircleIcon width={40} height={40} color="#2f855a" /> */}OK
+            <CheckOutlined  width={40} height={40} color="#2f855a" style={{fontSize:"3rem" , color:"#2f855a"}} />
           </div>
           <h1 className={cx("success-title")}>Đặt hàng thành công!</h1>
           <p className={cx("success-message")}>
@@ -447,10 +448,10 @@ const ConfirmOrder = () => {
         </div>
 
         <div className={cx("action-buttons")}>
-          <Link href="/products" className={cx("continue-shopping")}>
+          <Link href="/" className={cx("continue-shopping")}>
             Tiếp tục mua sắm
           </Link>
-          <Link href="/user/orders" className={cx("view-orders")}>
+          <Link href="/account/order" className={cx("view-orders")}>
             Xem đơn hàng của tôi
           </Link>
         </div>
