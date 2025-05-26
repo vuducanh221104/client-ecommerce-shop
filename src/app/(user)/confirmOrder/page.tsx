@@ -4,22 +4,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { getCurrentUser } from "@/services/AuthServices";
 import { getCartItems, clearCart } from "@/services/CartServices";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./confirmOrder.module.scss";
 import classNames from "classnames/bind";
 import { format } from "date-fns";
 import { createOrder } from "@/services/OrderServices";
 import { toast } from "react-hot-toast";
 import { FiCheckCircle } from "react-icons/fi";
-import { User, CartItem } from "@/types";
+import { User } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart as clearCartRedux } from "@/redux/cartSlice";
 import { CheckOutlined } from "@ant-design/icons";
+import PaymentServices from "@/services/PaymentServices";
+import { getOrderById } from "@/services/OrderServices";
 // import { resetCart } from "@/redux/features/cartSlice";
 // import { CheckCircleIcon } from "@heroicons/react/24/solid";
 // import { formatCurrency } from "@/utils/helpers";
 
 const cx = classNames.bind(styles);
+
+// Extended CartItem interface to handle both local cart items and API response items
+interface CartItem {
+  _id?: string;
+  product_id: string;
+  name?: string;
+  thumb?: string;
+  image?: string;
+  slug?: string;
+  price?: {
+    discount?: number;
+    original?: number;
+  };
+  priceOrder?: number;
+  quantity: number;
+  colorOrder?: string;
+  sizeOrder?: string;
+  stock?: number;
+}
 
 interface OrderDetails {
   id: string;
@@ -39,6 +60,7 @@ interface OrderDetails {
 const ConfirmOrder = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -58,118 +80,146 @@ const ConfirmOrder = () => {
     ward: "",
     notes: "",
   });
+  console.log(orderDetails)
+  console.log(cartItems)
 
+
+  // Check for VNPay return parameters
+  const orderId = searchParams.get("orderId");
+  const paymentSuccess = searchParams.get("paymentSuccess") === "true";
+  const paymentMethodParam = searchParams.get("paymentMethod");
+
+  // Fetch order details if coming from VNPay payment
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Get current user
-        // const userData = await getCurrentUser();
-        // if (!userData) {
-        //   router.push("/login?redirect=/confirmOrder");
-        //   return;
-        // }
-        // setUser(userData);
-
-        // Get checkout data from localStorage
-        const storedCheckoutData = localStorage.getItem("checkoutUserData");
-        const storedCartItems = localStorage.getItem("checkoutCartItems");
-        const storedTotalPrice = localStorage.getItem("checkoutTotalPrice");
-
-        if (!storedCheckoutData || !storedCartItems || !storedTotalPrice) {
-          // If no checkout data exists in localStorage, fetch from cart API
-          const response = await getCartItems();
-          if (
-            !response ||
-            !response.cart ||
-            !Array.isArray(response.cart) ||
-            response.cart.length === 0
-          ) {
-            setError("Your cart is empty. Please add items to your cart.");
-            setLoading(false);
-            return;
-          }
-
-          // Filter only in-stock items
-          const inStockItems = response.cart.filter(
-            (item: any) => item.stock > 0
-          );
-
-          if (inStockItems.length === 0) {
-            setError(
-              "Không có sản phẩm nào có thể đặt hàng vì tất cả đều hết hàng."
-            );
-            setLoading(false);
-            return;
-          }
-
-          setCartItems(inStockItems);
-
-          // Calculate total price for in-stock items
-          const total = inStockItems.reduce((sum: number, item: CartItem) => {
-            const itemPrice = item.price?.discount || item.price?.original || 0;
-            return sum + itemPrice * item.quantity;
-          }, 0);
-
-          setTotalPrice(total);
-
-          // Set user data from API
-          setUserData({
-            fullName: userData.name || "",
-            phoneNumber: userData.phoneNumber || "",
-            email: userData.email || "",
-            address: userData.address || "",
-            city: userData.city || "Hồ Chí Minh",
-            district: userData.state || "",
-            ward: userData.zip || "",
-            notes: "",
-          });
-        } else {
-          // Use localStorage data if available
-          try {
-            const checkoutData = JSON.parse(storedCheckoutData);
-            const cartData = JSON.parse(storedCartItems);
-            const totalPrice = parseFloat(storedTotalPrice);
-
-            if (!Array.isArray(cartData) || cartData.length === 0) {
-              setError("Không có sản phẩm nào trong đơn hàng.");
+      // If we have an orderId parameter, fetch that specific order
+      if (orderId) {
+        try {
+          setLoading(true);
+          console.log("Fetching order details for orderId:", orderId);
+          
+          // Fetch order details from the API
+          const orderResponse = await getOrderById(orderId);
+          console.log("Order API response:", orderResponse);
+          
+          // Check if the response has the expected structure
+          if (orderResponse) {
+            // The order object might be in data.order instead of directly in data
+            const order = orderResponse?.order || orderResponse.data?.order || orderResponse.data;
+            
+            if (!order) {
+              console.error("Order object not found in response:", orderResponse);
+              setError("Không thể tải thông tin đơn hàng. Cấu trúc dữ liệu không hợp lệ.");
               setLoading(false);
               return;
             }
-
-            setCartItems(cartData);
-            setTotalPrice(totalPrice);
-
-            // Set user data from localStorage
-            setUserData({
-              fullName: checkoutData.name || userData.name || "",
-              phoneNumber: checkoutData.phone || userData.phoneNumber || "",
-              email: checkoutData.email || userData.email || "",
-              address: checkoutData.address || userData.address || "",
-              city: checkoutData.city || userData.city || "Hồ Chí Minh",
-              district: checkoutData.district || userData.state || "",
-              ward: checkoutData.ward || userData.zip || "",
-              notes: checkoutData.notes || "",
+            
+            console.log("Order details fetched successfully:", order);
+            
+            // Set order details for display
+            setOrderDetails({
+              id: orderId,
+              recipient: order.shipping_address?.full_name || "",
+              phoneNumber: order.shipping_address?.phone_number || "",
+              address: order.shipping_address?.street || "",
+              email: order.customer_email || "",
+              orderDate: order.createdAt || new Date().toISOString(),
+              paymentMethod: order.payment?.method || "COD",
+              items: order.items || [],
+              total: order.total_amount || 0,
+              city: order.shipping_address?.city || "",
+              district: order.shipping_address?.district || "",
+              ward: order.shipping_address?.ward || "",
             });
-          } catch (e) {
-            console.error("Error parsing checkout data:", e);
-            setError(
-              "Đã xảy ra lỗi khi xử lý thông tin đặt hàng. Vui lòng thử lại."
-            );
-            setLoading(false);
-            return;
+            
+            setOrderSuccess(true);
+            
+            // Show toast for successful payment if VNPay payment was successful
+            if (paymentSuccess && paymentMethodParam === "VNPAY") {
+              toast.success("Thanh toán VNPay thành công!");
+            } else {
+              toast.success("Đặt hàng thành công!");
+            }
+            
+            // Clear cart in Redux state
+            dispatch(clearCartRedux());
+          } else {
+            console.error("Invalid order response:", orderResponse);
+            setError("Không thể tải thông tin đơn hàng. Vui lòng thử lại.");
           }
+          
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching order details:", err);
+          setError("Đã xảy ra lỗi khi tải thông tin đơn hàng");
+          setLoading(false);
+        }
+        return;
+      }
+      
+      // If no orderId, load cart data for new order creation
+      try {
+        // Fetch cart data from API
+        const response = await getCartItems();
+        if (
+          !response ||
+          !response.cart ||
+          !Array.isArray(response.cart) ||
+          response.cart.length === 0
+        ) {
+          setError("Your cart is empty. Please add items to your cart.");
+          setLoading(false);
+          return;
+        }
+
+        // Filter only in-stock items
+        const inStockItems = response.cart.filter(
+          (item: any) => item.stock > 0
+        );
+
+        if (inStockItems.length === 0) {
+          setError(
+            "Không có sản phẩm nào có thể đặt hàng vì tất cả đều hết hàng."
+          );
+          setLoading(false);
+          return;
+        }
+
+        setCartItems(inStockItems);
+
+        // Calculate total price for in-stock items
+        const total = inStockItems.reduce((sum: number, item: CartItem) => {
+          const itemPrice = item.price?.discount || item.price?.original || 0;
+          return sum + itemPrice * item.quantity;
+        }, 0);
+
+        setTotalPrice(total);
+        
+        // Attempt to set user data from current user
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setUserData({
+            fullName: currentUser.fullName || currentUser.name || "",
+            phoneNumber: currentUser.phoneNumber || currentUser.phone || "",
+            email: currentUser.email || "",
+            address: currentUser.address?.street || currentUser.address || "",
+            city: currentUser.address?.city || "Hồ Chí Minh",
+            district: currentUser.address?.district || currentUser.district || "",
+            ward: currentUser.address?.ward || currentUser.ward || "",
+            notes: "",
+          });
         }
 
         setLoading(false);
       } catch (err) {
-        setError("Failed to load order information. Please try again.");
+        setError("Failed to load cart information. Please try again.");
         setLoading(false);
-        console.error("Error fetching order data:", err);
+        console.error("Error fetching cart data:", err);
       }
     };
 
     fetchData();
-  }, [router]);
+  }, [orderId, paymentSuccess, paymentMethodParam, dispatch]);
 
   const handlePaymentMethodChange = (method: string) => {
     setPaymentMethod(method);
@@ -228,39 +278,66 @@ const ConfirmOrder = () => {
         notes: userData.notes || "",
       };
 
+      console.log("Creating order with data:", orderData);
       // Create order
       const response = await createOrder(orderData);
-      if (response && response.data && response.data.order) {
+      console.log("Order creation response:", response);
+      
+      if (response && response.status === "success" && response.data) {
+        // Get the order ID from the response - the server returns it as order.id not order._id
+        const orderId = response.data.order?.id || 
+                       response.data.order?._id || 
+                       response.data._id;
+        
+        console.log("Order response data:", response.data);
+        
+        if (!orderId) {
+          console.error("Order ID not found in response:", response);
+          throw new Error("Không nhận được mã đơn hàng từ server. Vui lòng thử lại.");
+        }
+        
+        console.log("Created order with ID:", orderId);
+        
         // Clear cart in backend
         await clearCart();
         
         // Clear cart in Redux state
         dispatch(clearCartRedux());
 
-        // Clear stored checkout data
-        localStorage.removeItem("checkoutUserData");
-        localStorage.removeItem("checkoutCartItems");
-        localStorage.removeItem("checkoutTotalPrice");
-
-        // Set order details for display
-        setOrderDetails({
-          id: response.data.order.id,
-          recipient: userData.fullName,
-          phoneNumber: userData.phoneNumber,
-          address: userData.address,
-          email: userData.email,
-          orderDate: response.data.order.createdAt || new Date().toISOString(),
-          paymentMethod: paymentMethod,
-          items: cartItems,
-          total: totalPrice,
-          city: userData.city,
-          district: userData.district,
-          ward: userData.ward,
-        });
-
-        setOrderSuccess(true);
-        toast.success("Đặt hàng thành công!");
+        // If payment method is COD, redirect to confirmOrder with orderId
+        if (paymentMethod === "COD") {
+          // Redirect to confirmOrder page with order ID
+          router.push(`/confirmOrder?orderId=${orderId}`);
+        } 
+        // If payment method is VNPAY, redirect to VNPay payment page
+        else if (paymentMethod === "VNPAY") {
+          try {
+            // Initialize VNPay payment
+            console.log("Initializing VNPay payment for order:", orderId);
+            const paymentResponse = await PaymentServices.initializePayment(
+              orderId,
+              "VNPAY",
+              `${window.location.origin}/confirmOrder`,
+              `${window.location.origin}/payment/failure`
+            );
+            
+            console.log("VNPay payment initialization response:", paymentResponse);
+            
+            if (paymentResponse.status === "success" && paymentResponse.data?.redirectUrl) {
+              // Redirect to VNPay payment page
+              console.log("Redirecting to VNPay URL:", paymentResponse.data.redirectUrl);
+              window.location.href = paymentResponse.data.redirectUrl;
+            } else {
+              throw new Error("Không thể khởi tạo thanh toán VNPay");
+            }
+          } catch (paymentError) {
+            console.error("Payment initialization error:", paymentError);
+            toast.error("Lỗi khởi tạo thanh toán. Vui lòng thử lại.");
+            setOrderProcessing(false);
+          }
+        }
       } else {
+        console.error("Invalid order response:", response);
         throw new Error("Đã xảy ra lỗi khi tạo đơn hàng");
       }
     } catch (err: any) {
@@ -355,10 +432,10 @@ const ConfirmOrder = () => {
                 <span className={cx("detail-value")}>
                   {orderDetails.paymentMethod === "COD"
                     ? "Thanh toán khi nhận hàng"
+                    : orderDetails.paymentMethod === "VNPAY"
+                    ? "Thanh toán qua VNPAY"
                     : orderDetails.paymentMethod === "MOMO"
                     ? "Ví MoMo"
-                    : orderDetails.paymentMethod === "ZALOPAY"
-                    ? "ZaloPay"
                     : orderDetails.paymentMethod}
                 </span>
               </div>
@@ -397,15 +474,15 @@ const ConfirmOrder = () => {
                 <div key={index} className={cx("order-item")}>
                   <div className={cx("item-image")}>
                     <Image
-                      src={item.thumb || "/placeholder-image.jpg"}
-                      alt={item.name}
+                      src={item.thumb || item.image || "/placeholder-image.jpg"}
+                      alt={item.name || `Sản phẩm ${index + 1}`}
                       width={80}
                       height={80}
                       style={{ objectFit: "cover" }}
                     />
                   </div>
                   <div className={cx("item-details")}>
-                    <h4 className={cx("item-name")}>{item.name}</h4>
+                    <h4 className={cx("item-name")}>{item.name || `Sản phẩm ${index + 1}`}</h4>
                     <div className={cx("item-variant")}>
                       {item.colorOrder && `Màu: ${item.colorOrder}`}
                       {item.colorOrder && item.sizeOrder && " | "}
@@ -417,7 +494,7 @@ const ConfirmOrder = () => {
                   </div>
                   <div className={cx("item-price")}>
                     {formatPrice(
-                      (item.price?.discount || item.price?.original || 0) *
+                      (item.price?.discount || item.price?.original || item.priceOrder || 0) *
                         item.quantity
                     )}
                     đ
@@ -511,6 +588,18 @@ const ConfirmOrder = () => {
                 </div>
               )}
 
+              {paymentMethod === "VNPAY" && (
+                <div className={cx("selected-payment")}>
+                  <Image
+                    src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png"
+                    alt="VNPAY"
+                    width={24}
+                    height={24}
+                  />
+                  <span>Thanh toán qua VNPAY</span>
+                </div>
+              )}
+
               {paymentMethod === "MOMO" && (
                 <div className={cx("selected-payment")}>
                   <Image
@@ -519,19 +608,7 @@ const ConfirmOrder = () => {
                     width={24}
                     height={24}
                   />
-                  <span>Ví MoMo</span>
-                </div>
-              )}
-
-              {paymentMethod === "ZALOPAY" && (
-                <div className={cx("selected-payment")}>
-                  <Image
-                    src="https://mcdn.coolmate.me/image/October2024/mceclip0_81.png"
-                    alt="ZaloPay"
-                    width={24}
-                    height={24}
-                  />
-                  <span>Ví điện tử ZaloPay</span>
+                  <span>Ví điện tử MoMo</span>
                 </div>
               )}
 
@@ -565,14 +642,14 @@ const ConfirmOrder = () => {
                 <div className={cx("item-image")}>
                   <Image
                     src={item.thumb || "/placeholder-image.jpg"}
-                    alt={item.name}
+                    alt={item.name || `Sản phẩm ${index + 1}`}
                     width={60}
                     height={60}
                     style={{ objectFit: "cover" }}
                   />
                 </div>
                 <div className={cx("item-details")}>
-                  <h3>{item.name}</h3>
+                  <h3>{item.name || `Sản phẩm ${index + 1}`}</h3>
                   <div className={cx("item-variants")}>
                     {item.colorOrder && `Màu: ${item.colorOrder}`}
                     {item.sizeOrder && item.colorOrder && " | "}
@@ -584,7 +661,7 @@ const ConfirmOrder = () => {
                 </div>
                 <div className={cx("item-price")}>
                   {formatPrice(
-                    (item.price?.discount || item.price?.original || 0) *
+                    (item.price?.discount || item.price?.original || item.priceOrder || 0) *
                       item.quantity
                   )}
                   đ

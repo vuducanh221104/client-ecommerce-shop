@@ -18,7 +18,8 @@ import pcVN, { Province, District, Ward } from "pc-vn";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import config from "@/config";
-import { removeProduct } from "@/redux/cartSlice";
+import { removeProduct, clearCart as clearCartRedux } from "@/redux/cartSlice";
+import PaymentServices from "@/services/PaymentServices";
 
 const cx = classNames.bind(styles);
 
@@ -63,6 +64,7 @@ function PageCart() {
   const [totalPrice, setTotalPrice] = useState(0);
   const [hasOutOfStockItems, setHasOutOfStockItems] = useState(false);
   const [blinkItems, setBlinkItems] = useState<{ [key: string]: boolean }>({});
+  const [paymentMethod, setPaymentMethod] = useState("COD");
 
   // Get user from Redux store
   const currentUser = useSelector<RootState, UserData | null>(
@@ -395,48 +397,35 @@ function PageCart() {
     }
   };
 
-  const handleCheckout = async () => {
-    if (!isLoggedIn) {
-      toast.error("Vui lòng đăng nhập để đặt hàng");
-      return;
-    }
+  // Handle payment method change
+  const handlePaymentMethodChange = (method: string) => {
+    setPaymentMethod(method);
+  };
 
-    // Filter out out-of-stock items for checkout
-    const inStockItems = cartItems.filter((item) => item.stock > 0);
-
-    if (inStockItems.length === 0) {
-      toast.error("Không có sản phẩm nào có thể đặt hàng");
-      return;
-    }
-
-    // Validate address information
-    if (
-      !userData.fullName ||
-      !userData.phoneNumber ||
-      !userData.address ||
-      !userData.district ||
-      !userData.ward
-    ) {
-      toast.error("Vui lòng điền đầy đủ thông tin giao hàng");
-      return;
-    }
-
-    // Store current user data for confirmation page
+  const handleCheckoutWithLoading = async () => {
+    setLoadingCheckout(true);
     try {
-      const checkoutData = {
-        name: userData.fullName,
-        email: userData.email,
-        address: userData.address,
-        phone: userData.phoneNumber,
-        city: userData.city,
-        district: userData.district,
-        ward: userData.ward,
-        notes: userData.notes,
-      };
+      // Filter out out-of-stock items for checkout
+      const inStockItems = cartItems.filter((item) => item.stock > 0);
 
-      // Only send in-stock items to checkout
-      localStorage.setItem("checkoutUserData", JSON.stringify(checkoutData));
-      localStorage.setItem("checkoutCartItems", JSON.stringify(inStockItems));
+      if (inStockItems.length === 0) {
+        toast.error("Không có sản phẩm nào có thể đặt hàng");
+        setLoadingCheckout(false);
+        return;
+      }
+
+      // Validate address information
+      if (
+        !userData.fullName ||
+        !userData.phoneNumber ||
+        !userData.address ||
+        !userData.district ||
+        !userData.ward
+      ) {
+        toast.error("Vui lòng điền đầy đủ thông tin giao hàng");
+        setLoadingCheckout(false);
+        return;
+      }
 
       // Calculate total price for only in-stock items
       const inStockTotal = inStockItems.reduce((sum, item) => {
@@ -444,12 +433,97 @@ function PageCart() {
         return sum + itemPrice * item.quantity;
       }, 0);
 
-      localStorage.setItem("checkoutTotalPrice", inStockTotal.toString());
+      // Format order data for submission
+      const orderData = {
+        customer_email: userData.email,
+        items: inStockItems.map((item) => ({
+          product_id: item.product_id,
+          priceOrder: item.price?.discount || item.price?.original || 0,
+          quantity: item.quantity,
+          colorOrder: item.colorOrder,
+          sizeOrder: item.sizeOrder,
+        })),
+        shipping_address: {
+          full_name: userData.fullName,
+          phone_number: userData.phoneNumber,
+          street: userData.address,
+          ward: userData.ward,
+          district: userData.district,
+          city: userData.city,
+          country: "Vietnam",
+        },
+        payment: {
+          method: paymentMethod,
+          status: "PENDING",
+        },
+        total_amount: inStockTotal,
+        notes: userData.notes || "",
+      };
 
-      router.push("/confirmOrder");
-    } catch (error) {
-      console.error("Error during checkout:", error);
-      toast.error("Đã xảy ra lỗi khi tiến hành đặt hàng");
+      // Create order
+      console.log("Creating order with data:", orderData);
+      const orderResponse = await PaymentServices.createOrder(orderData);
+      console.log("Order creation response:", orderResponse);
+      
+      if (orderResponse && orderResponse.status === "success" && orderResponse.data) {
+        // Get the order ID from the response
+        const orderId = orderResponse.data.order?.id || 
+                       orderResponse.data.order?._id || 
+                       orderResponse.data._id;
+        
+        console.log("Order response data:", orderResponse.data);
+        
+        if (!orderId) {
+          console.error("Order ID not found in response:", orderResponse);
+          throw new Error("Không nhận được mã đơn hàng từ server. Vui lòng thử lại.");
+        }
+        
+        console.log("Created order with ID:", orderId);
+        
+        // Clear cart in backend and Redux
+        await clearCart();
+        dispatch(clearCartRedux());
+        
+        // If payment method is COD, redirect to confirmOrder page with orderId
+        if (paymentMethod === "COD") {
+          router.push(`/confirmOrder?orderId=${orderId}`);
+        } 
+        // If payment method is VNPAY, initialize payment and redirect to VNPay
+        else if (paymentMethod === "VNPAY") {
+          try {
+            // Initialize VNPay payment
+            console.log("Initializing VNPay payment for order:", orderId);
+            const paymentResponse = await PaymentServices.initializePayment(
+              orderId,
+              "VNPAY",
+              `${window.location.origin}/confirmOrder`,
+              `${window.location.origin}/payment/failure`
+            );
+            
+            console.log("VNPay payment initialization response:", paymentResponse);
+            
+            if (paymentResponse.status === "success" && paymentResponse.data?.redirectUrl) {
+              // Redirect to VNPay payment page
+              console.log("Redirecting to VNPay URL:", paymentResponse.data.redirectUrl);
+              window.location.href = paymentResponse.data.redirectUrl;
+            } else {
+              throw new Error("Không thể khởi tạo thanh toán VNPay");
+            }
+          } catch (paymentError) {
+            console.error("Payment initialization error:", paymentError);
+            toast.error("Lỗi khởi tạo thanh toán. Vui lòng thử lại.");
+            setLoadingCheckout(false);
+          }
+        }
+      } else {
+        console.error("Invalid order response:", orderResponse);
+        throw new Error("Đã xảy ra lỗi khi tạo đơn hàng");
+      }
+    } catch (err: any) {
+      console.error("Error during checkout:", err);
+      toast.error(err.message || "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.");
+    } finally {
+      setLoadingCheckout(false);
     }
   };
 
@@ -519,18 +593,6 @@ function PageCart() {
 
     return () => clearInterval(blinkInterval);
   }, [cartItems]);
-
-  // Update handleCheckout to reflect loading state
-  const handleCheckoutWithLoading = async () => {
-    setLoadingCheckout(true);
-    try {
-      await handleCheckout();
-    } catch (error) {
-      console.error("Checkout error:", error);
-    } finally {
-      setLoadingCheckout(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -696,8 +758,17 @@ function PageCart() {
             <div className={cx("payment-methods")}>
               <h2 className={cx("section-title")}>Hình thức thanh toán</h2>
               <div className={cx("payment-options")}>
-                <div className={cx("payment-option", "active")}>
-                  <input type="radio" name="payment" id="cod" defaultChecked />
+                <div 
+                  className={cx("payment-option", { "active": paymentMethod === "COD" })}
+                  onClick={() => handlePaymentMethodChange("COD")}
+                >
+                  <input 
+                    type="radio" 
+                    name="payment" 
+                    id="cod" 
+                    checked={paymentMethod === "COD"}
+                    onChange={() => handlePaymentMethodChange("COD")}
+                  />
                   <label htmlFor="cod">
                     <Image
                       src="https://mcdn.coolmate.me/image/October2024/mceclip2_42.png"
@@ -708,8 +779,38 @@ function PageCart() {
                     <span>Thanh toán khi nhận hàng</span>
                   </label>
                 </div>
-                {/* <div className={cx("payment-option")}>
-                  <input type="radio" name="payment" id="momo" />
+                <div 
+                  className={cx("payment-option", { "active": paymentMethod === "VNPAY" })}
+                  onClick={() => handlePaymentMethodChange("VNPAY")}
+                >
+                  <input 
+                    type="radio" 
+                    name="payment" 
+                    id="vnpay" 
+                    checked={paymentMethod === "VNPAY"}
+                    onChange={() => handlePaymentMethodChange("VNPAY")}
+                  />
+                  <label htmlFor="vnpay">
+                    <Image
+                      src="https://mcdn.coolmate.me/image/October2024/mceclip3_6.png"
+                      alt="MoMo"
+                      width={24}
+                      height={24}
+                    />
+                    <span>Thanh toán qua VNPAY</span>
+                  </label>
+                </div>
+                {/* <div 
+                  className={cx("payment-option", { "active": paymentMethod === "MOMO" })}
+                  onClick={() => handlePaymentMethodChange("MOMO")}
+                >
+                  <input 
+                    type="radio" 
+                    name="payment" 
+                    id="momo" 
+                    checked={paymentMethod === "MOMO"}
+                    onChange={() => handlePaymentMethodChange("MOMO")}
+                  />
                   <label htmlFor="momo">
                     <Image
                       src="https://mcdn.coolmate.me/image/October2024/mceclip3_6.png"
@@ -718,18 +819,6 @@ function PageCart() {
                       height={24}
                     />
                     <span>Ví MoMo</span>
-                  </label>
-                </div>
-                <div className={cx("payment-option")}>
-                  <input type="radio" name="payment" id="vnpay" />
-                  <label htmlFor="vnpay">
-                    <Image
-                      src="https://mcdn.coolmate.me/image/October2024/mceclip0_81.png"
-                      alt="VNPay"
-                      width={24}
-                      height={24}
-                    />
-                    <span>Ví điện tử VNPAY</span>
                   </label>
                 </div> */}
               </div>
