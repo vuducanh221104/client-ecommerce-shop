@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import styles from "./Register.module.scss";
 import classNames from "classnames/bind";
-import { authRegister } from "@/services/authServices";
+import { authRegister } from "@/services/AuthServices";
 import { toast } from "react-hot-toast";
 import { Form, Input } from "antd";
 
