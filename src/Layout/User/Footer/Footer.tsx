@@ -36,7 +36,7 @@ function Footer() {
       <div className={"container"}>
         <div className={styles["footer-top"]}>
           <div className={styles["footer-intro"]}>
-            <h3 className={styles["footer-title"]}>COOLMATE lắng nghe bạn!</h3>
+            <h3 className={styles["footer-title"]}>ZENFIT lắng nghe bạn!</h3>
             <p className={styles["footer-text"]}>
               Chúng tôi luôn trân trọng và mong đợi nhận được mọi ý kiến đóng
               góp từ khách hàng để có thể nâng cấp trải nghiệm dịch vụ và sản
@@ -282,7 +282,7 @@ function Footer() {
               className={styles["accordion-header"]}
               onClick={() => toggleSection("coolclub")}
             >
-              <h3 className={styles["column-title"]}>COOLCLUB</h3>
+              <h3 className={styles["column-title"]}>ZENCLUB</h3>
               <span className={styles["toggle-icon"]}>+</span>
             </div>
             <div className={styles["accordion-content"]}>

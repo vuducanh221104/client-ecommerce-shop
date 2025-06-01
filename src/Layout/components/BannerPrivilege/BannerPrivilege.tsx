@@ -14,7 +14,7 @@ function BannerPrivilege() {
         <div className={cx("privileges-section")}>
           <h2 className={cx("main-title")}>
             ĐẶC QUYỀN DÀNH CHO <span className={cx("highlight")}>368,849</span>{" "}
-            THÀNH VIÊN COOLCLUB
+            THÀNH VIÊN ZENCLUB
           </h2>
           <div className={cx("privilege-cards")}>
             <div className={cx("privilege-card")}>
@@ -90,7 +90,7 @@ function BannerPrivilege() {
             </div>
           </div>
           <Link href="/auth/login" className={cx("join-button")}>
-            GIA NHẬP COOLCLUB NGAY <span className={cx("arrow-icon")}>→</span>
+            GIA NHẬP ZENCLUB NGAY <span className={cx("arrow-icon")}>→</span>
           </Link>
         </div>
       </div>
