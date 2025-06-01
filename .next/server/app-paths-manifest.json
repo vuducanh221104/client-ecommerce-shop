@@ -1,4 +1,12 @@
 {
+  "/(user)/product/[slug]/page": "app/(user)/product/[slug]/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/(user)/page": "app/(user)/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/(user)/cart/page": "app/(user)/cart/page.js",
+  "/(user)/account/info/page": "app/(user)/account/info/page.js",
+  "/(user)/account/address/page": "app/(user)/account/address/page.js",
+  "/(user)/confirmOrder/page": "app/(user)/confirmOrder/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(user)/account/order/page": "app/(user)/account/order/page.js",
+  "/(user)/category/[slug]/page": "app/(user)/category/[slug]/page.js"
 }

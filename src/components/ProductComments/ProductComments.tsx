@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { CommentData, getCommentStats, getProductComments, addComment } from '@/services/commentServices';
-import { checkUserCanReview } from '@/services/orderServices';
+import { checkUserCanReview } from '@/services/OrderServices';
 import Link from 'next/link';
 
 const cx = classNames.bind(styles);
