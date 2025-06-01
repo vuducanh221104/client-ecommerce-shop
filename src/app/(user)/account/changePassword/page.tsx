@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import styles from "./page.module.scss";
 import classNames from "classnames/bind";
-import { changePassword } from "@/services/AuthServices";
+import { changePassword } from "@/services/authServices";
 import { toast } from "react-hot-toast";
 
 const cx = classNames.bind(styles);

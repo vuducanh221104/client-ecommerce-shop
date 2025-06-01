@@ -1,12 +1,53 @@
 "use client";
 
 import * as httpRequest from "@/utils/httpRequest";
+import { adminGet, adminPost, adminPatch, adminDeleted } from "@/utils/httpRequestAdmin";
 import { AxiosError } from "axios";
 
+// Comment management services
+export interface Comment {
+  _id: string;
+  content: string;
+  rating: number;
+  user: {
+    _id?: string;
+    fullName?: string;
+    email?: string;
+    avatar?: string;
+  } | null;
+  product: {
+    _id?: string;
+    name?: string;
+    image?: string[] | string;
+  } | null;
+  status: 'APPROVED' | 'PENDING' | 'REJECTED' | 'FLAGGED' | string;
+  createdAt: string;
+  updatedAt: string;
+  replyContentAdmin?: Array<{
+    content: string;
+    createdAt: string;
+    adminId?: string;
+  }>;
+}
+
+export interface CommentResponse {
+  status: string;
+  message: string;
+  comments: Comment[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+
+
 // Product management services
-export const getAllProducts = async () => {
+export const getAllProducts = async (page = 1, limit = 10) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/products`);
+    const res = await httpRequest.get<any>(`api/v1/products?page=${page}&limit=${limit}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -111,7 +152,7 @@ export const deleteUser = async (id: string) => {
 // Order management services
 export const getAllOrders = async () => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/orders`);
+    const res = await httpRequest.get<any>(`api/v1/orders?limit=100`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -294,5 +335,95 @@ export const deleteMaterial = async (id: string) => {
       throw error;
     }
     throw new Error("Failed to delete material");
+  }
+};
+
+
+export interface CommentDetailsResponse {
+  status: string;
+  message: string;
+  comment: Comment;
+}
+
+export const getAllComments = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  sortField?: string;
+  sortOrder?: number | string;
+  productId?: string;
+  userId?: string;
+}) => {
+  try {
+    const res = await adminGet<CommentResponse>(`api/v1/comments/admin`, {
+      params,
+    });
+    return res;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};
+
+export const getCommentById = async (commentId: string) => {
+  try {
+    const res = await adminGet<CommentDetailsResponse>(`api/v1/comments/admin/${commentId}`);
+    return res;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};
+
+export const updateComment = async (
+  commentId: string,
+  data: {
+    content?: string;
+    rating?: number;
+    status?: string;
+  }
+) => {
+  try {
+    const res = await adminPatch<any>(`api/v1/comments/admin/${commentId}`, data);
+    return res.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};
+
+export const replyToComment = async (
+  commentId: string,
+  data: {
+    content: string;
+  }
+) => {
+  try {
+    const res = await adminPost<any>(`api/v1/comments/admin/${commentId}/reply`, data);
+    return res.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};
+
+export const deleteComment = async (commentId: string) => {
+  try {
+    const res = await adminDeleted<any>(`api/v1/comments/admin/${commentId}`);
+    return res.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
+  }
+};
+
+export const deleteCommentReply = async (commentId: string, replyId: string) => {
+  try {
+    const res = await adminDeleted<any>(`api/v1/comments/admin/${commentId}/reply/${replyId}`);
+    return res.data;
+  } catch (error) {
+    const err = error as AxiosError;
+    throw err;
   }
 };

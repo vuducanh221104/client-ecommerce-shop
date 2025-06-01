@@ -22,6 +22,7 @@ import {
   Spin,
   Upload,
   Divider,
+  Pagination,
 } from "antd";
 import {
   SearchOutlined,
@@ -163,6 +164,9 @@ const ProductsPage = () => {
   const [selectedParentCategories, setSelectedParentCategories] = useState<(string | null)[]>([null]);
   const [selectedMiddleCategories, setSelectedMiddleCategories] = useState<(string | null)[]>([null]);
   const [categorySelections, setCategorySelections] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
   // Fetch data function
   const fetchData = async () => {
@@ -170,15 +174,16 @@ const ProductsPage = () => {
       setLoading(true);
 
       // Call APIs individually with proper typing
-      const productsData = (await getAllProducts()) as ProductsResponse;
+      const productsData = (await getAllProducts(currentPage, pageSize)) as ProductsResponse;
       const categoriesData = (await getAllCategories()) as CategoryResponse;
       const materialsData = (await getAllMaterials()) as MaterialResponse;
 
-      console.log("Categories data:", categoriesData);
-      console.log("Materials data:", materialsData);
-
       if (productsData && productsData.products) {
         setProducts(productsData.products);
+        // Set total products for pagination
+        if (productsData.pagination) {
+          setTotalProducts(productsData.pagination.total);
+        }
       }
 
       if (
@@ -202,8 +207,28 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    // Only fetch data from server when there's no search text
+    if (!searchText) {
+      fetchData();
+    }
+  }, [currentPage, pageSize, searchText]);
+
+  // Handle page change
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
+  // Handle search
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    // Reset to first page when searching
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  };
 
   // Handle product deletion
   const handleDelete = async (id: string) => {
@@ -269,11 +294,6 @@ const ProductsPage = () => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  // Handle search
-  const handleSearch = (value: string) => {
-    setSearchText(value);
   };
 
   // Helper function to prepare variants data from a product
@@ -437,10 +457,6 @@ const ProductsPage = () => {
 
   // Handle edit button click
   const handleEditClick = (product: Product) => {
-    console.log("Editing product:", product);
-    console.log("Category array in product:", product.category);
-    console.log("Variants in product:", product.variants);
-
     setEditingProduct(product);
 
     // Reset form fields
@@ -449,7 +465,6 @@ const ProductsPage = () => {
     // Prepare variants for form
     const variants = prepareVariantsFromProduct(product);
 
-    console.log("Prepared variants for form:", variants);
 
     // Prepare header image if available
     const headerImage = product.description?.header?.image
@@ -481,7 +496,6 @@ const ProductsPage = () => {
       });
     }
     
-    console.log("Extracted category IDs:", categoryIds);
     
     // Group categories by their parent categories
     const categoryGroups: { 
@@ -538,7 +552,6 @@ const ProductsPage = () => {
       });
     }
     
-    console.log("Category groups:", categoryGroups);
     
     // Set up form values
     const formValues: any = {
@@ -688,13 +701,10 @@ const ProductsPage = () => {
 
     try {
       setEditLoading(true);
-      console.log("Form values for submission:", values);
-      console.log("tagIsNew value:", values.tagIsNew, typeof values.tagIsNew);
       
       // Check if variants exist
       if (!values.variants) {
         console.warn("Variants is undefined in form submission!");
-        console.log("Editing product data:", editingProduct);
 
         // Try to recover variants from editingProduct if possible
         if (
@@ -702,9 +712,7 @@ const ProductsPage = () => {
           editingProduct.variants &&
           editingProduct.variants.length > 0
         ) {
-          console.log("Attempting to recover variants from editingProduct");
           values.variants = prepareVariantsFromProduct(editingProduct);
-          console.log("Recovered variants:", values.variants);
         }
       }
 
@@ -732,12 +740,9 @@ const ProductsPage = () => {
         }
       }
 
-      // Process variants
-      console.log("About to process variants:", values.variants);
       const processedVariants = values.variants
         ? await Promise.all(
             values.variants.map(async (variant: any) => {
-              console.log("Processing variant:", variant);
               // Process color thumbnail
               let colorThumbnail = null;
               if (variant.colorThumbnail && variant.colorThumbnail.length > 0) {
@@ -829,7 +834,6 @@ const ProductsPage = () => {
           )
         : []; // Return empty array if variants is undefined
 
-      console.log("Processed variants:", processedVariants);
 
       // Collect all category IDs from all selections
       const categoryIds: string[] = [];
@@ -882,13 +886,10 @@ const ProductsPage = () => {
         variants: processedVariants,
       };
 
-      console.log("Data being sent to API:", productData);
-      console.log("Combined category IDs:", categoryIds);
 
       // Call API to update product
       try {
         const response = await updateProduct(editingProduct.id, productData);
-        console.log("Update response:", response);
 
         // Reload all products to ensure we get the latest data
         message.success("Product updated successfully");
@@ -920,9 +921,11 @@ const ProductsPage = () => {
   };
 
   // Filter products based on search text
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  const filteredProducts = searchText 
+    ? products.filter((product) =>
+        product.name.toLowerCase().includes(searchText.toLowerCase())
+      )
+    : products;
 
   // Table columns
   const columns = [
@@ -1150,26 +1153,37 @@ const ProductsPage = () => {
           align="middle"
           style={{ marginBottom: 16 }}
         >
-          <Col>
+          <Col span={8}>
             <Title level={2}>Products Management</Title>
           </Col>
-          <Col>
-            <Space>
-              <Input
-                placeholder="Search products"
-                prefix={<SearchOutlined />}
-                value={searchText}
-                onChange={(e) => handleSearch(e.target.value)}
-                style={{ width: 250 }}
-              />
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                href="/admin/products/add"
-              >
-                Add New Product
-              </Button>
-            </Space>
+          <Col span={16}>
+            <Row justify="end" gutter={16}>
+              <Col>
+                <Space direction="vertical" size="small">
+                  <Input
+                    placeholder="Search products"
+                    prefix={<SearchOutlined />}
+                    value={searchText}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    style={{ width: 250 }}
+                  />
+                  {searchText && (
+                    <span style={{ fontSize: '12px', color: '#999' }}>
+                      Searching within {products.length} loaded products
+                    </span>
+                  )}
+                </Space>
+              </Col>
+              <Col>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  href="/admin/products/add"
+                >
+                  Add New Product
+                </Button>
+              </Col>
+            </Row>
           </Col>
         </Row>
 
@@ -1179,9 +1193,11 @@ const ProductsPage = () => {
           rowKey="id"
           loading={loading}
           pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
+            current: currentPage,
+            pageSize: pageSize,
+            total: searchText ? filteredProducts.length : totalProducts,
+            onChange: handlePageChange,
+            showSizeChanger: false
           }}
         />
       </Card>
@@ -1202,34 +1218,24 @@ const ProductsPage = () => {
             icon={<SaveOutlined />}
             loading={editLoading}
             onClick={() => {
-              console.log("Current form values:", editForm.getFieldsValue());
               const formValues = editForm.getFieldsValue();
 
               // Check if variants are missing
               if (!formValues.variants && editingProduct) {
-                console.log(
-                  "Variants missing from form, recovering from editingProduct"
-                );
+
                 formValues.variants =
                   prepareVariantsFromProduct(editingProduct);
                 editForm.setFieldsValue({ variants: formValues.variants });
-                console.log(
-                  "Updated form with recovered variants:",
-                  formValues.variants
-                );
+
               }
 
               // Check if the form has errors
               editForm
                 .validateFields()
                 .then((values) => {
-                  console.log("Form validation passed with values:", values);
 
                   // Make sure variants exists
                   if (!values.variants && editingProduct) {
-                    console.log(
-                      "Variants still missing after validation, recovering again"
-                    );
                     values.variants =
                       prepareVariantsFromProduct(editingProduct);
                   }
@@ -1257,10 +1263,7 @@ const ProductsPage = () => {
             }}
             preserve={true}
             onValuesChange={(changedValues, allValues) => {
-              // Log only when variants change to avoid excessive logging
-              if (changedValues.variants) {
-                console.log("Form values updated:", allValues.variants);
-              }
+
             }}
           >
             <Tabs

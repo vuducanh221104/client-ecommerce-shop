@@ -55,12 +55,7 @@ export default function AccountInfoPage() {
     (state) => state.auth.login.currentUser
   );
 
-  // Log when user data changes (for debug)
-  useEffect(() => {
-    if (currentUser) {
-      console.log("Current user data in Redux:", currentUser);
-    }
-  }, [currentUser]);
+
 
   useEffect(() => {
     if (!currentUser) {

@@ -48,7 +48,7 @@ const EditMaterialModal: React.FC<EditMaterialModalProps> = ({
           message.error("Cannot update material: ID is missing");
           return;
         }
-        console.log("Updating material with ID:", material._id);
+
         await updateMaterial(material._id, values);
         message.success("Material updated successfully");
       } else {

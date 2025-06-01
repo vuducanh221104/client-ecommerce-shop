@@ -21,7 +21,7 @@ function BannerPrivilege() {
               <div className={cx("card-content")}>
                 <span className={cx("card-title")}>Mời bạn bè</span>
                 <span className={cx("card-subtitle")}>
-                  hoàn tiền 10% CoolCash
+                  hoàn tiền 10% ZenFit
                 </span>
               </div>
               <div className={cx("card-icon")}>
@@ -79,13 +79,13 @@ function BannerPrivilege() {
             <div className={cx("activity-item")}>
               <span className={cx("activity-user")}>Đỗ Văn Đoàn</span> vừa được
               cộng{" "}
-              <span className={cx("coolcash-amount")}>20.000 CoolCash</span> từ
+              <span className={cx("coolcash-amount")}>20.000 ZenFit</span> từ
               ĐH #2xox63
             </div>
             <div className={cx("activity-item")}>
               <span className={cx("activity-user")}>Nguyentrunducl297</span> vừa
               được cộng{" "}
-              <span className={cx("coolcash-amount")}>94.000 CoolCash</span> từ
+              <span className={cx("coolcash-amount")}>94.000 ZenFit</span> từ
               ĐH #2xox635
             </div>
           </div>

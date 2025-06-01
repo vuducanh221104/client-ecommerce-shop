@@ -6,7 +6,7 @@ import { AxiosError } from "axios";
 // Create order from cart
 export const createOrder = async (orderData: any) => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/orders`, orderData);
+    const res = await httpRequest.post<any>(`/api/v1/orders`, orderData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -17,7 +17,7 @@ export const createOrder = async (orderData: any) => {
 // Get order by ID
 export const getOrderById = async (orderId: string) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/orders/${orderId}`);
+    const res = await httpRequest.get<any>(`/api/v1/orders/${orderId}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -28,9 +28,7 @@ export const getOrderById = async (orderId: string) => {
 // Get orders by user ID
 export const getUserOrdersById = async (userId: string) => {
   try {
-    console.log(`Calling API: api/v1/orders/user/${userId}`);
-    const res = await httpRequest.get<any>(`api/v1/orders/user/${userId}`);
-    console.log("Orders API response status:", res.status);
+    const res = await httpRequest.get<any>(`/api/v1/orders/user/${userId}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -44,47 +42,20 @@ export const getUserOrdersById = async (userId: string) => {
 };
 
 // Get all orders for the current user
-export const getUserOrders = async () => {
+export const getUserOrders = async (page = 1, limit = 10) => {
   try {
-    // Lấy user ID từ Redux store
-    let userId = null;
-    
-    if (typeof window !== "undefined") {
-      // Kiểm tra từ localStorage (persist:root)
-      const persistRoot = localStorage.getItem("persist:root");
-      if (persistRoot) {
-        const persistData = JSON.parse(persistRoot);
-        if (persistData && persistData.auth) {
-          const authState = JSON.parse(persistData.auth);
-          if (authState?.login?.currentUser) {
-            userId = authState.login.currentUser._id || authState.login.currentUser.id;
-          }
-        }
-      }
-    }
-    
-    if (!userId) {
-      throw new Error("Người dùng chưa đăng nhập");
-    }
-    
-    // Sử dụng hàm getUserOrdersById với userId đã lấy được
-    return await getUserOrdersById(userId);
+    const res = await httpRequest.get<any>(`/api/v1/orders/my?page=${page}&limit=${limit}`);
+    return res.data;
   } catch (error) {
-    const err = error as AxiosError;
-    console.error(
-      "API Error fetching user orders:",
-      error instanceof AxiosError 
-        ? `${err.response?.status} - ${err.response?.data || err.message}`
-        : error
-    );
-    throw err;
+    console.error("Error fetching user orders:", error);
+    throw error;
   }
 };
 
 // Cancel an order
 export const cancelOrder = async (orderId: string) => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/orders/${orderId}/cancel`, {
+    const res = await httpRequest.post<any>(`/api/v1/orders/${orderId}/cancel`, {
       reason: "Đã hủy bởi người dùng",
     });
     return res.data;
@@ -97,11 +68,38 @@ export const cancelOrder = async (orderId: string) => {
 // Get product details by ID
 export const getProductById = async (productId: string) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/products/${productId}`);
+    const res = await httpRequest.get<any>(`/api/v1/products/${productId}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
     throw err;
+  }
+};
+
+// Check if user has purchased and received a product
+export const checkUserCanReview = async (productId: string): Promise<boolean> => {
+  try {
+    interface ReviewResponse {
+      status: string;
+      data: {
+        canReview: boolean;
+      };
+      message: string;
+    }
+    
+    const res = await httpRequest.get<ReviewResponse>(`/api/v1/orders/can-review/${productId}`);
+    console.log("Raw API response for canReview:", res.data);
+    
+    // The server returns canReview inside the data object
+    if (res.data?.data?.canReview === true) {
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error("Error checking if user can review:", error);
+    // Return false by default if there's an error
+    return false;
   }
 };
 
@@ -112,4 +110,5 @@ export const OrderService = {
   getUserOrdersById,
   cancelOrder,
   getProductById,
+  checkUserCanReview,
 };

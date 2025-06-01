@@ -20,7 +20,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { removeProduct } from "@/redux/cartSlice";
-import { removeCartItem } from "@/services/CartServices";
+import { removeCartItem } from "@/services/cartServices";
 import { toast } from "react-hot-toast";
 import httpRequest from "@/utils/httpRequest";
 
@@ -130,8 +130,6 @@ function Header() {
   // Handle removing a product from the cart
   const handleRemoveFromCart = async (productId: string) => {
     try {
-      console.log("Removing product with ID:", productId);
-      
       // Get the current cart items from API to find the correct cart item ID
       const cartResponse = await httpRequest.get<any>(`api/v1/cart`);
       const apiCartItems = cartResponse.data?.cart || [];
@@ -146,7 +144,6 @@ function Header() {
       
       // Use the cart item ID from the API response
       const cartItemId = cartItem._id;
-      console.log("Found cart item ID:", cartItemId);
       
       // Remove from backend
       await removeCartItem(cartItemId);
@@ -191,11 +188,12 @@ function Header() {
           <div className={cx("header__logo", "!tw-h-full")}>
             <Link href="/" className="tw-h-full tw-flex tw-items-center">
               <Image
-                src="https://www.coolmate.me/images/logo-coolmate-new-v2.png"
+                src="/golbal/logo_golbal.png"
                 alt="logo"
                 className="tw-h-[50px]"
-                width={100}
-                height={100}
+                width={130}
+                height={120}
+                // style={{ marginLeft: "10px" }}
               />
             </Link>
           </div>

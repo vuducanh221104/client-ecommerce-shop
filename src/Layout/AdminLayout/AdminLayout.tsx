@@ -106,6 +106,12 @@ const menuItems = [
       },
     ],
   },
+  {
+    key: "sub6",
+    icon: <FileTextOutlined />,
+    label: <Link href={"/admin/comment"}>Comments</Link>,
+  }
+  
 ];
 
 interface AdminLayoutProps {
@@ -150,14 +156,14 @@ function AdminLayout({ children }: AdminLayoutProps) {
             <div className="brand flex items-center justify-center pt-0 pb-7 px-14 bg-[#ffffff]">
               <Link href={"/admin/dashboard"} className="contents">
                 <Image
-                  src={"/favicon.ico"}
+                  src={"/golbal/logo_white.png"}
                   alt="Logo"
                   width={30}
                   height={30}
                   className="mr-2"
                 />
                 <span className={`text-[#000] align-middle ml-5 font-bold `}>
-                  Ecomerce Dashboard
+                  ZenFit Dashboard
                 </span>
               </Link>
             </div>
@@ -182,14 +188,14 @@ function AdminLayout({ children }: AdminLayoutProps) {
         <div className="brand flex items-center justify-center  pt-14 pb-7 px-14">
           <Link href={"/admin/dashboard"} className="contents">
             <Image
-              src={"/favicon.ico"}
+              src={"/golbal/logo_white.png"}
               alt="Logo"
-              width={30}
-              height={30}
+              width={50}
+              height={50}
               className="mr-2"
             />
             <span className={`text-[#ffffff] align-middle ml-5 font-bold `}>
-              Ecomerce Dashboard
+              ZenFit Dashboard
             </span>
           </Link>
         </div>
@@ -201,6 +207,7 @@ function AdminLayout({ children }: AdminLayoutProps) {
           items={menuItems}
           className="mt-6"
         />
+        
       </Sider>
       <Layout>
         <Header

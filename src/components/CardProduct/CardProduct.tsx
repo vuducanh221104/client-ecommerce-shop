@@ -37,6 +37,7 @@ interface ProductProps {
   colors: ColorOption[];
   sizes?: string[];
   outOfStock?: boolean;
+  comment?: any[];
 }
 
 function CardProduct({
@@ -54,6 +55,7 @@ function CardProduct({
   colors,
   sizes,
   outOfStock = false,
+  comment = [],
 }: ProductProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedColorId, setSelectedColorId] = useState(colors[0]?.id);
@@ -122,6 +124,22 @@ function CardProduct({
     }
   }, [selectedColorId, selectedColor, outOfStock]);
 
+  // Calculate the average rating from comments
+  const calculateAverageRating = () => {
+    if (!comment || comment.length === 0) return 0;
+    
+    const sum = comment.reduce((total, item) => {
+      return total + (item.rating || 0);
+    }, 0);
+    
+    return sum / comment.length;
+  };
+  
+  // Get the calculated average rating
+  const averageRating = calculateAverageRating();
+  const formattedRating = averageRating > 0 ? averageRating.toFixed(1) : "0";
+  const commentCount = comment?.length || 0;
+
   return (
     <div className={cx("product-card")}>
       <Link href={link} className={cx("product-link")}>
@@ -168,13 +186,11 @@ function CardProduct({
             </span>
           )}
 
-          {rating && (
-            <div className={cx("product-rating")}>
-              <span className={cx("rating-score")}>{rating}</span>
-              <span className={cx("rating-star")}>★</span>
-              <span className={cx("review-count")}>({reviewCount})</span>
-            </div>
-          )}
+          <div className={cx("product-rating")}>
+            <span className={cx("rating-score")}>{formattedRating}</span>
+            <span className={cx("rating-star")}>★</span>
+            <span className={cx("review-count")}>({commentCount})</span>
+          </div>
 
           <div className={cx("product-promo")}>
             <Image

@@ -79,7 +79,7 @@ function Footer() {
               <div className={styles["contact-info"]}>
                 <span className={styles["contact-label"]}>Email</span>
                 <span className={styles["contact-value"]}>
-                  Cool@coolmate.me
+                  Gym@ZenFit.me
                 </span>
               </div>
             </div>
@@ -164,7 +164,7 @@ function Footer() {
         {/* Desktop Footer Links */}
         <div className={styles["desktop-links"]}>
           <div className={styles["footer-links-column"]}>
-            <h3 className={styles["column-title"]}>COOLCLUB</h3>
+            <h3 className={styles["column-title"]}>ZenClub</h3>
             <ul className={styles["links-list"]}>
               <li>
                 <Link href="#">Đăng ký thành viên</Link>
@@ -220,10 +220,10 @@ function Footer() {
           </div>
 
           <div className={styles["footer-links-column"]}>
-            <h3 className={styles["column-title"]}>VỀ COOLMATE</h3>
+            <h3 className={styles["column-title"]}>VỀ ZENFIT</h3>
             <ul className={styles["links-list"]}>
               <li>
-                <Link href="#">Câu chuyện về Coolmate</Link>
+                <Link href="#">Câu chuyện về ZENFIT</Link>
               </li>
               <li>
                 <Link href="#">Quá trình phát triển</Link>
@@ -235,7 +235,7 @@ function Footer() {
                 <Link href="#">Quy trình hoạt động</Link>
               </li>
               <li>
-                <Link href="#">Coolmate trên báo chí</Link>
+                <Link href="#">ZENFIT trên báo chí</Link>
               </li>
             </ul>
           </div>
@@ -368,13 +368,13 @@ function Footer() {
               className={styles["accordion-header"]}
               onClick={() => toggleSection("about")}
             >
-              <h3 className={styles["column-title"]}>VỀ COOLMATE</h3>
+              <h3 className={styles["column-title"]}>VỀ ZenFit</h3>
               <span className={styles["toggle-icon"]}>+</span>
             </div>
             <div className={styles["accordion-content"]}>
               <ul className={styles["links-list"]}>
                 <li>
-                  <Link href="#">Câu chuyện về Coolmate</Link>
+                  <Link href="#">Câu chuyện về ZenFit</Link>
                 </li>
                 <li>
                   <Link href="#">Quá trình phát triển</Link>
@@ -386,7 +386,7 @@ function Footer() {
                   <Link href="#">Quy trình hoạt động</Link>
                 </li>
                 <li>
-                  <Link href="#">Coolmate trên báo chí</Link>
+                  <Link href="#">ZenFit trên báo chí</Link>
                 </li>
               </ul>
             </div>
@@ -439,7 +439,7 @@ function Footer() {
 
         <div className={styles["footer-bottom"]}>
           <div className={styles["company-info"]}>
-            <div className={styles.copyright}>© 2024 Coolmate</div>
+            <div className={styles.copyright}>© 2024 ZenFit</div>
             <div className={styles.registration}>
               Công ty TNHH FASTECH ASIA
               <br />

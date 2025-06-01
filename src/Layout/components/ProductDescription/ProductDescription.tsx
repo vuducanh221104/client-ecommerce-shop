@@ -26,7 +26,6 @@ interface ProductDescriptionProps {
 }
 
 function ProductDescription({ dataDescription }: ProductDescriptionProps) {
-  console.log(dataDescription);
   return (
     <div className={cx("product-description")}>
       <div className={cx("product-description-wrapper")}>

@@ -8,47 +8,48 @@ function ProductPreviewFabric() {
   const fabricTypes = [
     {
       id: 1,
-      name: "CoolSoft",
+      name: "Soft",
       subtitle: "MỀM MỊN NHƯ LÀN DA THỨ HAI",
       composition: "81% Nylon66, 19% Lycra",
       usage: "Yoga & Pilates, mặc hằng ngày Hoạt động cường độ thấp",
       benefits:
         "Mềm mại, dễ chịu, mượt mà Thoải mái vận động nhờ khả năng co giãn hoàn hảo",
       image: "https://mcdn.coolmate.me//image/March2025/mceclip4_63.jpg",
-      productUrl: "/san-pham-coolsoft",
+      productUrl: "/category/nam",
     },
     {
       id: 2,
-      name: "CoolDry",
+      name: "Dry",
       subtitle: "KHÔ THOÁNG MỌI LÚC",
       composition: "89% RECPolyester, 11% Spandex",
       usage: "Chạy bộ và các môn thể thao chung",
       benefits:
         "Làm hoạt và thoải mái, hỗ trợ chuyển động tự nhiên Khô nhanh và thoáng khí, duy trì làm chạm chống áp ngoài",
       image: "https://mcdn.coolmate.me//image/March2025/mceclip5_45.jpg",
-      productUrl: "/san-pham-cooldry",
+      productUrl: "/category/nu",
+
     },
     {
       id: 3,
-      name: "CoolRib",
+      name: "Rib",
       subtitle: "ÔM DÁNG, THOÁNG KHÍ",
       composition: "79% Nylon, 21% Spandex",
       usage: "Yoga & Pilates, các bộ môn thể thao hoặc mặc hằng ngày",
       benefits:
         "Co giãn tốt hoạt, ôm sát cơ thể và tôn dáng Mềm mỏng, thoáng khí, thoải mái vận động cả ngày",
       image: "https://mcdn.coolmate.me//image/March2025/mceclip2_32.jpg",
-      productUrl: "/san-pham-coolrib",
+      productUrl: "/category/the-thao",
     },
     {
       id: 4,
-      name: "CoolFlex",
+      name: "Flex",
       subtitle: "LINH HOẠT VẬN ĐỘNG",
       composition: "69% Nylon Hồi Full Dull, 31% Spandex",
       usage: "Yoga & Pilates và các môn thể thao chung",
       benefits:
         "Co giãn tuyệt vời, hỗ trợ động tác mà không bị giới hạn Êm ái cơ thể, thoải mái và không bị bó cứng",
       image: "https://mcdn.coolmate.me//image/March2025/mceclip3_93.jpg",
-      productUrl: "/san-pham-coolflex",
+      productUrl: "/category/all",
     },
   ];
 

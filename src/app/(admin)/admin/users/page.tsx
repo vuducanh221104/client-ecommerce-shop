@@ -88,7 +88,6 @@ const UsersPage = () => {
   const [createForm] = Form.useForm();
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [createLoading, setCreateLoading] = useState<boolean>(false);
-  console.log(users);
   // Fetch users data
   useEffect(() => {
     const fetchData = async () => {
@@ -107,7 +106,6 @@ const UsersPage = () => {
             updatedAt: user.updatedAt || new Date().toISOString(),
             addresses: user.addresses || [],
           }));
-          console.log("Mapped users:", mappedUsers);
           setUsers(mappedUsers);
         }
 
@@ -158,7 +156,6 @@ const UsersPage = () => {
 
   // Handle edit button click
   const handleEditClick = (user: User) => {
-    console.log("Editing user:", user);
     setEditingUser(user);
 
     // Reset and initialize form fields
@@ -183,7 +180,6 @@ const UsersPage = () => {
       addresses: user.addresses || [],
     };
 
-    console.log("Setting form values:", formValues);
 
     // Set initial form values
     editForm.setFieldsValue(formValues);

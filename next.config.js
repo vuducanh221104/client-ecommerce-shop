@@ -9,6 +9,7 @@ const nextConfig = {
       "www.coolmate.me",
       "coolmate.me",
       "mcdn.coolmate.me",
+      "ui-avatars.com",
     ],
     remotePatterns: [
       {

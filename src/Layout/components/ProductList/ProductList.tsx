@@ -166,6 +166,7 @@ function ProductList({
                         colorThumbnail: variant.colorThumbnail,
                       };
                     })}
+                    comment={product.comment}
                   />
                 </SwiperSlide>
               ))}

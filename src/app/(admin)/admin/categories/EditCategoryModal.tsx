@@ -168,7 +168,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
 
         // Add delete operations for removed subcategories
         for (const removedId of removedSubcategoryIds) {
-          console.log(`Subcategory ${removedId} has been removed, deleting...`);
           updateOperations.push(deleteCategory(removedId));
         }
 
@@ -182,7 +181,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
               originalSubcategory &&
               hasObjectChanged(originalSubcategory, child)
             ) {
-              console.log(`Subcategory ${child._id} has changed, updating...`);
+
               // This subcategory has been modified, update it
               updateOperations.push(
                 updateCategory(child._id, {
@@ -194,7 +193,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
             }
           } else {
             // New subcategory - create it
-            console.log("Creating new subcategory:", child);
+
             updateOperations.push(
               createCategory({
                 name: child.name,

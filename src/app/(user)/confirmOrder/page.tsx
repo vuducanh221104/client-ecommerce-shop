@@ -2,21 +2,21 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getCurrentUser } from "@/services/AuthServices";
-import { getCartItems, clearCart } from "@/services/CartServices";
+import { getCurrentUser } from "@/services/authServices";
+import { getCartItems, clearCart } from "@/services/cartServices";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./confirmOrder.module.scss";
 import classNames from "classnames/bind";
 import { format } from "date-fns";
-import { createOrder } from "@/services/OrderServices";
+import { createOrder } from "@/services/orderServices";
 import { toast } from "react-hot-toast";
 import { FiCheckCircle } from "react-icons/fi";
 import { User } from "@/types";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart as clearCartRedux } from "@/redux/cartSlice";
 import { CheckOutlined } from "@ant-design/icons";
-import PaymentServices from "@/services/PaymentServices";
-import { getOrderById } from "@/services/OrderServices";
+import PaymentServices from "@/services/paymentServices";
+import { getOrderById } from "@/services/orderServices";
 // import { resetCart } from "@/redux/features/cartSlice";
 // import { CheckCircleIcon } from "@heroicons/react/24/solid";
 // import { formatCurrency } from "@/utils/helpers";
@@ -80,8 +80,7 @@ const ConfirmOrder = () => {
     ward: "",
     notes: "",
   });
-  console.log(orderDetails)
-  console.log(cartItems)
+
 
 
   // Check for VNPay return parameters
@@ -96,11 +95,9 @@ const ConfirmOrder = () => {
       if (orderId) {
         try {
           setLoading(true);
-          console.log("Fetching order details for orderId:", orderId);
           
           // Fetch order details from the API
           const orderResponse = await getOrderById(orderId);
-          console.log("Order API response:", orderResponse);
           
           // Check if the response has the expected structure
           if (orderResponse) {
@@ -114,7 +111,7 @@ const ConfirmOrder = () => {
               return;
             }
             
-            console.log("Order details fetched successfully:", order);
+
             
             // Set order details for display
             setOrderDetails({
@@ -278,10 +275,8 @@ const ConfirmOrder = () => {
         notes: userData.notes || "",
       };
 
-      console.log("Creating order with data:", orderData);
       // Create order
       const response = await createOrder(orderData);
-      console.log("Order creation response:", response);
       
       if (response && response.status === "success" && response.data) {
         // Get the order ID from the response - the server returns it as order.id not order._id
@@ -289,14 +284,13 @@ const ConfirmOrder = () => {
                        response.data.order?._id || 
                        response.data._id;
         
-        console.log("Order response data:", response.data);
         
         if (!orderId) {
           console.error("Order ID not found in response:", response);
           throw new Error("Không nhận được mã đơn hàng từ server. Vui lòng thử lại.");
         }
         
-        console.log("Created order with ID:", orderId);
+
         
         // Clear cart in backend
         await clearCart();
@@ -313,7 +307,7 @@ const ConfirmOrder = () => {
         else if (paymentMethod === "VNPAY") {
           try {
             // Initialize VNPay payment
-            console.log("Initializing VNPay payment for order:", orderId);
+
             const paymentResponse = await PaymentServices.initializePayment(
               orderId,
               "VNPAY",
@@ -321,11 +315,11 @@ const ConfirmOrder = () => {
               `${window.location.origin}/payment/failure`
             );
             
-            console.log("VNPay payment initialization response:", paymentResponse);
+
             
             if (paymentResponse.status === "success" && paymentResponse.data?.redirectUrl) {
               // Redirect to VNPay payment page
-              console.log("Redirecting to VNPay URL:", paymentResponse.data.redirectUrl);
+
               window.location.href = paymentResponse.data.redirectUrl;
             } else {
               throw new Error("Không thể khởi tạo thanh toán VNPay");

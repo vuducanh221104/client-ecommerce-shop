@@ -1,0 +1,264 @@
+.commentAdminContainer {
+  padding: 24px;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1f1f1f;
+      margin: 0;
+    }
+
+    .statsCards {
+      display: flex;
+      gap: 16px;
+
+      .statsCard {
+        padding: 16px 24px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        min-width: 120px;
+        text-align: center;
+
+        .statsValue {
+          font-size: 24px;
+          font-weight: 600;
+          color: #2f5acf;
+        }
+
+        .statsLabel {
+          margin-top: 4px;
+          font-size: 14px;
+          color: #666;
+        }
+
+        &.pendingCard {
+          .statsValue {
+            color: #fa8c16;
+          }
+        }
+      }
+    }
+  }
+
+  .searchAndFilter {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+
+    .searchInput {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .searchButton {
+      background-color: #2f5acf;
+      border-color: #2f5acf;
+    }
+
+    .statusFilter {
+      min-width: 180px;
+    }
+  }
+
+  .commentsTable {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+
+    :global(.ant-table-tbody > tr > td) {
+      padding: 16px;
+    }
+  }
+
+  .paginationContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .userInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .userAvatar {
+      border: 1px solid #f0f0f0;
+    }
+
+    .userDetails {
+      display: flex;
+      flex-direction: column;
+
+      .userName {
+        font-weight: 500;
+        color: #2f5acf;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .userEmail {
+        font-size: 12px;
+        color: #666;
+      }
+    }
+  }
+
+  .productInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    .productImage {
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    .productName {
+      font-weight: 500;
+      
+      &:hover {
+        color: #2f5acf;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .commentContent {
+    .mainContent {
+      margin-bottom: 8px;
+      white-space: pre-line;
+    }
+
+    .replies {
+      margin-top: 12px;
+      margin-left: 16px;
+      border-left: 2px solid #f0f0f0;
+      padding-left: 16px;
+
+      .replyItem {
+        margin-bottom: 12px;
+        background-color: #f9f9f9;
+        padding: 12px;
+        border-radius: 8px;
+
+        .replyHeader {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+          font-size: 12px;
+          color: #666;
+
+          strong {
+            color: #2f5acf;
+          }
+        }
+
+        .replyContent {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .actionButtons {
+    display: flex;
+    gap: 8px;
+
+    .editButton {
+      color: #2f5acf;
+      border-color: #2f5acf;
+
+      &:hover {
+        color: #1f4bb8;
+        border-color: #1f4bb8;
+      }
+    }
+  }
+
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0;
+    margin-top: 24px;
+  }
+
+  .replyModalContent {
+    .originalComment {
+      background-color: #f5f5f5;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+
+      .commentHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+
+        .commentUser {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          span {
+            font-weight: 500;
+          }
+        }
+      }
+
+      .commentText {
+        font-size: 14px;
+        color: #333;
+        white-space: pre-line;
+      }
+    }
+    
+    :global(.ant-divider-inner-text) {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    :global(.ant-list-item) {
+      padding: 12px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      
+      &:hover {
+        background-color: #f0f0f0;
+      }
+    }
+    
+    :global(.ant-list-item-meta-description) {
+      white-space: pre-line;
+      color: #333;
+    }
+    
+    :global(.ant-list-item-meta-title) {
+      margin-bottom: 4px;
+    }
+    
+    :global(.ant-avatar) {
+      background-color: #2f5acf;
+    }
+  }
+} 

@@ -30,14 +30,10 @@ class PaymentServices {
    */
   async createOrder(orderData: any) {
     try {
-      console.log("Sending order data to API:", orderData);
-      
       const response = await httpRequest.post<PaymentResponse>(
         `api/v1/orders`,
         orderData
       );
-      
-      console.log("Order creation API response:", response);
       
       // Kiểm tra cấu trúc response
       if (!response || !response.data) {
@@ -60,8 +56,6 @@ class PaymentServices {
    */
   async initializePayment(orderId: string, method: string, successUrl: string, cancelUrl: string) {
     try {
-      console.log('Initializing payment with params:', { orderId, method, successUrl, cancelUrl });
-      
       // Kiểm tra orderId trước khi gửi request
       if (!orderId) {
         throw new Error('Mã đơn hàng là bắt buộc');
@@ -72,7 +66,6 @@ class PaymentServices {
       if (method === "VNPAY") {
         // The server will append orderId and other params to this URL
         finalSuccessUrl = `${window.location.origin}/confirmOrder`;
-        console.log('Using confirmOrder as success URL for VNPay payment:', finalSuccessUrl);
       }
       
       const response = await httpRequest.post<PaymentResponse>(
@@ -84,8 +77,6 @@ class PaymentServices {
           cancelUrl
         }
       );
-      
-      console.log('Payment initialization API response:', response.data);
       
       // API trả về cấu trúc: { status, message, data: { method, redirectUrl } }
       // Kiểm tra xem response có đúng định dạng không

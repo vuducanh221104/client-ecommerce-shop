@@ -48,7 +48,7 @@ const MaterialsPage = () => {
     try {
       setLoading(true);
       const response = (await getAllMaterials()) as MaterialsResponse;
-      console.log("Materials API response:", response);
+
 
       const materialsData = response.data?.materials || [];
 
@@ -77,7 +77,6 @@ const MaterialsPage = () => {
   };
 
   const handleEditMaterial = (material: Material) => {
-    console.log("Editing material:", material);
     // Ensure material has a valid ID
     if (!material._id) {
       console.error("Material is missing _id:", material);

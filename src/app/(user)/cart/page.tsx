@@ -9,9 +9,9 @@ import {
   updateCartItem,
   removeCartItem,
   clearCart,
-} from "@/services/CartServices";
+} from "@/services/cartServices";
 import { toast } from "react-hot-toast";
-import { getCurrentUser } from "@/services/AuthServices";
+import { getCurrentUser } from "@/services/authServices";
 import { useRouter } from "next/navigation";
 // Import pc-vn library for location data
 import pcVN, { Province, District, Ward } from "pc-vn";
@@ -19,7 +19,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import config from "@/config";
 import { removeProduct, clearCart as clearCartRedux } from "@/redux/cartSlice";
-import PaymentServices from "@/services/PaymentServices";
+import PaymentServices from "@/services/paymentServices";
 
 const cx = classNames.bind(styles);
 
@@ -250,12 +250,9 @@ function PageCart() {
   const fetchCartItems = async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching cart items from API...");
       const response = await getCartItems();
-      console.log("Cart API response:", response);
 
       if (response && response.cart) {
-        console.log("Cart items from API:", response.cart);
         if (Array.isArray(response.cart)) {
           setCartItems(response.cart);
 
@@ -461,9 +458,8 @@ function PageCart() {
       };
 
       // Create order
-      console.log("Creating order with data:", orderData);
+
       const orderResponse = await PaymentServices.createOrder(orderData);
-      console.log("Order creation response:", orderResponse);
       
       if (orderResponse && orderResponse.status === "success" && orderResponse.data) {
         // Get the order ID from the response
@@ -471,14 +467,12 @@ function PageCart() {
                        orderResponse.data.order?._id || 
                        orderResponse.data._id;
         
-        console.log("Order response data:", orderResponse.data);
         
         if (!orderId) {
           console.error("Order ID not found in response:", orderResponse);
           throw new Error("Không nhận được mã đơn hàng từ server. Vui lòng thử lại.");
         }
         
-        console.log("Created order with ID:", orderId);
         
         // Clear cart in backend and Redux
         await clearCart();
@@ -492,19 +486,16 @@ function PageCart() {
         else if (paymentMethod === "VNPAY") {
           try {
             // Initialize VNPay payment
-            console.log("Initializing VNPay payment for order:", orderId);
             const paymentResponse = await PaymentServices.initializePayment(
               orderId,
               "VNPAY",
               `${window.location.origin}/confirmOrder`,
               `${window.location.origin}/payment/failure`
             );
-            
-            console.log("VNPay payment initialization response:", paymentResponse);
+
             
             if (paymentResponse.status === "success" && paymentResponse.data?.redirectUrl) {
               // Redirect to VNPay payment page
-              console.log("Redirecting to VNPay URL:", paymentResponse.data.redirectUrl);
               window.location.href = paymentResponse.data.redirectUrl;
             } else {
               throw new Error("Không thể khởi tạo thanh toán VNPay");

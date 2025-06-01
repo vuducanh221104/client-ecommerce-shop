@@ -301,9 +301,6 @@ const AddProductPage = () => {
         tagIsNew: values.tagIsNew || false,
       };
 
-      console.log("Sending product data:", productData);
-      console.log("Combined category IDs:", categoryIds);
-
       // Send to API
       const result = await createProduct(productData);
 

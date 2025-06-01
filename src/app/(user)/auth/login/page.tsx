@@ -56,7 +56,7 @@ function Login() {
       }
     } catch (errorInfo) {
       // Form validation error
-      console.log("Validate Failed:", errorInfo);
+      console.error("Validate Failed:", errorInfo);
     }
   };
 
@@ -65,9 +65,9 @@ function Login() {
       <div className={styles.loginContainer}>
         <div className={styles.loginHeader}>
           <Image 
-            src="https://mcdn.coolmate.me/image/March2024/mceclip4_81.jpg" 
+            src="/golbal/logo_golbal.png" 
             alt="Logo" 
-            width={150} 
+            width={170} 
             height={70} 
             className={styles.logo}
           />

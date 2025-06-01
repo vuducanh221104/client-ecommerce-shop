@@ -31,7 +31,7 @@ import {
   updateUserAddress,
   deleteUserAddress,
   setDefaultAddress,
-} from "@/services/AuthServices";
+} from "@/services/authServices";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";

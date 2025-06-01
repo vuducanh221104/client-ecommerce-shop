@@ -87,7 +87,8 @@ interface Order {
     | "SHIPPED"
     | "DELIVERED"
     | "CANCELLED"
-    | "RETURNED";
+    | "RETURNED"
+    | "COMPLETED";
   notes: string;
   createdAt: string;
   updatedAt: string;
@@ -176,7 +177,6 @@ export default function OrdersPage() {
       try {
         setLoading(true);
         const response = await getUserOrders();
-        console.log("API response:", response);
 
         if (response && response.status === "success") {
           setOrders(response.data.orders || []);
@@ -195,12 +195,13 @@ export default function OrdersPage() {
 
     fetchOrders();
   }, [currentUser, router]);
-  console.log(orders);
 
   // Lọc đơn hàng theo trạng thái cho tab
   const filteredOrders =
     currentTab === "all"
       ? orders || []
+      : currentTab === "DELIVERED"
+      ? (orders || []).filter(order => order.status === "DELIVERED" || order.status === "COMPLETED")
       : (orders || []).filter((order) => order.status === currentTab);
 
   // Hàm format giá tiền
@@ -235,6 +236,8 @@ export default function OrdersPage() {
         return "red";
       case "RETURNED":
         return "volcano";
+      case "COMPLETED":
+        return "green";
       default:
         return "default";
     }
@@ -255,6 +258,8 @@ export default function OrdersPage() {
         return "Đã hủy";
       case "RETURNED":
         return "Đã trả hàng";
+      case "COMPLETED":
+        return "Đã giao";
       default:
         return status;
     }

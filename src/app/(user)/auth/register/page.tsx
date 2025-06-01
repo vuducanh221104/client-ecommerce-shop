@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
 import styles from "./register.module.scss";
-import { authRegister } from "@/services/AuthServices";
+import { authRegister } from "@/services/authServices";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import config from "@/config";
@@ -59,7 +59,7 @@ function Register() {
       }
     } catch (errorInfo) {
       // Form validation error
-      console.log("Validate Failed:", errorInfo);
+      console.error("Validate Failed:", errorInfo);
     }
   };
 
@@ -68,9 +68,9 @@ function Register() {
       <div className={styles.registerContainer}>
         <div className={styles.registerHeader}>
           <Image 
-            src="https://mcdn.coolmate.me/image/March2024/mceclip4_81.jpg" 
+            src="/golbal/logo_golbal.png" 
             alt="Logo" 
-            width={150} 
+            width={170} 
             height={70} 
             className={styles.logo}
           />

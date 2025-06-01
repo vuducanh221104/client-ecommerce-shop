@@ -16,12 +16,13 @@ import ProductDescription from "../../../../Layout/components/ProductDescription
 import ProductPreviewFabric from "../../../../Layout/components/ProductPreviewFabric";
 import Image from "next/image";
 import { productGetBySlug } from "@/services/productServices";
-import { addToCart } from "@/services/CartServices";
+import { addToCart } from "@/services/cartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { addProductToCart } from "@/redux/cartSlice";
 import { RootState } from "@/redux/store";
+import ProductComments from "@/components/ProductComments/ProductComments";
 
 const cx = classNames.bind(styles);
 
@@ -94,6 +95,22 @@ function PageProductDetail({}) {
   const [currentStock, setCurrentStock] = useState<number>(0);
   const [outOfStock, setOutOfStock] = useState<boolean>(false);
   const params = useParams();
+
+  // Helper function to safely calculate average rating
+  const getAverageRating = () => {
+    if (!product?.comment || !product.comment.length) return 0;
+    
+    const sum = product.comment.reduce((total, comment) => {
+      return total + (comment.rating || 0);
+    }, 0);
+    
+    return sum / product.comment.length;
+  };
+  
+  // Get formatted average rating for display
+  const averageRating = getAverageRating();
+  const formattedRating = averageRating > 0 ? averageRating.toFixed(1) : "0";
+
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -102,10 +119,6 @@ function PageProductDetail({}) {
         
         if (result?.data?.product) {
           const productData = result.data.product;
-
-          // Log dữ liệu sản phẩm để debug
-          console.log("Product data:", productData);
-          console.log("Product price:", productData.price);
 
           setProduct(productData);
 
@@ -238,12 +251,12 @@ function PageProductDetail({}) {
   };
 
   const calculateDiscount = () => {
-    if (!product || !product.price) return 0;
+    if (!product || !product?.price) return 0;
 
     // Ưu tiên sử dụng giá từ các trường chuẩn trong interface
     const originalPrice =
-      product.price.originalPrice || product.price.original || 0;
-    const currentPrice = product.price.price || product.price.discount || 0;
+      product?.price?.originalPrice || product?.price?.original || 0;
+    const currentPrice = product?.price?.price || product?.price?.discount || 0;
 
     if (originalPrice > currentPrice && originalPrice > 0) {
       return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
@@ -300,8 +313,8 @@ function PageProductDetail({}) {
         name: product.name,
         thumb: selectedVariant?.images[0] || "",
         price: {
-          original: product.price.originalPrice || product.price.original || 0,
-          discount: product.price.price || product.price.discount || 0,
+          original: product?.price?.originalPrice || product?.price?.original || 0,
+          discount: product?.price?.price || product?.price?.discount || 0,
         },
         quantityAddToCart: numQuantity,
         colorOrder: activeColor,
@@ -371,7 +384,7 @@ function PageProductDetail({}) {
                     productImages[currentImageIndex] ? (
                       <img
                         src={productImages[currentImageIndex]}
-                        alt={product.name}
+                        alt={product?.name || "Product image"}
                         className={cx("product-image")}
                       />
                     ) : (
@@ -379,11 +392,11 @@ function PageProductDetail({}) {
                     )}
                   </div>
 
-                  {product.price?.discountQuantity > 0 && (
+                  {product?.price?.discountQuantity > 0 && (
                     <div className={cx("birthday-promotion")}>
                       <img
                         src="https://media3.coolmate.me/cdn-cgi/image/width=713,height=1050,quality=85,format=auto/uploads/March2025/Footer_-_Mua_3_giam_10_1_(1).jpg"
-                        alt={`Mua ${product.price.discountQuantity} giảm thêm 10%`}
+                        alt={`Mua ${product?.price?.discountQuantity} giảm thêm 10%`}
                         className={cx("promotion-image")}
                       />
                     </div>
@@ -394,20 +407,21 @@ function PageProductDetail({}) {
 
             {/* Product Info Section */}
             <div className={cx("product-info-section")}>
-              <h1 className={cx("product-title")}>{product.name}</h1>
+              <h1 className={cx("product-title")}>{product?.name}</h1>
 
               <div className={cx("product-rating")}>
                 <div className={cx("stars")}>
+                  {/* Display stars based on average rating */}
                   {[...Array(5)].map((_, i) => (
                     <FaStar
                       key={i}
                       className={cx("star", {
-                        filled: i < 5, // Default rating
+                        filled: i < averageRating
                       })}
                     />
                   ))}
                   <span className={cx("rating-count")}>
-                    ({product.comment?.length})
+                    - {formattedRating} ({product?.comment?.length || 0} đánh giá)
                   </span>
                 </div>
                 <div className={cx("share-btn")}>
@@ -421,7 +435,7 @@ function PageProductDetail({}) {
                   <span className={cx("original-price")}>
                     {product?.price
                       ? formatPrice(
-                          product.price.originalPrice || product.price.original
+                          product?.price?.originalPrice || product?.price?.original
                         )
                       : "0"}
                     đ
@@ -431,7 +445,7 @@ function PageProductDetail({}) {
                       <span className={cx("current-price")}>
                         {product?.price
                           ? formatPrice(
-                              product.price.price || product.price.discount
+                              product?.price?.price || product?.price?.discount
                             )
                           : "0"}
                         đ
@@ -453,7 +467,7 @@ function PageProductDetail({}) {
                       <span className={cx("current-price")}>
                         {product?.price
                           ? formatPrice(
-                              product.price.original || product.price.original
+                              product?.price?.original || product?.price?.original
                             )
                           : "0"}
                         đ
@@ -473,7 +487,7 @@ function PageProductDetail({}) {
                 <span>Freeship đơn trên 200K</span>
               </div>
 
-              {product.price?.discountQuantity > 0 && (
+              {product?.price?.discountQuantity > 0 && (
                 <div className={cx("promotions-section")}>
                   <div className={cx("promotion-item")}>
                     <div className={cx("promotion-badge")}>
@@ -489,8 +503,8 @@ function PageProductDetail({}) {
                     Màu sắc: <span>{activeColor}</span>
                   </h3>
                   <div className={cx("color-options")}>
-                    {product.variants &&
-                      product.variants.map((variant) => {
+                    {product?.variants &&
+                      product?.variants.map((variant) => {
                         return variant.colorThumbnail ? (
                           <Image
                             src={variant.colorThumbnail}
@@ -683,7 +697,7 @@ function PageProductDetail({}) {
                       fill="#2F5ACF"
                     ></path>
                   </svg>
-                  <span>Được hoàn lên đến 10% CoolCash.</span>
+                  <span>Được hoàn lên đến 10% Zenfit.</span>
                   <button className={cx("detail-btn")}>
                     Chi tiết
                     <svg
@@ -701,13 +715,13 @@ function PageProductDetail({}) {
                   </button>
                 </div>
 
-                <div className={cx("zalo-chat")}>
+                <Link href="https://zalo.me/0909090909" className={cx("zalo-chat")}>
                   <img
                     src="https://page.widget.zalo.me/static/images/2.0/Logo.svg"
                     alt="Zalo"
                   />
                   <span>
-                    Chat để được Coolmate tư vấn ngay (8:30 - 22:00)
+                    Chat để được ZenFit tư vấn ngay (8:30 - 22:00)
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                       <path
                         d="M5 12H19"
@@ -725,7 +739,7 @@ function PageProductDetail({}) {
                       ></path>
                     </svg>
                   </span>
-                </div>
+                </Link>
 
                 <div className={cx("service-benefits")}>
                   <div className={cx("benefit-item")}>
@@ -767,7 +781,8 @@ function PageProductDetail({}) {
           </div>
         </div>
       </div>
-      <ProductDescription dataDescription={product.description} />
+      <ProductDescription dataDescription={product?.description} />
+      <ProductComments productId={product?.id} />
       <ProductPreviewFabric />
     </div>
   );

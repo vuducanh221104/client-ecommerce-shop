@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import styles from "./Register.module.scss";
 import classNames from "classnames/bind";
-import { authRegister } from "@/services/AuthServices";
+import { authRegister } from "@/services/authServices";
 import { toast } from "react-hot-toast";
 import { Form, Input } from "antd";
 
@@ -99,7 +99,6 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
       }
     } catch (errorInfo) {
       // Form validation error
-      console.log("Validate Failed:", errorInfo);
     }
   };
 
@@ -166,7 +165,7 @@ function Register({ onClose, switchToLogin }: RegisterProps) {
             <div className={cx("benefit-icon")}>
               <Image
                 src="https://mcdn.coolmate.me/image/March2024/mceclip2_55.jpg"
-                alt="Hoàn tiền Coolcash"
+                alt="Hoàn tiền ZenFit"
                 width={290}
                 height={133}
               />

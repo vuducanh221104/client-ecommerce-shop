@@ -199,35 +199,30 @@ const OrdersPage = () => {
 
     try {
       setEditLoading(true);
-      console.log("Updating order with values:", values);
 
       // Update order status
       const statusResponse = await updateOrderStatus(
         editingOrder.id,
         values.status
       );
-      console.log("Status update response:", statusResponse);
 
       // Also update payment status if changed
       let paymentResponse = null;
       if (values.paymentStatus !== editingOrder.payment.status) {
-        console.log("Updating payment status to:", values.paymentStatus);
         paymentResponse = await httpRequest.put(
           `api/v1/orders/${editingOrder.id}/payment`,
           { paymentStatus: values.paymentStatus }
         );
-        console.log("Payment update response:", paymentResponse);
+
       }
 
       // Update notes if changed
       let notesResponse = null;
       if (values.notes !== editingOrder.notes) {
-        console.log("Updating order notes");
         notesResponse = await httpRequest.put(
           `api/v1/orders/${editingOrder.id}`,
           { notes: values.notes }
         );
-        console.log("Notes update response:", notesResponse);
       }
 
       // Update orders list
@@ -281,6 +276,8 @@ const OrdersPage = () => {
         return { label: "Cancelled", color: "red" };
       case "refunded":
         return { label: "Refunded", color: "purple" };
+      case "completed":
+        return { label: "Completed", color: "green" };
       default:
         return { label: status || "Unknown", color: "default" };
     }
@@ -359,6 +356,7 @@ const OrdersPage = () => {
         { text: "Shipped", value: "SHIPPED" },
         { text: "Delivered", value: "DELIVERED" },
         { text: "Cancelled", value: "CANCELLED" },
+        { text: "Completed", value: "COMPLETED" },
       ],
       onFilter: (value: any, record: Order) =>
         record.status.toUpperCase() === value,
@@ -488,6 +486,7 @@ const OrdersPage = () => {
                 <Option value="SHIPPED">Shipped</Option>
                 <Option value="DELIVERED">Delivered</Option>
                 <Option value="CANCELLED">Cancelled</Option>
+                <Option value="COMPLETED">Completed</Option>
               </Select>
             </Form.Item>
 

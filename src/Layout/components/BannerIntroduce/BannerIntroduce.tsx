@@ -44,7 +44,7 @@ function BannerIntroduce({
                 height={500}
                 className={cx("banner-introduce-image")}
               />
-              {showBadge && (
+              {/* {showBadge && (
                 <div className={cx("banner-introduce-badge")}>
                   <Image
                     src="https://www.coolmate.me/images/header/icon-birthday-v3.svg"
@@ -54,7 +54,7 @@ function BannerIntroduce({
                     className={cx("birthday-badge")}
                   />
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </Link>

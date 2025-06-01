@@ -151,8 +151,8 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 id={parseInt(product.id)}
                 title={product.name}
                 price={product.price.original}
-                originalPrice={product.price.discount}
-                discount={product.price.discountQuantity}
+                priceDiscount={product.price.discount}
+                discountQuantity={product.price.discountQuantity}
                 rating={4.8}
                 reviewCount={product.comment?.length || 0}
                 link={`/product/${product.slug}`}
@@ -171,6 +171,7 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     colorThumbnail: variant.colorThumbnail,
                   };
                 })}
+                comment={product.comment}
               />
             </div>
           ))}
@@ -180,7 +181,7 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
             href={
               isSearchResults
                 ? `/search?q=${encodeURIComponent(searchQuery)}`
-                : "/collections/all"
+                : "/category/all"
             }
             className={cx("btn", "btn-primary")}
             onClick={handleViewAllClick}

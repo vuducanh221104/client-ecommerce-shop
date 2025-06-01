@@ -180,6 +180,7 @@ function CategoryProductList({
                     colorThumbnail: variant.colorThumbnail,
                   };
                 })}
+                comment={product.comment}
               />
             ))
           ) : (

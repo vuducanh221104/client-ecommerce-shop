@@ -18,7 +18,7 @@ const cx = classNames.bind(styles);
 const categories = [
   {
     id: 1,
-    title: "COOLMATE ACTIVE",
+    title: "ZenFit ACTIVE",
     categoryType: "active",
     children: [
       {
@@ -68,7 +68,7 @@ const categories = [
   },
   {
     id: 2,
-    title: "COOLMATE NỮ",
+    title: "ZenFit NỮ",
     categoryType: "nu",
     children: [
       {

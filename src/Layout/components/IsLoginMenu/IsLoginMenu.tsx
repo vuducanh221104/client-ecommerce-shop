@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./IsLoginMenu.module.scss";
 import Link from "next/link";
-import { getCurrentUser } from "@/services/AuthServices";
+import { getCurrentUser } from "@/services/authServices";
 import { toast } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -89,7 +89,7 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
           <span>Thông Tin Tài Khoản</span>
         </Link>
 
-        <Link href="account/order" className={cx("menu-item")}>
+        <Link href="/account/order" className={cx("menu-item")}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

@@ -3,10 +3,10 @@
 import * as httpRequest from "@/utils/httpRequest";
 import { AxiosError } from "axios";
 import { loginSuccess, logOutSuccess } from "@/redux/authSlice";
-
+import { adminGet, adminPost, adminPatch, adminDeleted } from "@/utils/httpRequestAdmin";
 export const authLogin = async (user: any, dispatch?: any): Promise<any> => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/auth/login`, {
+    const res = await httpRequest.post<any>(`/api/v1/auth/login`, {
       email: user.emailOrPhone,
       password: user.password,
     });
@@ -40,7 +40,7 @@ export const authRegister = async (
   dispatch?: any
 ): Promise<any> => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/auth/register`, userData);
+    const res = await httpRequest.post<any>(`/api/v1/auth/register`, userData);
 
     // Update Redux store with user data if dispatch is provided
     if (
@@ -84,7 +84,7 @@ export const getCurrentUser = (reduxState?: any) => {
 export const logout = async (dispatch?: any) => {
   try {
     // Call the logout endpoint
-    await httpRequest.post("api/v1/auth/logout");
+    await httpRequest.post("/api/v1/auth/logout");
 
     // Update Redux store if dispatch is provided
     if (dispatch && typeof dispatch === "function") {
@@ -104,7 +104,7 @@ export const logout = async (dispatch?: any) => {
   } catch (error) {
     console.error("Error during logout:", error);
 
-    // Even if API call fails, clear the redux store and localStorage
+    // Even if /API call fails, clear the redux store and localStorage
     if (dispatch && typeof dispatch === "function") {
       dispatch(logOutSuccess());
     }
@@ -129,7 +129,7 @@ export const updateUserProfile = async (
 ) => {
   try {
     const response = await httpRequest.put<any>(
-      "api/v1/users/profile",
+      "/api/v1/users/profile",
       userData
     );
 
@@ -168,7 +168,7 @@ export const getUserAddresses = async (): Promise<Address[]> => {
     const result = await httpRequest.get<{
       message: string;
       addresses: Address[];
-    }>("api/v1/users/addresses");
+    }>("/api/v1/users/addresses");
     return result.addresses || [];
   } catch (error) {
     console.error("Error fetching addresses:", error);
@@ -182,7 +182,7 @@ export const addUserAddress = async (
 ): Promise<Address> => {
   try {
     const response = await httpRequest.post<{ address: Address }>(
-      "api/v1/users/addresses",
+      "/api/v1/users/addresses",
       addressData
     );
     return response.data.address;
@@ -199,7 +199,7 @@ export const updateUserAddress = async (
 ): Promise<Address> => {
   try {
     const response = await httpRequest.put<{ address: Address }>(
-      `api/v1/users/addresses/${addressId}`,
+      `/api/v1/users/addresses/${addressId}`,
       addressData
     );
     return response.data.address;
@@ -213,7 +213,7 @@ export const updateUserAddress = async (
 export const deleteUserAddress = async (addressId: string): Promise<void> => {
   try {
     await httpRequest.deleted<{ message: string }>(
-      `api/v1/users/addresses/${addressId}`
+      `/api/v1/users/addresses/${addressId}`
     );
   } catch (error) {
     console.error("Error deleting address:", error);
@@ -227,7 +227,7 @@ export const setDefaultAddress = async (
 ): Promise<Address> => {
   try {
     const response = await httpRequest.put<{ address: Address }>(
-      `api/v1/users/addresses/${addressId}/default`,
+      `/api/v1/users/addresses/${addressId}/default`,
       {}
     );
     return response.data.address;
@@ -244,7 +244,7 @@ export const changePassword = async (
 ): Promise<{ message: string }> => {
   try {
     const response = await httpRequest.put<{ message: string }>(
-      "api/v1/users/profile/change-password",
+      "/api/v1/users/profile/change-password",
       {
         currentPassword,
         newPassword,
@@ -256,3 +256,5 @@ export const changePassword = async (
     throw error;
   }
 };
+
+
