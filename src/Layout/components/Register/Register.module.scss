@@ -280,17 +280,9 @@
 
 /* Add these styles at the end of the file for Ant Design integration */
 
-/* Style form items to match our design */
-:global(.ant-form-item) {
-  margin-bottom: 15px;
-}
 
-/* Style the error messages to match our design */
-:global(.ant-form-item-explain) {
-  margin-top: 4px;
-  color: #ff4d4f;
-  font-size: 12px;
-}
+
+
 
 /* Style the input container */
 .form-group {
@@ -328,7 +320,4 @@
   }
 }
 
-/* Style for the validation error state */
-:global(.ant-form-item-has-error) .input-field {
-  border-color: #ff4d4f;
-}
+

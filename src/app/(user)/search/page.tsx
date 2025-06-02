@@ -66,7 +66,7 @@ function PageSearch() {
       const response = await searchProductsGetAll(query, page, productsPerPage);
 
       if (append) {
-        setSearchResults((prev) => [...prev, ...response.products]);
+        setSearchResults((prev) => [...prev, ...(response.products || [])]);
       } else {
         setSearchResults(response.products || []);
       }

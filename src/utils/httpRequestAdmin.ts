@@ -241,6 +241,16 @@ export const adminPatch = async <T>(
   return res;
 };
 
+export const adminPut = async <T>(
+  path: string,
+  data?: any,
+  options: AxiosRequestConfig = {}
+): Promise<AxiosResponse<T>> => {
+  const res = await httpRequestAdmin.put<T>(path, data, options);
+  return res;
+};
+
+
 export const adminDeleted = async <T>(
   path: string,
   options: AxiosRequestConfig = {}

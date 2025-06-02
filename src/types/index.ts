@@ -115,6 +115,7 @@ export interface Description {
 }
 
 export interface Product {
+  product:any;
   _id?: string;
   id?: string;
   product_type_id?: string;

@@ -82,13 +82,14 @@ export const checkUserCanReview = async (productId: string): Promise<boolean> =>
     interface ReviewResponse {
       status: string;
       data: {
-        canReview: boolean;
+        data: {
+          canReview: boolean;
+        }
       };
       message: string;
     }
     
     const res = await httpRequest.get<ReviewResponse>(`/api/v1/orders/can-review/${productId}`);
-    console.log("Raw API response for canReview:", res.data);
     
     // The server returns canReview inside the data object
     if (res.data?.data?.canReview === true) {

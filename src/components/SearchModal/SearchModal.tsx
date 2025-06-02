@@ -42,11 +42,11 @@ function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   // Fetch featured products using the ProductOutstanding API
   const fetchFeaturedProducts = async () => {
-    if (featuredProducts.length > 0) return; // Don't fetch if we already have data
+    if (featuredProducts.length > 0) return; 
 
     setFeaturedLoading(true);
     try {
-      const response = await ProductOutstanding("");
+      const response = await ProductOutstanding();
       setFeaturedProducts(response.products || []);
     } catch (error) {
       console.error("Error fetching featured products:", error);

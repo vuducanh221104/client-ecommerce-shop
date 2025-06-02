@@ -114,7 +114,7 @@ export default function PageAdminLogin() {
             className="mr-2"
           />
           <Title style={styles.title}>Admin Login</Title>
-          <Text style={styles.text}>Welcome You To Đồ Gỗ Triệu Dashboard</Text>
+          <Text style={styles.text}>Welcome You To ZenFit Dashboard</Text>
         </div>
         <Form
           form={form}

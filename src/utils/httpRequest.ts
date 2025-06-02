@@ -87,7 +87,7 @@ httpRequest.interceptors.response.use(
       try {
         // Try to refresh the token
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/refresh-token`, 
+          `${process.env.NEXT_PUBLIC_SERVER_URL}api/v1/auth/refresh-token`, 
           {}, 
           { withCredentials: true }
         );
@@ -118,41 +118,58 @@ httpRequest.interceptors.response.use(
           
           // Retry the original request
           return axios(originalRequest);
+        } else {
+          // If refresh token response doesn't contain a new access token, handle logout
+          handleLogout();
         }
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
-        // Handle failed refresh (e.g., redirect to login)
-        if (typeof window !== "undefined") {
-          // Clear auth data
-          try {
-            const persistRoot = localStorage.getItem("persist:root");
-            if (persistRoot) {
-              const persistData = JSON.parse(persistRoot);
-              if (persistData && persistData.auth) {
-                const authState = JSON.parse(persistData.auth);
-                if (authState?.login?.currentUser) {
-                  authState.login.currentUser = null;
-                  persistData.auth = JSON.stringify(authState);
-                  localStorage.setItem("persist:root", JSON.stringify(persistData));
-                }
-              }
-            }
-            localStorage.removeItem("user");
-          } catch (e) {
-            console.error("Error clearing auth data:", e);
-          }
-          
-          // Redirect to login page if it's a client-side navigation
-          if (typeof window !== "undefined" && !originalRequest.url?.includes("/auth/")) {
-            window.location.href = config.routes.login;
-          }
-        }
+        // Handle failed refresh - clear auth data and redirect to login
+        handleLogout();
       }
     }
     
     return Promise.reject(error);
   }
 );
+
+// Helper function to handle logout actions
+const handleLogout = () => {
+  if (typeof window !== "undefined") {
+    // Clear Redux state
+    try {
+      const persistRoot = localStorage.getItem("persist:root");
+      if (persistRoot) {
+        const persistData = JSON.parse(persistRoot);
+        if (persistData && persistData.auth) {
+          const authState = JSON.parse(persistData.auth);
+          if (authState?.login) {
+            authState.login.currentUser = null;
+            persistData.auth = JSON.stringify(authState);
+            localStorage.setItem("persist:root", JSON.stringify(persistData));
+          }
+        }
+      }
+      localStorage.removeItem("user");
+    } catch (e) {
+      console.error("Error clearing auth data:", e);
+    }
+    
+    // Clear cookies by making a request to the logout endpoint
+    axios.post(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}api/v1/auth/logout`,
+      {},
+      { withCredentials: true }
+    ).catch(error => {
+      console.error("Error clearing cookies:", error);
+    });
+    
+    // Redirect to login page
+    if (!window.location.pathname.includes("/auth/")) {
+      window.location.href = config.routes.login;
+    }
+  }
+};
 
 // // Add response interceptor for debugging
 // httpRequest.interceptors.response.use(

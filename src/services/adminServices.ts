@@ -1,7 +1,7 @@
 "use client";
 
 import * as httpRequest from "@/utils/httpRequest";
-import { adminGet, adminPost, adminPatch, adminDeleted } from "@/utils/httpRequestAdmin";
+import * as httpRequestAdmin from "@/utils/httpRequestAdmin";
 import { AxiosError } from "axios";
 
 // Comment management services
@@ -47,7 +47,7 @@ export interface CommentResponse {
 // Product management services
 export const getAllProducts = async (page = 1, limit = 10) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/products?page=${page}&limit=${limit}`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/products?page=${page}&limit=${limit}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -57,7 +57,7 @@ export const getAllProducts = async (page = 1, limit = 10) => {
 
 export const getProductById = async (id: string) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/products/${id}`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/products/${id}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -67,7 +67,7 @@ export const getProductById = async (id: string) => {
 
 export const createProduct = async (productData: any) => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/products`, productData);
+    const res = await httpRequestAdmin.adminPost<any>(`api/v1/products`, productData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -77,7 +77,7 @@ export const createProduct = async (productData: any) => {
 
 export const updateProduct = async (id: string, productData: any) => {
   try {
-    const res = await httpRequest.put<any>(
+    const res = await httpRequestAdmin.adminPut<any>(
       `api/v1/products/${id}`,
       productData
     );
@@ -90,7 +90,7 @@ export const updateProduct = async (id: string, productData: any) => {
 
 export const deleteProduct = async (id: string) => {
   try {
-    const res = await httpRequest.deleted<any>(`api/v1/products/${id}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/products/${id}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -101,7 +101,7 @@ export const deleteProduct = async (id: string) => {
 // User management services
 export const getAllUsers = async () => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/users`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/users`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -111,7 +111,7 @@ export const getAllUsers = async () => {
 
 export const getUserById = async (id: string) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/users/${id}`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/users/${id}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -121,7 +121,7 @@ export const getUserById = async (id: string) => {
 
 export const createUser = async (userData: any) => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/users`, userData);
+    const res = await httpRequestAdmin.adminPost<any>(`api/v1/users`, userData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -131,7 +131,7 @@ export const createUser = async (userData: any) => {
 
 export const updateUser = async (id: string, userData: any) => {
   try {
-    const res = await httpRequest.put<any>(`api/v1/users/${id}`, userData);
+    const res = await httpRequestAdmin.adminPut<any>(`api/v1/users/${id}`, userData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -141,7 +141,7 @@ export const updateUser = async (id: string, userData: any) => {
 
 export const deleteUser = async (id: string) => {
   try {
-    const res = await httpRequest.deleted<any>(`api/v1/users/${id}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/users/${id}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -152,7 +152,7 @@ export const deleteUser = async (id: string) => {
 // Order management services
 export const getAllOrders = async () => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/orders?limit=100`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/orders?limit=100`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -162,7 +162,7 @@ export const getAllOrders = async () => {
 
 export const getOrderById = async (id: string) => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/orders/${id}`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/orders/${id}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -172,7 +172,7 @@ export const getOrderById = async (id: string) => {
 
 export const updateOrderStatus = async (id: string, status: string) => {
   try {
-    const res = await httpRequest.put<any>(`api/v1/orders/${id}/status`, {
+    const res = await httpRequestAdmin.adminPut<any>(`api/v1/orders/${id}/status`, {
       status,
     });
     return res.data;
@@ -184,7 +184,7 @@ export const updateOrderStatus = async (id: string, status: string) => {
 
 export const updateOrder = async (id: string, orderData: any) => {
   try {
-    const res = await httpRequest.put<any>(`api/v1/orders/${id}`, orderData);
+    const res = await httpRequestAdmin.adminPut<any>(`api/v1/orders/${id}`, orderData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -194,7 +194,7 @@ export const updateOrder = async (id: string, orderData: any) => {
 
 export const deleteOrder = async (id: string) => {
   try {
-    const res = await httpRequest.deleted<any>(`api/v1/orders/${id}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/orders/${id}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -222,7 +222,7 @@ interface CategoryResponse {
 
 export const getAllCategories = async () => {
   try {
-    const response = await httpRequest.get<CategoryResponse>(
+    const response = await httpRequestAdmin.adminGet<CategoryResponse>(
       "api/v1/categories"
     );
     return response;
@@ -236,7 +236,7 @@ export const getAllCategories = async () => {
 
 export const createCategory = async (categoryData: any) => {
   try {
-    const res = await httpRequest.post<any>(`api/v1/categories`, categoryData);
+    const res = await httpRequestAdmin.adminPost<any>(`api/v1/categories`, categoryData);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -246,7 +246,7 @@ export const createCategory = async (categoryData: any) => {
 
 export const updateCategory = async (id: string, categoryData: any) => {
   try {
-    const res = await httpRequest.put<any>(
+    const res = await httpRequestAdmin.adminPut<any>(
       `api/v1/categories/${id}`,
       categoryData
     );
@@ -259,7 +259,7 @@ export const updateCategory = async (id: string, categoryData: any) => {
 
 export const deleteCategory = async (id: string) => {
   try {
-    const res = await httpRequest.deleted<any>(`api/v1/categories/${id}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/categories/${id}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -270,7 +270,7 @@ export const deleteCategory = async (id: string) => {
 // Dashboard statistics
 export const getDashboardStats = async () => {
   try {
-    const res = await httpRequest.get<any>(`api/v1/stats/dashboard`);
+    const res = await httpRequestAdmin.adminGet<any>(`api/v1/stats/dashboard`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -281,7 +281,7 @@ export const getDashboardStats = async () => {
 // Material management services
 export const getAllMaterials = async () => {
   try {
-    const response = await httpRequest.get("/api/v1/materials");
+    const response = await httpRequestAdmin.adminGet<any>("/api/v1/materials");
     return response;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -293,7 +293,7 @@ export const getAllMaterials = async () => {
 
 export const createMaterial = async (materialData: any) => {
   try {
-    const response = await httpRequest.post("/api/v1/materials", materialData);
+    const response = await httpRequestAdmin.adminPost<any>("/api/v1/materials", materialData);
     return response;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -313,7 +313,7 @@ export const updateMaterial = async (
       throw new Error("Material ID is required for updating");
     }
 
-    const response = await httpRequest.put(
+    const response = await httpRequestAdmin.adminPut<any>(
       `/api/v1/materials/${id}`,
       materialData
     );
@@ -328,7 +328,7 @@ export const updateMaterial = async (
 
 export const deleteMaterial = async (id: string) => {
   try {
-    const response = await httpRequest.deleted(`/api/v1/materials/${id}`);
+    const response = await httpRequestAdmin.adminDeleted<any>(`/api/v1/materials/${id}`);
     return response;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -356,7 +356,7 @@ export const getAllComments = async (params: {
   userId?: string;
 }) => {
   try {
-    const res = await adminGet<CommentResponse>(`api/v1/comments/admin`, {
+    const res = await httpRequestAdmin.adminGet<CommentResponse>(`api/v1/comments/admin`, {
       params,
     });
     return res;
@@ -368,7 +368,7 @@ export const getAllComments = async (params: {
 
 export const getCommentById = async (commentId: string) => {
   try {
-    const res = await adminGet<CommentDetailsResponse>(`api/v1/comments/admin/${commentId}`);
+    const res = await httpRequestAdmin.adminGet<CommentDetailsResponse>(`api/v1/comments/admin/${commentId}`);
     return res;
   } catch (error) {
     const err = error as AxiosError;
@@ -385,7 +385,7 @@ export const updateComment = async (
   }
 ) => {
   try {
-    const res = await adminPatch<any>(`api/v1/comments/admin/${commentId}`, data);
+    const res = await httpRequestAdmin.adminPatch<any>(`api/v1/comments/admin/${commentId}`, data);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -400,7 +400,7 @@ export const replyToComment = async (
   }
 ) => {
   try {
-    const res = await adminPost<any>(`api/v1/comments/admin/${commentId}/reply`, data);
+    const res = await httpRequestAdmin.adminPost<any>(`api/v1/comments/admin/${commentId}/reply`, data);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -410,7 +410,7 @@ export const replyToComment = async (
 
 export const deleteComment = async (commentId: string) => {
   try {
-    const res = await adminDeleted<any>(`api/v1/comments/admin/${commentId}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/comments/admin/${commentId}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;
@@ -420,7 +420,7 @@ export const deleteComment = async (commentId: string) => {
 
 export const deleteCommentReply = async (commentId: string, replyId: string) => {
   try {
-    const res = await adminDeleted<any>(`api/v1/comments/admin/${commentId}/reply/${replyId}`);
+    const res = await httpRequestAdmin.adminDeleted<any>(`api/v1/comments/admin/${commentId}/reply/${replyId}`);
     return res.data;
   } catch (error) {
     const err = error as AxiosError;

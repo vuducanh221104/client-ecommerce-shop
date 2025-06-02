@@ -15,7 +15,7 @@ interface BannerIntroduceNorProps {
 }
 
 function BannerIntroduceNor({
-  imageUrl = "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/mceclip33.png",
+  imageUrl = "/banner/donate.webp",
   linkUrl = "/operation-smile",
   altText = "Operation Smile - Góp phần mang lại cuộc sống tươi đẹp hơn cho tuị nhỏ",
   priority = true,

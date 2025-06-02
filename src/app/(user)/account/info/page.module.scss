@@ -30,22 +30,10 @@
   margin-bottom: 24px;
 }
 
-:global(.ant-form-item-label > label) {
-  font-weight: 500;
-  color: #333;
-}
 
 .form-input,
 .form-select {
-  &:global(.ant-input-disabled) {
-    background-color: #f9f9f9;
-    color: rgba(0, 0, 0, 0.65);
-  }
 
-  &:global(.ant-select-disabled) {
-    background-color: #f9f9f9;
-    color: rgba(0, 0, 0, 0.65);
-  }
 }
 
 .form-actions {

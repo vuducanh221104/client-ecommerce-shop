@@ -13,8 +13,7 @@ const categoryBanners = [
     id: 1,
     title: "MEN WEAR COLLECTION",
     subtitle: "Nhập SNCM50 Giảm 50k đơn từ 460k",
-    image:
-      "https://media3.coolmate.me/cdn-cgi/image/width=888,height=600,quality=80,format=auto/uploads/March2025/Section_Banner_888x600.jpg",
+    image: "/banner/Section_01.webp",
     cta: "MUA NGAY",
     link: "/category/nam",
     badge: "",
@@ -23,8 +22,7 @@ const categoryBanners = [
     id: 2,
     title: "WOMEN ACTIVE COLLECTION",
     subtitle: "Tặng Áo Bra khi mua quần Legging",
-    image:
-      "https://media3.coolmate.me/cdn-cgi/image/width=888,height=600,quality=80,format=auto/uploads/March2025/Active_women_1.jpg",
+    image: "/banner/Section_02.webp",
     cta: "MUA NGAY",
     link: "/category/nu",
     badge: "CHÍNH THỨC RA MẮT",

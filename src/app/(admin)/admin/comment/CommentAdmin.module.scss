@@ -76,7 +76,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 24px;
 
-    :global(.ant-table-tbody > tr > td) {
+    .ant-table-tbody > tr > td {
       padding: 16px;
     }
   }
@@ -232,12 +232,12 @@
       }
     }
     
-    :global(.ant-divider-inner-text) {
+    .ant-divider-inner-text {
       font-size: 14px;
       color: #666;
     }
     
-    :global(.ant-list-item) {
+    .ant-list-item {
       padding: 12px;
       background-color: #f9f9f9;
       border-radius: 8px;
@@ -248,16 +248,16 @@
       }
     }
     
-    :global(.ant-list-item-meta-description) {
+    .ant-list-item-meta-description {
       white-space: pre-line;
       color: #333;
     }
     
-    :global(.ant-list-item-meta-title) {
+    .ant-list-item-meta-title {
       margin-bottom: 4px;
     }
     
-    :global(.ant-avatar) {
+    .ant-avatar {
       background-color: #2f5acf;
     }
   }

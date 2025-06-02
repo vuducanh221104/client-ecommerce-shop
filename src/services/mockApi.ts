@@ -98,8 +98,7 @@ export const getHomeBanners = (): Banner[] => {
       subtitle: "Nhập SNCM50 Giảm 50k đơn từ 460k",
       buttonText: "Mua ngay",
       buttonLink: "/collections/men",
-      imageUrl:
-        "https://media3.coolmate.me/cdn-cgi/image/width=192…oads/March2025/Hero_banner_Desktop_-_1920x788.jpg",
+      imageUrl: "/banner/Section_01.webp",
     },
     {
       id: 2,
@@ -107,8 +106,7 @@ export const getHomeBanners = (): Banner[] => {
       subtitle: "Tặng Áo Bra khi mua quần Legging",
       buttonText: "Mua ngay",
       buttonLink: "/collections/women",
-      imageUrl:
-        "https://media3.coolmate.me/cdn-cgi/image/width=192…oads/March2025/Hero_banner_Desktop_-_1920x788.jpg",
+      imageUrl: "/banner/Section_02.webp",
     },
     {
       id: 3,
@@ -116,8 +114,7 @@ export const getHomeBanners = (): Banner[] => {
       subtitle: "Mua 2 giảm thêm 10%",
       buttonText: "Xem ngay",
       buttonLink: "/collections/summer",
-      imageUrl:
-        "https://media3.coolmate.me/cdn-cgi/image/width=192…oads/March2025/Hero_banner_Desktop_-_1920x788.jpg",
+      imageUrl: "/banner/Section_01.webp",
     },
   ];
 };

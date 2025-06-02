@@ -81,7 +81,7 @@ function Login() {
           <div className={styles.benefit}>
             <div className={styles.benefitIcon}>
               <Image 
-                src="https://mcdn.coolmate.me/image/March2024/mceclip3_52.jpg" 
+                src="/svg/login-1.webp"
                 alt="Voucher" 
                 width={120} 
                 height={120} 
@@ -93,7 +93,7 @@ function Login() {
           <div className={styles.benefit}>
             <div className={styles.benefitIcon}>
               <Image 
-                src="https://mcdn.coolmate.me/image/March2024/mceclip1_36.jpg" 
+                src="/svg/login-2.webp" 
                 alt="Gift" 
                 width={120} 
                 height={120} 
@@ -105,7 +105,7 @@ function Login() {
           <div className={styles.benefit}>
             <div className={styles.benefitIcon}>
               <Image 
-                src="https://mcdn.coolmate.me/image/March2024/mceclip2_55.jpg" 
+                src="/svg/login-3.webp" 
                 alt="Coolcash" 
                 width={120} 
                 height={120} 
@@ -118,7 +118,7 @@ function Login() {
         <div className={styles.socialLogin}>
           <Button className={styles.googleButton}>
             <Image 
-              src="https://mcdn.coolmate.me/image/September2023/mceclip1_21.png" 
+                src="/svg/login-google.png" 
               alt="Google" 
               width={24} 
               height={24} 

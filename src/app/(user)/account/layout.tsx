@@ -69,7 +69,7 @@ export default function AccountLayout({
       email: currentUser.email || "example@gmail.com",
       avatar:
         currentUser.avatar ||
-        "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png",
+        "/svg/islogin-icon.png",
     });
 
     setLoading(false);

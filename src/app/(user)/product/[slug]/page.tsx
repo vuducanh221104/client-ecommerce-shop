@@ -61,7 +61,7 @@ interface ProductData {
     discountQuantity: number;
     currency: string;
     original?: number;
-    discount?: number;
+    discount?: number | undefined | any;
   };
   comment: any[];
   category: {
@@ -327,7 +327,7 @@ function PageProductDetail({}) {
 
       toast.success("Thêm vào giỏ hàng thành công!");
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      // console.error("Error adding to cart:", error);
       // Lỗi sẽ được xử lý bởi CartServices nếu là lỗi xác thực
       // Chỉ hiển thị thông báo lỗi chung nếu không phải lỗi xác thực
       if (!(error instanceof Error && error.message === "Chưa đăng nhập")) {

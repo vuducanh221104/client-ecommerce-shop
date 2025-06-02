@@ -50,7 +50,7 @@ export const authAdminRefreshToken = async (): Promise<any> => {
 
 export const authRefreshToken = async (): Promise<any> => {
   try {
-    const res = await httpRequest.post<any>(`/api/v1/auth/refreshToken`);
+    const res = await httpRequestAdmin.adminPost<any>(`/api/v1/auth/refreshToken`);
     return res.data;
   } catch (error: any) {
     const err = error as AxiosError;

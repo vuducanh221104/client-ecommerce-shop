@@ -214,7 +214,7 @@ function AdminLayout({ children }: AdminLayoutProps) {
           style={{ padding: 0, background: colorBgContainer, height: "auto" }}
         >
           <Row
-            className="!p-5 m-0 lg:!mt-6 lg:!mx-10 md:!mt-4 md:!mx-8 sm:!mt-5 max-sm:!mt-5"
+            className="!flex !justify-end !items-center !p-5 m-0 lg:!mt-6 lg:!mx-10 md:!mt-4 md:!mx-8 sm:!mt-5 max-sm:!mt-5 "
             style={{
               background: colorBgContainer,
             }}
@@ -239,10 +239,10 @@ function AdminLayout({ children }: AdminLayoutProps) {
               sm={4}
               md={6}
               xl={3}
-              className="flex justify-end items-center"
+              className="flex justify-end items-center !mr-20"
             >
               {adminUser && (
-                <span className="mr-3 text-sm font-medium hidden md:inline">
+                <span className="mr-3 text-sm font-medium hidden md:inline" style={{fontSize: "16px"}}>
                   {adminUser.user_name ||
                     adminUser.username ||
                     adminUser.email ||

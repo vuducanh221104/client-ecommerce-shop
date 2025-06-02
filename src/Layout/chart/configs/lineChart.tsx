@@ -41,7 +41,7 @@ const getDefaultLineChart = (
         enabled: false,
       },
       stroke: {
-        curve: "smooth",
+        curve: "smooth" as const,
       },
 
       yaxis: {

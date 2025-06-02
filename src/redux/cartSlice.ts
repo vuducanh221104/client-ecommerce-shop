@@ -12,15 +12,13 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     incrementQuantity: (state) => {
-      state.quantity += 1;
+      state.quantity = state.products.length;
     },
     decreaseQuantity: (state) => {
-      if (state.quantity > 0) {
-        state.quantity -= 1;
-      }
+      state.quantity = state.products.length;
     },
     deleteQuantity: (state, action: PayloadAction<number>) => {
-      state.quantity = Math.max(state.quantity - action.payload, 0);
+      state.quantity = state.products.length;
     },
     addProductToCart: (state, action: PayloadAction<any>) => {
       const product = action.payload;
@@ -29,7 +27,7 @@ const cartSlice = createSlice({
         state.products = [];
       }
 
-      const existingProduct = state.products.find((p) => p._id === product._id);
+      const existingProduct = state.products.find((p:any) => p._id === product._id);
       const productPrice = product.price.discount || product.price.original;
 
       if (existingProduct) {
@@ -43,7 +41,7 @@ const cartSlice = createSlice({
         });
       }
 
-      state.quantity += product.quantityAddToCart;
+      state.quantity = state.products.length;
       state.totalPrice += productPrice * product.quantityAddToCart;
     },
     updateQuantity: (
@@ -51,43 +49,39 @@ const cartSlice = createSlice({
       action: PayloadAction<{ id: string; quantity: number }>
     ) => {
       const { id, quantity } = action.payload;
-      const product = state.products.find((item) => item._id === id);
+      const product = state.products.find((item:any) => item._id === id);
       if (product) {
         const productPrice = product.price.discount || product.price.original;
-        const quantityDifference = quantity - product.quantityAddToCart;
+        const oldQuantity = product.quantityAddToCart;
 
         product.quantityAddToCart = quantity;
         product.productTotalPrice = quantity * productPrice;
 
-        state.quantity += quantityDifference;
-        state.totalPrice += quantityDifference * productPrice;
+        state.totalPrice += (quantity - oldQuantity) * productPrice;
       }
     },
     updateTotalPrice: (state) => {
       state.totalPrice = state.products.reduce(
-        (total, item) =>
+        (total:any, item:any) =>
           item.price.discount
             ? total + item.price.discount * item.quantityAddToCart
             : total + item.price.original * item.quantityAddToCart,
         0
       );
-      state.quantity = state.products.reduce(
-        (total, item) => total + item.quantityAddToCart,
-        0
-      );
+      state.quantity = state.products.length;
     },
     removeProduct: (state, action: PayloadAction<{ id: string }>) => {
       const productId = action.payload.id;
       const productToRemove = state.products.find(
-        (item) => item._id === productId
+        (item:any) => item._id === productId
       );
 
       if (productToRemove) {
         state.totalPrice -= productToRemove.productTotalPrice;
-        state.quantity -= productToRemove.quantityAddToCart;
         state.products = state.products.filter(
-          (item) => item._id !== productId
+          (item:any) => item._id !== productId
         );
+        state.quantity = state.products.length;
       }
     },
     clearCart: (state) => {

@@ -43,7 +43,7 @@ function PageHome() {
         />
       </div>
       <BannerIntroduce
-        imageUrl="https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Mac_hang_ngay_-_Homepage_-_Desktop.jpg"
+        imageUrl="/banner/Homepage_01.webp"
         title="MẶC HẰNG NGÀY"
         desc="Giá tốt nhất - Mua 3 giảm thêm 10% - Quà tặng sinh nhật"
         textBtn="KHÁM PHÁ NGAY"
@@ -60,7 +60,7 @@ function PageHome() {
         />
       </div>
       <BannerIntroduce
-        imageUrl="https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/Do_chay_bo_-_Homepage_-_Desktop.jpg"
+        imageUrl="/banner/Homepage_02.webp"
         title="CHƯƠNG TRÌNH SALE "
         desc="Giá tốt nhất - Mua 3 giảm thêm 10% - Quà tặng sinh nhật"
         textBtn="KHÁM PHÁ NGAY"
@@ -78,7 +78,7 @@ function PageHome() {
       </div>
       <div className="container">
         <BannerIntroduceNor
-          imageUrl="https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/March2025/mceclip33.png"
+          imageUrl="/banner/donate.webp"
           linkUrl="/category/sale"
           altText="Operation Smile - Góp phần mang lại cuộc sống tươi đẹp hơn cho tuị nhỏ"
           priority={true}

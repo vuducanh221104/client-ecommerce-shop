@@ -40,7 +40,6 @@ function Header() {
   const loginMenuRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-
   // Get user data from Redux store with proper typing
   const currentUser = useSelector<RootState, User | null>(
     (state) => state.auth.login.currentUser
@@ -48,7 +47,9 @@ function Header() {
 
   // Get cart data from Redux store
   const cartQuantity = useSelector<RootState, number>(
-    (state) => state.cart.quantity
+    (state) => {
+      return state.cart.products.length
+    }
   );
 
   const cartProducts = useSelector<RootState, any[]>(
@@ -176,7 +177,7 @@ function Header() {
               >
                 <div className={cx("menu-toggle__search")}>
                   <Image
-                    src="https://www.coolmate.me/images/header/icon-search-new-v2.svg?v=12"
+                    src="/svg/icon-search-new-v2.svg"
                     alt="Icon Search"
                     width={24}
                     height={24}
@@ -329,7 +330,7 @@ function Header() {
               >
                 {!isLoggedIn ? (
                   <Image
-                    src="https://www.coolmate.me/images/header/icon-account-new-v2.svg"
+                    src="/svg/icon-account-new-v2.svg"
                     alt="user account"
                     width={24}
                     height={24}
@@ -353,7 +354,7 @@ function Header() {
             <div className={cx("header-actions__button", "cart")}>
               <Link href="/cart" className="tw-absolute">
                 <Image
-                  src="https://www.coolmate.me/images/header/icon-cart-new-v2.svg?v=1"
+                  src="/svg/icon-cart-new-v2.svg"
                   alt="cart"
                   width={24}
                   height={24}

@@ -55,7 +55,7 @@ const getDefaultEChart = (
         categories: categories,
         labels: {
           show: true,
-          align: "right",
+          align: "right" as const,
           minWidth: 0,
           maxWidth: 160,
           style: {
@@ -77,7 +77,7 @@ const getDefaultEChart = (
       yaxis: {
         labels: {
           show: true,
-          align: "right",
+          align: "right" as const,
           minWidth: 0,
           maxWidth: 160,
           style: {

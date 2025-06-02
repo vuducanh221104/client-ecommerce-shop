@@ -54,7 +54,7 @@ function IsLoginMenu({ onLogout }: IsLoginMenuProps) {
           <img
             src={
               userData?.avatar ||
-              "https://mcdn.coolmate.me/image/October2023/mceclip3_72.png"
+              "/svg/islogin-icon.png"
             }
             alt="User Avatar"
             className={cx("user-avatar")}
