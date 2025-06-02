@@ -20,7 +20,7 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { removeProduct } from "@/redux/cartSlice";
-import { removeCartItem } from "@/services/cartServices";
+import { removeCartItem } from "@/services/CartServices";
 import { toast } from "react-hot-toast";
 import httpRequest from "@/utils/httpRequest";
 

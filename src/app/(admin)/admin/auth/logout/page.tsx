@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import config from "@/config";
-import { authAdminLogout } from "@/services/adminAuthServices";
+import { authAdminLogout } from "@/services/AdminAuthServices";
 import { Dispatch } from "redux";
 function Logout() {
   const router = useRouter();

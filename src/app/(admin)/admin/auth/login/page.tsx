@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import AuthSpinLoading from "@/components/AuthSpinLoading";
 import config from "@/config";
 
-import { authAdminLogin } from "@/services/adminAuthServices";
+import { authAdminLogin } from "@/services/AdminAuthServices";
 import { AdminLoginFormValues, ApiError } from "@/types/client";
 import { Dispatch } from "redux";
 

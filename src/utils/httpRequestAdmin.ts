@@ -14,7 +14,7 @@ import {
 import {
   authAdminRefreshToken,
   authAdminLogout,
-} from "@/services/adminAuthServices";
+} from "@/services/AdminAuthServices";
 
 interface AdminState {
   accessToken?: string;

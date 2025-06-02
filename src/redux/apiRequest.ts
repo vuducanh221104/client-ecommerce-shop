@@ -12,7 +12,7 @@ import {
   updateUserProfile as updateUserProfileService,
   authLogin as authLoginService,
   logout as logoutService,
-} from "@/services/authServices";
+} from "@/services/AuthServices";
 // import routes from '@/config/routes';
 
 export const login = async (

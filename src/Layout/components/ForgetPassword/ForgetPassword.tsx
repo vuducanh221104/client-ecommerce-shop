@@ -100,7 +100,7 @@ function ForgetPassword({ onClose, switchToLogin }: ForgetPasswordProps) {
           {/* Cool Club Logo */}
           <Image
             src="https://mcdn.coolmate.me/image/March2024/mceclip4_81.jpg"
-            alt="Cool Club"
+            alt="Zen Club"
             width={180}
             height={29}
             className={cx("cool-club-logo")}

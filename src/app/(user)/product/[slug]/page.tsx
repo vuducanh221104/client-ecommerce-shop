@@ -16,7 +16,7 @@ import ProductDescription from "../../../../Layout/components/ProductDescription
 import ProductPreviewFabric from "../../../../Layout/components/ProductPreviewFabric";
 import Image from "next/image";
 import { productGetBySlug } from "@/services/productServices";
-import { addToCart } from "@/services/cartServices";
+import { addToCart } from "@/services/CartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useDispatch, useSelector } from "react-redux";
