@@ -1,6 +1,6 @@
 import '@ant-design/v5-patch-for-react-19';
 
-import "./gobals.scss";
+import "@/styles/AdminStyles/GolbalAdmin.scss";
 import ProviderRedux from "@/redux/ProviderRedux";
 import { Viewport } from "next/types";
 import AdminLayout from "@/Layout/AdminLayout";
@@ -8,8 +8,8 @@ export const metadata = {
   title: "Admin",
   description: "Admin Page",
   robots: {
-    index: false, // Ngăn bot lập chỉ mục
-    follow: false, // Ngăn bot theo liên kết trên trang
+    index: false, 
+    follow: false, 
   },
 };
 export const viewport: Viewport = {

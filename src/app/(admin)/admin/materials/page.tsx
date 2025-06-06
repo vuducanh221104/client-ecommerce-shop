@@ -9,12 +9,21 @@ import {
   Table,
   message,
   Popconfirm,
+  Input,
+  Row,
+  Col,
+  Modal,
+  Form,
+  Select,
+  Spin,
 } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { getAllMaterials, deleteMaterial } from "@/services/adminServices";
 import EditMaterialModal from "./EditMaterialModal";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 interface Material {
   _id: string;
@@ -39,35 +48,40 @@ const MaterialsPage = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
     null
   );
+  const [refreshLoading, setRefreshLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
-    fetchMaterials();
+    fetchData();
   }, []);
 
-  const fetchMaterials = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = (await getAllMaterials()) as MaterialsResponse;
+      const response = await getAllMaterials();
 
+      if (response?.data?.materials) {
+        setMaterials(response.data.materials);
+      }
 
-      const materialsData = response.data?.materials || [];
-
-      // Check that each material has a valid ID
-      const validMaterials = materialsData.map((material) => {
-        if (!material._id) {
-          console.error("Material missing ID:", material);
-          // Try to use id if _id is not available
-          return { ...material, _id: material.id || material._id };
-        }
-        return material;
-      });
-
-      setMaterials(validMaterials);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching materials:", error);
       message.error("Failed to load materials");
-    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
     }
   };
 
@@ -93,13 +107,18 @@ const MaterialsPage = () => {
       setDeleteLoading(materialId);
       await deleteMaterial(materialId);
       message.success("Material deleted successfully");
-      fetchMaterials();
+      fetchData();
     } catch (error) {
       console.error("Error deleting material:", error);
       message.error("Failed to delete material");
     } finally {
       setDeleteLoading(null);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    // Implement search functionality
   };
 
   const columns = [
@@ -150,33 +169,44 @@ const MaterialsPage = () => {
   return (
     <div className="admin-materials-page">
       <Card>
-        <div
-          style={{
-            marginBottom: 24,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Title level={2}>List Materials</Title>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddMaterial}
-          >
-            Add Material
-          </Button>
-        </div>
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+          <Col>
+            <Title level={2}>Quản lý chất liệu</Title>
+          </Col>
+          <Col>
+            <Space>
+              <RefreshButton 
+                onClick={handleRefresh} 
+                isLoading={refreshLoading} 
+              />
+              <Input
+                placeholder="Tìm kiếm chất liệu..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => handleSearch(e.target.value)}
+                style={{ width: 250 }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setEditModalVisible(true)}
+              >
+                Thêm chất liệu
+              </Button>
+            </Space>
+          </Col>
+        </Row>
 
         <Table
           columns={columns}
           dataSource={materials}
-          rowKey="_id"
+          rowKey="id"
           loading={loading}
           pagination={{
-            defaultPageSize: 10,
+            total: materials.length,
+            pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} items`,
+            showTotal: (total) => `Tổng ${total} chất liệu`,
           }}
         />
       </Card>
@@ -184,7 +214,7 @@ const MaterialsPage = () => {
       <EditMaterialModal
         visible={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
-        onSuccess={fetchMaterials}
+        onSuccess={fetchData}
         material={selectedMaterial}
       />
     </div>

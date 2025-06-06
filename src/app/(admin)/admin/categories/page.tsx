@@ -13,18 +13,25 @@ import {
   Popconfirm,
   Spin,
   Empty,
+  Input,
+  Modal,
+  Form,
+  Select,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   TagsOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { getAllCategories, deleteCategory } from "@/services/adminServices";
 import EditCategoryModal from "./EditCategoryModal";
 import { motion } from "framer-motion";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 interface SubCategory {
   _id: string;
@@ -48,21 +55,39 @@ const CategoriesPage = () => {
     null
   );
   const [searchText, setSearchText] = useState("");
+  const [refreshLoading, setRefreshLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       const response = await getAllCategories();
-      setCategories(response?.data?.categories || []);
+
+      if (response?.data?.categories) {
+        setCategories(response.data.categories);
+      }
+
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching categories:", error);
       message.error("Failed to load categories");
-    } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
     }
   };
 
@@ -81,7 +106,7 @@ const CategoriesPage = () => {
       setDeleteLoading(categoryId);
       await deleteCategory(categoryId);
       message.success("Category deleted successfully");
-      fetchCategories();
+      fetchData();
     } catch (error) {
       console.error("Error deleting category:", error);
       message.error("Failed to delete category");
@@ -135,18 +160,31 @@ const CategoriesPage = () => {
             </Title>
           </Col>
           <Col>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAddCategory}
-              size="large"
-              style={{
-                borderRadius: "6px",
-                boxShadow: "0 2px 4px rgba(24, 144, 255, 0.2)",
-              }}
-            >
-              Add Category
-            </Button>
+            <Space>
+              <RefreshButton 
+                onClick={handleRefresh} 
+                isLoading={refreshLoading} 
+              />
+              <Input
+                placeholder="Tìm kiếm danh mục..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 250 }}
+              />
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddCategory}
+                size="large"
+                style={{
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(24, 144, 255, 0.2)",
+                }}
+              >
+                Add Category
+              </Button>
+            </Space>
           </Col>
         </Row>
 
@@ -277,7 +315,7 @@ const CategoriesPage = () => {
       <EditCategoryModal
         visible={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
-        onSuccess={fetchCategories}
+        onSuccess={fetchData}
         category={selectedCategory}
       />
 

@@ -49,6 +49,7 @@ import { uploadCloud } from "@/services/uploadService";
 import MarkdownEditor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
 import ReactMarkdown from 'react-markdown';
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -167,6 +168,7 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [refreshLoading, setRefreshLoading] = useState(false);
 
   // Fetch data function
   const fetchData = async () => {
@@ -920,6 +922,20 @@ const ProductsPage = () => {
     }
   };
 
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
+    }
+  };
+
   // Filter products based on search text
   const filteredProducts = searchText 
     ? products.filter((product) =>
@@ -1158,8 +1174,9 @@ const ProductsPage = () => {
           </Col>
           <Col span={16}>
             <Row justify="end" gutter={16}>
-              <Col>
+            <Col>
                 <Space direction="vertical" size="small">
+                
                   <Input
                     placeholder="Search products"
                     prefix={<SearchOutlined />}
@@ -1174,6 +1191,13 @@ const ProductsPage = () => {
                   )}
                 </Space>
               </Col>
+              <Col>
+              <RefreshButton 
+                    onClick={handleRefresh} 
+                    isLoading={refreshLoading} 
+                  />
+              </Col>
+             
               <Col>
                 <Button
                   type="primary"

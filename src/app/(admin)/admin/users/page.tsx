@@ -42,6 +42,7 @@ import {
   updateUser,
   createUser,
 } from "@/services/adminServices";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -88,37 +89,71 @@ const UsersPage = () => {
   const [createForm] = Form.useForm();
   const [editLoading, setEditLoading] = useState<boolean>(false);
   const [createLoading, setCreateLoading] = useState<boolean>(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
+
   // Fetch users data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const usersData = await getAllUsers();
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllUsers();
+      console.log("API Response:", response); // Debug log
 
-        if (usersData) {
-          // Map MongoDB _id to id for proper functionality
-          const mappedUsers = usersData.users.map((user: any) => ({
-            ...user,
-            id: user._id,
-            // Ensure all needed fields exist
-            fullName: user.fullName || user.username,
-            createdAt: user.createdAt || new Date().toISOString(),
-            updatedAt: user.updatedAt || new Date().toISOString(),
-            addresses: user.addresses || [],
-          }));
-          setUsers(mappedUsers);
-        }
+      // Check the actual response structure
+      const usersData = response?.data?.users || response?.users || [];
+      console.log("Users data:", usersData); // Debug log
 
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        message.error("Failed to load users");
-        setLoading(false);
+      if (usersData && usersData.length > 0) {
+        // Map the users data to match our interface
+        const mappedUsers = usersData.map((user: any) => ({
+          id: user._id || "",
+          _id: user._id || "",
+          username: user.username || "",
+          fullName: user.fullName || user.full_name || "",
+          email: user.email || "",
+          phoneNumber: user.phoneNumber || user.phone_number || "",
+          type: user.type || "WEBSITE",
+          role: typeof user.role === 'number' ? user.role : 0,
+          gender: user.gender || "other",
+          status: typeof user.status === 'number' ? user.status : 1,
+          dateOfBirth: user.dateOfBirth || user.date_of_birth || "",
+          addresses: Array.isArray(user.addresses) ? user.addresses : [],
+          createdAt: user.createdAt || new Date().toISOString(),
+          updatedAt: user.updatedAt || new Date().toISOString(),
+        }));
+
+        console.log("Mapped users:", mappedUsers); // Debug log
+        setUsers(mappedUsers);
+      } else {
+        console.log("No users data found"); // Debug log
+        setUsers([]);
+        message.error("Không có dữ liệu người dùng");
       }
-    };
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      message.error("Không thể tải danh sách người dùng");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
+    }
+  };
 
   // Handle user deletion
   const handleDelete = async (id: string) => {
@@ -473,12 +508,16 @@ const UsersPage = () => {
           style={{ marginBottom: 16 }}
         >
           <Col>
-            <Title level={2}>Users Management</Title>
+            <Title level={2}>Quản lý người dùng</Title>
           </Col>
           <Col>
             <Space>
+              <RefreshButton 
+                onClick={handleRefresh} 
+                isLoading={refreshLoading} 
+              />
               <Input
-                placeholder="Search users"
+                placeholder="Tìm kiếm người dùng..."
                 prefix={<SearchOutlined />}
                 value={searchText}
                 onChange={(e) => handleSearch(e.target.value)}
@@ -501,9 +540,10 @@ const UsersPage = () => {
           rowKey="id"
           loading={loading}
           pagination={{
+            total: users.length,
             pageSize: 10,
             showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
+            showTotal: (total) => `Tổng ${total} người dùng`,
           }}
         />
       </Card>

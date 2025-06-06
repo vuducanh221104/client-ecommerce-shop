@@ -1,7 +1,7 @@
 "use client";
 
 import * as httpRequest from "@/utils/httpRequest";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 // Create order from cart
 export const createOrder = async (orderData: any) => {
@@ -79,24 +79,15 @@ export const getProductById = async (productId: string) => {
 // Check if user has purchased and received a product
 export const checkUserCanReview = async (productId: string): Promise<boolean> => {
   try {
-    interface ReviewResponse {
-      status: string;
-      data: {
-        data: {
-          canReview: boolean;
-        }
-      };
-      message: string;
+    interface SimpleResponse {
+      canReview: boolean;
     }
     
-    const res = await httpRequest.get<ReviewResponse>(`/api/v1/orders/can-review/${productId}`);
+    const response = await httpRequest.get<any>(`/api/v1/orders/can-review/${productId}`);
+    console.log("Review response:", response.data); // Debug log
     
-    // The server returns canReview inside the data object
-    if (res.data?.data?.canReview === true) {
-      return true;
-    }
-    
-    return false;
+    // The API returns {canReview: true} directly
+    return response.data.canReview === true;
   } catch (error) {
     console.error("Error checking if user can review:", error);
     // Return false by default if there's an error

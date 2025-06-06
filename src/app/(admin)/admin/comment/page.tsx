@@ -7,6 +7,7 @@ import styles from "./CommentAdmin.module.scss";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import * as adminServices from "@/services/adminServices";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -44,6 +45,7 @@ function CommentAdmin() {
     const [filterStatus, setFilterStatus] = useState('all');
     const [sortField, setSortField] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState('descend');
+    const [refreshLoading, setRefreshLoading] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -356,8 +358,20 @@ function CommentAdmin() {
         },
     ] as any;
 
-    return (
+    const handleRefresh = async () => {
+        try {
+            setRefreshLoading(true);
+            await fetchComments();
+            toast.success("Dữ liệu đã được làm mới");
+        } catch (error) {
+            console.error("Error refreshing data:", error);
+            toast.error("Không thể làm mới dữ liệu");
+        } finally {
+            setRefreshLoading(false);
+        }
+    };
 
+    return (
             <div className={styles.commentAdminContainer}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Quản lý bình luận</h1>
@@ -386,14 +400,20 @@ function CommentAdmin() {
                         onPressEnter={handleSearch}
                         className={styles.searchInput}
                     />
-                    <Button 
-                        type="primary" 
-                        icon={<SearchOutlined />} 
-                        onClick={handleSearch}
-                        className={styles.searchButton}
-                    >
-                        Tìm kiếm
-                    </Button>
+                    <Space>
+                        <RefreshButton 
+                            onClick={handleRefresh} 
+                            isLoading={refreshLoading} 
+                        />
+                        <Button 
+                            type="primary" 
+                            icon={<SearchOutlined />} 
+                            onClick={handleSearch}
+                            className={styles.searchButton}
+                        >
+                            Tìm kiếm
+                        </Button>
+                    </Space>
                     <Select
                         defaultValue="all"
                         className={styles.statusFilter}

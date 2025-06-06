@@ -3,7 +3,6 @@
 import * as httpRequest from "@/utils/httpRequest";
 import { AxiosError } from "axios";
 import { loginSuccess, logOutSuccess } from "@/redux/authSlice";
-import { adminGet, adminPost, adminPatch, adminDeleted } from "@/utils/httpRequestAdmin";
 export const authLogin = async (user: any, dispatch?: any): Promise<any> => {
   try {
     const res = await httpRequest.post<any>(`/api/v1/auth/login`, {

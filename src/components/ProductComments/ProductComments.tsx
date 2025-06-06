@@ -10,7 +10,7 @@ import { toast } from 'react-hot-toast';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { CommentData, getCommentStats, getProductComments, addComment } from '@/services/commentServices';
-import { checkUserCanReview } from '@/services/OrderServices';
+import { checkUserCanReview } from '@/services/orderServices';
 import Link from 'next/link';
 
 const cx = classNames.bind(styles);
@@ -96,29 +96,36 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
         setAverageRating(statsResponse.data.averageRating);
         setRatingCounts(statsResponse.data.ratingCounts);
         
-        // Check if user can review only if they haven't already reviewed
-        if (isAuthenticated && currentUser && !hasAlreadyReviewed()) {
+        // Check if user can review
+        if (isAuthenticated && currentUser) {
           try {
-            const canReviewResponse = await checkUserCanReview(productId);
-            console.log("Can review response:", canReviewResponse);
+            // Call the API to check if user can review
+            const response = await checkUserCanReview(productId);
+            console.log('API says user can review:', response);
             
-            // Only set canReview to true if user hasn't already reviewed
-            setCanReview(canReviewResponse && !hasAlreadyReviewed());
+            // Check if user has already reviewed this product
+            const userId = currentUser.id || currentUser._id;
+            const userHasReviewed = commentsResponse.data.comments.some(
+              (comment: CommentData) => comment.user_id === userId
+            );
+            console.log('User has already reviewed:', userHasReviewed);
             
-            // Show notification if user can review
-            if (canReviewResponse && !hasAlreadyReviewed()) {
+            // Force canReview to true if API says they can AND they haven't already reviewed
+            if (response === true && !userHasReviewed) {
+              console.log('Setting canReview to TRUE');
+              setCanReview(true);
+              
               toast.success('Bạn đã mua sản phẩm này và có thể đánh giá ngay bây giờ!', {
                 duration: 5000,
                 icon: '⭐'
               });
-              
-              // Force setting to true again to ensure UI updates
-              setTimeout(() => {
-                setCanReview(true);
-              }, 100);
+            } else {
+              console.log('Setting canReview to FALSE');
+              setCanReview(false);
             }
           } catch (error) {
             console.error("Error checking if user can review:", error);
+            setCanReview(false);
           }
         }
       } catch (error) {
@@ -131,11 +138,6 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
 
     fetchData();
   }, [productId, currentPage, isAuthenticated, currentUser]);
-
-  // Debug logs for canReview state changes
-  useEffect(() => {
-    console.log("canReview state changed:", canReview);
-  }, [canReview]);
 
   // Scroll to comment form when canReview becomes true
   useEffect(() => {
@@ -161,10 +163,6 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Submit attempted. canReview:", canReview);
-    console.log("Authentication status:", isAuthenticated);
-    console.log("Already reviewed:", hasAlreadyReviewed());
-    
     if (!isAuthenticated) {
       toast.error('Vui lòng đăng nhập để đánh giá sản phẩm');
       return;
@@ -174,9 +172,6 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
       toast.error('Bạn đã đánh giá sản phẩm này rồi');
       return;
     }
-    
-    // Remove the canReview check to allow submission if the API says user can review
-    // This fixes the issue where canReview is true from API but UI doesn't submit
     
     if (selectedRating === 0) {
       toast.error('Vui lòng chọn số sao đánh giá');
@@ -342,13 +337,8 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
               </button>
             </p>
           </div>
-        ) : !canReview ? (
-          <div className={cx('cannot-review-message')}>
-            <FaRegComment className={cx('message-icon')} />
-            <p>Bạn chỉ có thể đánh giá sản phẩm khi đã mua và nhận hàng thành công</p>
-          </div>
-        ) : (
-          /* Only show the form when user can review */
+        ) : canReview ? (
+          /* Show the form when user can review */
           <form onSubmit={handleSubmitComment} className={cx('comment-form')}>
             <div className={cx('rating-selection')}>
               <span className={cx('rating-label')}>Xếp hạng của bạn:</span>
@@ -393,6 +383,11 @@ const ProductComments: React.FC<ProductCommentsProps> = ({ productId }) => {
               )}
             </div>
           </form>
+        ) : (
+          <div className={cx('cannot-review-message')}>
+            <FaRegComment className={cx('message-icon')} />
+            <p>Bạn chỉ có thể đánh giá sản phẩm khi đã mua và nhận hàng thành công</p>
+          </div>
         )}
       </div>
       

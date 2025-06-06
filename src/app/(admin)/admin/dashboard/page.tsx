@@ -9,6 +9,8 @@ import dynamic from "next/dynamic";
 import { notFound, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getDashboardStats } from "@/services/adminServices";
+import { message } from "antd";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const EChart = dynamic(() => import("@/Layout/chart/EChart"), { ssr: false });
 const LineChart = dynamic(() => import("@/Layout/chart/LineChart"), {
@@ -54,82 +56,96 @@ function Dashboard() {
       ],
     },
   });
+  const [refreshLoading, setRefreshLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await getDashboardStats();
-        const data = response.data;
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await getDashboardStats();
+      const data = response.data;
 
-        if (data) {
-          // Set basic stats
-          setStats({
-            sales: {
-              value: data.totalSales || "0",
-              percent: data.salesGrowth || "0%",
+      if (data) {
+        // Set basic stats
+        setStats({
+          sales: {
+            value: data.totalSales || "0",
+            percent: data.salesGrowth || "0%",
+          },
+          customers: {
+            value: data.totalCustomers || "0",
+            percent: data.customerGrowth || "0%",
+          },
+          products: {
+            value: data.totalProducts || "0",
+            percent: data.productGrowth || "0%",
+          },
+          orders: {
+            value: data.recentOrders || "0",
+            percent: data.orderGrowth || "0%",
+          },
+        });
+
+        // Set chart data
+        if (data.chartData) {
+          setChartData({
+            monthlySales: {
+              data: data.chartData.monthlySales?.data || [
+                0, 0, 0, 0, 0, 0, 0, 0, 0,
+              ],
+              categories: data.chartData.monthlySales?.categories || [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+              ],
             },
-            customers: {
-              value: data.totalCustomers || "0",
-              percent: data.customerGrowth || "0%",
-            },
-            products: {
-              value: data.totalProducts || "0",
-              percent: data.productGrowth || "0%",
-            },
-            orders: {
-              value: data.recentOrders || "0",
-              percent: data.orderGrowth || "0%",
+            monthlyUsers: {
+              data: data.chartData.monthlyUsers?.data || [
+                0, 0, 0, 0, 0, 0, 0, 0, 0,
+              ],
+              categories: data.chartData.monthlyUsers?.categories || [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+              ],
             },
           });
-
-          // Set chart data
-          if (data.chartData) {
-            setChartData({
-              monthlySales: {
-                data: data.chartData.monthlySales?.data || [
-                  0, 0, 0, 0, 0, 0, 0, 0, 0,
-                ],
-                categories: data.chartData.monthlySales?.categories || [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                ],
-              },
-              monthlyUsers: {
-                data: data.chartData.monthlyUsers?.data || [
-                  0, 0, 0, 0, 0, 0, 0, 0, 0,
-                ],
-                categories: data.chartData.monthlyUsers?.categories || [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                ],
-              },
-            });
-          }
         }
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching dashboard stats:", error);
-        setLoading(false);
       }
-    };
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+      setLoading(false);
+    }
+  };
 
-    fetchStats();
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
+    }
+  };
 
   if (pathname !== "/admin/dashboard") {
     notFound();

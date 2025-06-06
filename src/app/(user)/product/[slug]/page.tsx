@@ -1,13 +1,10 @@
 "use client";
-import React, { useEffect, useState, use } from "react";
-import { FiHeart, FiShoppingCart } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
+import {  FiShoppingCart } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FiMinus, FiPlus } from "react-icons/fi";
 import Link from "next/link";
 import { BiShare } from "react-icons/bi";
-import { IoIosInformationCircleOutline } from "react-icons/io";
-import { TbTruckDelivery } from "react-icons/tb";
 import { toast } from "react-hot-toast";
 
 import styles from "@/styles/ProductDetail.module.scss";
@@ -16,12 +13,11 @@ import ProductDescription from "../../../../Layout/components/ProductDescription
 import ProductPreviewFabric from "../../../../Layout/components/ProductPreviewFabric";
 import Image from "next/image";
 import { productGetBySlug } from "@/services/productServices";
-import { addToCart } from "@/services/CartServices";
+import { addToCart } from "@/services/cartServices";
 import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addProductToCart } from "@/redux/cartSlice";
-import { RootState } from "@/redux/store";
 import ProductComments from "@/components/ProductComments/ProductComments";
 
 const cx = classNames.bind(styles);
@@ -153,7 +149,7 @@ function PageProductDetail({}) {
       if (variant) {
         setSelectedVariant(variant);
         setProductImages(variant.images || []);
-        setCurrentImageIndex(0); // Reset to first image when color changes
+        setCurrentImageIndex(0); 
       }
     }
   }, [activeColor, product]);
@@ -168,7 +164,6 @@ function PageProductDetail({}) {
       setCurrentStock(stock);
       setOutOfStock(stock <= 0);
 
-      // If current quantity is more than available stock, adjust it
       if (stock > 0 && typeof quantity === "number" && quantity > stock) {
         setQuantity(stock);
       }
@@ -179,8 +174,8 @@ function PageProductDetail({}) {
     setQuantity((prev) => {
       const currentValue =
         typeof prev === "string" ? parseInt(prev) || 1 : prev;
-      // Don't allow increasing beyond available stock
-      if (currentStock > 0 && currentValue >= currentStock) {
+
+        if (currentStock > 0 && currentValue >= currentStock) {
         return currentStock;
       }
       return currentValue + 1;
@@ -202,7 +197,6 @@ function PageProductDetail({}) {
     } else {
       const numValue = parseInt(value);
       if (!isNaN(numValue) && numValue > 0) {
-        // Cap the quantity at the available stock
         if (currentStock > 0 && numValue > currentStock) {
           setQuantity(currentStock);
         } else {
@@ -228,19 +222,15 @@ function PageProductDetail({}) {
     if (newVariant) {
       setSelectedVariant(newVariant);
 
-      // Verificar si el tamaño seleccionado está disponible en el nuevo color
       const sizeExists = newVariant.sizes.some((s) => s.size === activeSize);
 
-      // Si el tamaño no existe en el nuevo color, seleccionar el primer tamaño disponible
       if (!sizeExists && newVariant.sizes.length > 0) {
         setActiveSize(newVariant.sizes[0].size);
 
-        // Actualizar información de stock para el primer tamaño
         const firstSizeStock = newVariant.sizes[0].stock || 0;
         setCurrentStock(firstSizeStock);
         setOutOfStock(firstSizeStock <= 0);
       }
-      // Si el tamaño existe, actualizar su información de stock
       else if (sizeExists) {
         const sizeInfo = newVariant.sizes.find((s) => s.size === activeSize);
         const stock = sizeInfo?.stock || 0;
@@ -253,7 +243,6 @@ function PageProductDetail({}) {
   const calculateDiscount = () => {
     if (!product || !product?.price) return 0;
 
-    // Ưu tiên sử dụng giá từ các trường chuẩn trong interface
     const originalPrice =
       product?.price?.originalPrice || product?.price?.original || 0;
     const currentPrice = product?.price?.price || product?.price?.discount || 0;
@@ -265,7 +254,6 @@ function PageProductDetail({}) {
     return 0;
   };
 
-  // Cập nhật lại hàm formatPrice và calculateDiscount cho phù hợp với interface
   const formatPrice = (priceValue: number | undefined): string => {
     if (priceValue === undefined || priceValue === null) return "0";
     return priceValue.toLocaleString("vi-VN");
@@ -288,7 +276,6 @@ function PageProductDetail({}) {
         return;
       }
 
-      // Verify stock before adding to cart
       if (outOfStock || currentStock <= 0) {
         toast.error("Sản phẩm đã hết hàng");
         return;
@@ -307,7 +294,6 @@ function PageProductDetail({}) {
       // Call API to add to cart
       await addToCart(cartData);
 
-      // Create product object for Redux
       const productForRedux = {
         _id: product.id,
         name: product.name,
@@ -327,9 +313,6 @@ function PageProductDetail({}) {
 
       toast.success("Thêm vào giỏ hàng thành công!");
     } catch (error) {
-      // console.error("Error adding to cart:", error);
-      // Lỗi sẽ được xử lý bởi CartServices nếu là lỗi xác thực
-      // Chỉ hiển thị thông báo lỗi chung nếu không phải lỗi xác thực
       if (!(error instanceof Error && error.message === "Chưa đăng nhập")) {
         toast.error("Có lỗi xảy ra khi thêm vào giỏ hàng");
       }

@@ -16,7 +16,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  ExclamationCircleOutlined,
   HomeOutlined,
   EnvironmentOutlined,
   CheckCircleOutlined,
@@ -31,7 +30,7 @@ import {
   updateUserAddress,
   deleteUserAddress,
   setDefaultAddress,
-} from "@/services/AuthServices";
+} from "@/services/authServices";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -56,7 +55,6 @@ export default function AddressPage() {
     (state: RootState) => state.auth.login.currentUser
   );
 
-  // Fetch addresses when component mounts
   useEffect(() => {
     if (!currentUser) {
       router.push("/");
@@ -98,7 +96,6 @@ export default function AddressPage() {
       isDefault: address.isDefault,
     });
 
-    // Update districts and wards based on the selected province
     handleProvinceChange(address.city);
     handleDistrictChange(address.district);
 
@@ -117,14 +114,11 @@ export default function AddressPage() {
 
     try {
       setDeletingAddress(true);
-      // Use AuthServices function instead of direct API call
       await deleteUserAddress(addressToDelete);
 
-      // Show success message and refresh addresses
       message.success("Đã xóa địa chỉ thành công");
       await fetchAddresses();
 
-      // Close modal and reset state
       setDeleteModalVisible(false);
       setAddressToDelete(null);
     } catch (error) {
@@ -155,16 +149,13 @@ export default function AddressPage() {
   const handleSubmit = async (values: any) => {
     try {
       if (editingAddress && editingAddress._id) {
-        // Use AuthServices function instead of direct API call
         await updateUserAddress(editingAddress._id, values);
         message.success("Cập nhật địa chỉ thành công");
       } else {
-        // Add new address
         await addUserAddress(values);
         message.success("Thêm địa chỉ mới thành công");
       }
 
-      // Refresh address list
       await fetchAddresses();
       setModalVisible(false);
     } catch (error) {

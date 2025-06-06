@@ -9,9 +9,9 @@ import {
   updateCartItem,
   removeCartItem,
   clearCart,
-} from "@/services/CartServices";
+} from "@/services/cartServices";
 import { toast } from "react-hot-toast";
-import { getCurrentUser } from "@/services/AuthServices";
+import { getCurrentUser } from "@/services/authServices";
 import { useRouter } from "next/navigation";
 // Import pc-vn library for location data
 import pcVN, { Province, District, Ward } from "pc-vn";
@@ -19,7 +19,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import config from "@/config";
 import { removeProduct, clearCart as clearCartRedux } from "@/redux/cartSlice";
-import PaymentServices from "@/services/PaymentServices";
+import PaymentServices from "@/services/paymentServices";
 
 const cx = classNames.bind(styles);
 

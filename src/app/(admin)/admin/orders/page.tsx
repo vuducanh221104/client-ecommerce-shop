@@ -37,6 +37,7 @@ import {
   deleteOrder,
 } from "@/services/adminServices";
 import * as httpRequest from "@/utils/httpRequest";
+import RefreshButton from "@/components/admin/RefreshButton";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -97,28 +98,43 @@ const OrdersPage = () => {
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [editForm] = Form.useForm();
   const [editLoading, setEditLoading] = useState<boolean>(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
 
   // Fetch orders data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await getAllOrders();
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllOrders();
 
-        if (response?.data?.orders) {
-          setOrders(response.data.orders);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-        message.error("Failed to load orders");
-        setLoading(false);
+      if (response?.data?.orders) {
+        setOrders(response.data.orders);
       }
-    };
 
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      message.error("Failed to load orders");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  // Handle refresh button click
+  const handleRefresh = async () => {
+    try {
+      setRefreshLoading(true);
+      await fetchData();
+      message.success("Dữ liệu đã được làm mới");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      message.error("Không thể làm mới dữ liệu");
+    } finally {
+      setRefreshLoading(false);
+    }
+  };
 
   // Handle order deletion
   const handleDelete = async (id: string) => {
@@ -410,22 +426,24 @@ const OrdersPage = () => {
   return (
     <div className="admin-orders-page">
       <Card>
-        <Row
-          justify="space-between"
-          align="middle"
-          style={{ marginBottom: 16 }}
-        >
+        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
-            <Title level={2}>Orders Management</Title>
+            <Title level={2}>Quản lý đơn hàng</Title>
           </Col>
           <Col>
-            <Input
-              placeholder="Search by customer email or name"
-              prefix={<SearchOutlined />}
-              value={searchText}
-              onChange={(e) => handleSearch(e.target.value)}
-              style={{ width: 300 }}
-            />
+            <Space>
+              <RefreshButton 
+                onClick={handleRefresh} 
+                isLoading={refreshLoading} 
+              />
+              <Input
+                placeholder="Tìm kiếm đơn hàng..."
+                prefix={<SearchOutlined />}
+                value={searchText}
+                onChange={(e) => handleSearch(e.target.value)}
+                style={{ width: 250 }}
+              />
+            </Space>
           </Col>
         </Row>
 
@@ -435,9 +453,10 @@ const OrdersPage = () => {
           rowKey="id"
           loading={loading}
           pagination={{
+            total: orders.length,
             pageSize: 10,
             showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50"],
+            showTotal: (total) => `Tổng ${total} đơn hàng`,
           }}
         />
       </Card>

@@ -1,8 +1,6 @@
 "use client";
-import * as httpRequest from "@/utils/httpRequest";
 import * as httpRequestAdmin from "@/utils/httpRequestAdmin";
 import { AxiosError } from "axios";
-import useSWR from "swr";
 
 export const authAdminLogin = async (
   user: any

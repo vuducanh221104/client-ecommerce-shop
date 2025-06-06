@@ -12,15 +12,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useRouter } from "next/navigation";
 import { logout } from "@/redux/apiRequest";
-import {
-  UserOutlined,
-  ShoppingOutlined,
-  EnvironmentOutlined,
-  LockOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
+
 import { removeProduct } from "@/redux/cartSlice";
-import { removeCartItem } from "@/services/CartServices";
+import { removeCartItem } from "@/services/cartServices";
 import { toast } from "react-hot-toast";
 import httpRequest from "@/utils/httpRequest";
 
@@ -459,7 +453,7 @@ function Header() {
                     ) : (
                       <div className={cx("empty-cart")}>
                         <Image 
-                          src="/images/empty-cart.svg" 
+                          src="/svg/empty-cart.png" 
                           alt="Empty cart" 
                           width={80} 
                           height={80}
